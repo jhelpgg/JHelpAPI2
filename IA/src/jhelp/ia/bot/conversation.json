@@ -1,0 +1,60 @@
+{
+  "INPUT":
+  {
+    "CHOICE":
+    [
+      "bonjour",
+      "salut",
+      "hi",
+      "yo"
+    ],
+    "CONCEPT":"GREETINGS"
+  },
+  "OUTPUT":
+  {
+    "CONCEPT":"GREETINGS",
+    "ANSWERS":
+    [
+      "bonjour",
+      "salut",
+      "hi",
+      "yo"
+    ]
+  },
+  "INPUT":
+  {
+    "CHOICE":
+    [
+      "Comment vas tu ?",
+      "Comment allez-vous ?",
+      "Ca va ?"
+    ],
+    "CONCEPT":"HOW_DO_YOU_DO"
+  },
+  "OUTPUT":
+  {
+    "CONCEPT":"HOW_DO_YOU_DO",
+    "SWITCH":
+    {
+      "WHAT":"MOOD",
+      "CASES":
+      {
+        "GOOD":
+        [
+          "Je vais bien. Merci :)",
+          "Ca va impec !",
+          "Tout est cool !"
+        ],
+        "SAD":
+        [
+          "Je me sens déprimée aujourdh'ui",
+          "Ca va ... mal"
+        ],
+        "":
+        [
+          "Pas trop mal"
+        ]
+      }
+    }
+  }
+}

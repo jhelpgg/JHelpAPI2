@@ -1,0 +1,2 @@
+parse(InputStream inputStream)
+inputStream -> bufferedReader ->

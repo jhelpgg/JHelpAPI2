@@ -1,0 +1,386 @@
+package jhelp.util.math;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import jhelp.util.debug.Debug;
+import jhelp.util.reflection.Reflection;
+import jhelp.util.text.UtilText;
+
+/**
+ * Able to choice an object randomly.<br>
+ * The chance to have an object can be different than to have an other one.<br>
+ * For example if <font color="#008800">"A"</font> have 50% chance, <font color="#008800">"B"</font> 25%,
+ * <font color="#008800">"C"</font> 12%, <font color="#008800">"D"</font> 6%,<font color="#008800">"E"</font> 3%,
+ * <font color="#008800">"F"</font> 2%, <font color="#008800">"G"</font> 1% and <font color="#008800">"H"</font> 1% :<br>
+ * <code lang="java"><!--
+ * JHelpRandom<String> random = new JHelpRandom<String>();
+ * random.addChoice(50, "A");
+ * random.addChoice(25, "B");
+ * random.addChoice(12, "C");
+ * random.addChoice(6,  "D");
+ * random.addChoice(3,  "E");
+ * random.addChoice(2,  "F");
+ * random.addChoice(1,  "G");
+ * random.addChoice(1,  "H");
+ * --></code> After each time you do<br>
+ * <code lang="java"><!--
+ * String choice = random.choose();
+ * --></code> Choice have 50% chance to be <font color="#008800">"A"</font>,<br>
+ * 25% chance to be <font color="#008800">"B"</font>, <br>
+ * 12% chance to be <font color="#008800">"C"</font>, <br>
+ * 6% chance to be <font color="#008800">"D"</font>, <br>
+ * 3% chance to be <font color="#008800">"E"</font>, <br>
+ * 2% chance to be <font color="#008800">"F"</font>, <br>
+ * 1% chance to be <font color="#008800">"G"</font> and <br>
+ * 1% chance to be <font color="#008800">"H"</font><br>
+ * <br>
+ * You can also see things like this, you have a set of element compose of 55 <font color="#008800">"P"</font> and 87
+ * <font color="#008800">"R"</font> :<br>
+ * <code lang="java"><!--
+ * JHelpRandom<String> random = new JHelpRandom<String>();
+ * random.addChoice(55, "P");
+ * random.addChoice(87, "R");
+ * --></code> After each time you do<br>
+ * <code lang="java"><!--
+ * String choice = random.choose();
+ * --></code> Choice have 55 chance of 142 to be <font color="#008800">"P"</font> and 87 chance of 142 to be
+ * <font color="#008800">"R"</font>
+ *
+ * @param <CHOICE> Choice type
+ * @author JHelp
+ */
+public final class JHelpRandom<CHOICE>
+{
+    /**
+     * Random instance to use on static methods to avoid any influence of other "random"
+     */
+    private static final Random RANDOM = new Random();
+    /**
+     * Registered limits
+     */
+    private final ArrayList<Limit<CHOICE>> limits;
+    /**
+     * Random instance to use, link to this instance
+     */
+    private final Random                   random;
+    /**
+     * Actual maximum
+     */
+    private       int                      maximum;
+
+    /**
+     * Create a new instance of JHelpRandom
+     */
+    public JHelpRandom()
+    {
+        this.random = new Random();
+        this.limits = new ArrayList<Limit<CHOICE>>();
+        this.maximum = 0;
+    }
+
+    /**
+     * Take randomly a element of the array.<br>
+     * The array MUST NOT be {@code null} or empty
+     *
+     * @param array Array to get one element
+     * @return Taken element
+     */
+    public static boolean random(final boolean[] array)
+    {
+        return array[JHelpRandom.random(array.length)];
+    }
+
+    /**
+     * Give a random value between 0 (include) and given limit (exclude)
+     *
+     * @param limit Limit to respect
+     * @return Random value
+     */
+    public static int random(final int limit)
+    {
+        if (limit == 0)
+        {
+            throw new IllegalArgumentException("limit can't be 0");
+        }
+
+        return Math2.sign(limit) * JHelpRandom.RANDOM.nextInt(Math.abs(limit));
+    }
+
+    public static boolean random()
+    {
+        return JHelpRandom.RANDOM.nextBoolean();
+    }
+
+    /**
+     * Take randomly a element of the array.<br>
+     * The array MUST NOT be {@code null} or empty
+     *
+     * @param array Array to get one element
+     * @return Taken element
+     */
+    public static byte random(final byte[] array)
+    {
+        return array[JHelpRandom.random(array.length)];
+    }
+
+    /**
+     * Take randomly a element of the array.<br>
+     * The array MUST NOT be {@code null} or empty
+     *
+     * @param array Array to get one element
+     * @return Taken element
+     */
+    public static char random(final char[] array)
+    {
+        return array[JHelpRandom.random(array.length)];
+    }
+
+    /**
+     * Choose a value of an enum
+     *
+     * @param <E>  Enum to get a value
+     * @param clas Enum class
+     * @return An enum value or {@code null} if failed
+     */
+    @SuppressWarnings(
+            {
+                    "rawtypes", "unchecked"
+            })
+    public static <E extends Enum> E random(final Class<E> clas)
+    {
+        E[] array = null;
+
+        try
+        {
+            array = (E[]) Reflection.invokePublicMethod(clas, "values");
+        }
+        catch (final Exception exception)
+        {
+            Debug.exception(exception, "Failed to get values of ", clas.getName());
+
+            return null;
+        }
+
+        return JHelpRandom.random(array);
+    }
+
+    /**
+     * Return an element of an array.<br>
+     * {@code null} is return is the array is {@code null} or empty
+     *
+     * @param <T>   Type of array's element
+     * @param array Array to get one element
+     * @return Element get or {@code null} if array {@code null} or empty
+     */
+    public static <T> T random(final T[] array)
+    {
+        if ((array == null) || (array.length == 0))
+        {
+            return null;
+        }
+
+        return array[JHelpRandom.random(array.length)];
+    }
+
+    /**
+     * Take randomly a element of the array.<br>
+     * The array MUST NOT be {@code null} or empty
+     *
+     * @param array Array to get one element
+     * @return Taken element
+     */
+    public static double random(final double[] array)
+    {
+        return array[JHelpRandom.random(array.length)];
+    }
+
+    /**
+     * Take randomly a element of the array.<br>
+     * The array MUST NOT be {@code null} or empty
+     *
+     * @param array Array to get one element
+     * @return Taken element
+     */
+    public static float random(final float[] array)
+    {
+        return array[JHelpRandom.random(array.length)];
+    }
+
+    /**
+     * Give random number inside an interval, each limit are includes
+     *
+     * @param minimum Minimum value
+     * @param maximum Maximum value
+     * @return Random value
+     */
+    public static int random(final int minimum, final int maximum)
+    {
+        final int min = Math.min(minimum, maximum);
+        final int max = Math.max(minimum, maximum);
+
+        return min + JHelpRandom.random((max - min) + 1);
+    }
+
+    /**
+     * Take randomly a element of the array.<br>
+     * The array MUST NOT be {@code null} or empty
+     *
+     * @param array Array to get one element
+     * @return Taken element
+     */
+    public static int random(final int[] array)
+    {
+        return array[JHelpRandom.random(array.length)];
+    }
+
+    /**
+     * Return an element of a list.<br>
+     * {@code null} is return if the list is {@code null} or empty
+     *
+     * @param <T>  Type of list's element
+     * @param list List to get one element
+     * @return Element get or {@code null} if list {@code null} or empty
+     */
+    public static <T> T random(final List<T> list)
+    {
+        if ((list == null) || (list.size() == 0))
+        {
+            return null;
+        }
+
+        return list.get(JHelpRandom.random(list.size()));
+    }
+
+    /**
+     * Take randomly a element of the array.<br>
+     * The array MUST NOT be {@code null} or empty
+     *
+     * @param array Array to get one element
+     * @return Taken element
+     */
+    public static long random(final long[] array)
+    {
+        return array[JHelpRandom.random(array.length)];
+    }
+
+    /**
+     * Take randomly a element of the array.<br>
+     * The array MUST NOT be {@code null} or empty
+     *
+     * @param array Array to get one element
+     * @return Taken element
+     */
+    public static short random(final short[] array)
+    {
+        return array[JHelpRandom.random(array.length)];
+    }
+
+    /**
+     * Add a choice
+     *
+     * @param number Frequency of the choice (Can't be < 1)
+     * @param choice The choice
+     */
+    public void addChoice(final int number, final CHOICE choice)
+    {
+        if (number <= 0)
+        {
+            throw new IllegalArgumentException("number MUST be > 0, not " + number);
+        }
+
+        this.limits.add(new Limit<CHOICE>((this.maximum + number) - 1, choice));
+
+        this.maximum += number;
+    }
+
+    /**
+     * Choose a value randomly
+     *
+     * @return Chosen value
+     */
+    public CHOICE choose()
+    {
+        if (this.maximum == 0)
+        {
+            Debug.warning("You have to add at least something to be able have a result");
+
+            return null;
+        }
+
+        final int random = this.random.nextInt(this.maximum);
+
+        for (final Limit<CHOICE> limit : this.limits)
+        {
+            if (random <= limit.maximum)
+            {
+                return limit.element;
+            }
+        }
+
+        Debug.error("Shouldn't arrive here !!! random=", random, " maximum=", this.maximum, " limits=",
+                    this.limits);
+        return null;
+    }
+
+    /**
+     * A registered limit.<br>
+     * This is a couple of value maximum and element
+     *
+     * @param <ELEMENT> Element type
+     * @author JHelp
+     */
+    private class Limit<ELEMENT>
+    {
+        /**
+         * The element
+         */
+        final ELEMENT element;
+        /**
+         * Maximum value
+         */
+        final int     maximum;
+
+        /**
+         * Create a new instance of Limit
+         *
+         * @param maximum Maximum value
+         * @param element Element
+         */
+        public Limit(final int maximum, final ELEMENT element)
+        {
+            this.maximum = maximum;
+            this.element = element;
+        }
+
+        /**
+         * String representation <br>
+         * <br>
+         * <b>Parent documentation:</b><br>
+         * {@inheritDoc}
+         *
+         * @return String representation
+         * @see Object#toString()
+         */
+        @Override
+        public String toString()
+        {
+            return UtilText.concatenate("Limit (", this.maximum, " : ", this.element, ")");
+        }
+    }
+
+    /**
+     * String representation <br>
+     * <br>
+     * <b>Parent documentation:</b><br>
+     * {@inheritDoc}
+     *
+     * @return String representation
+     * @see Object#toString()
+     */
+    @Override
+    public String toString()
+    {
+        return UtilText.concatenate("JHelpRandom maximum=", this.maximum, " limits=", this.limits);
+    }
+}

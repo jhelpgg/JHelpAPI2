@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Observable</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+
+    <script type="text/javascript">
+            function UpdateTableHeaders() {
+                $("div.divTableWithFloatingHeader").each(function() {
+                    var originalHeaderRow = $(".tableFloatingHeaderOriginal", this);
+                    var floatingHeaderRow = $(".tableFloatingHeader", this);
+                    var offset = $(this).offset();
+                    var scrollTop = $(window).scrollTop();
+                    if ((scrollTop > offset.top) && (scrollTop < offset.top + $(this).height())) {
+                        floatingHeaderRow.css("visibility", "visible");
+                        floatingHeaderRow.css("top", Math.min(scrollTop - offset.top, $(this).height() - floatingHeaderRow.height()) + "px");
+
+                        // Copy cell widths from original header
+                        $("th", floatingHeaderRow).each(function(index) {
+                            var cellWidth = $("th", originalHeaderRow).eq(index).css('width');
+                            $(this).css('width', cellWidth);
+                        });
+
+                        // Copy row width from whole table
+                        floatingHeaderRow.css("width", $(this).css("width"));
+                    }
+                    else {
+                        floatingHeaderRow.css("visibility", "hidden");
+                        floatingHeaderRow.css("top", "0px");
+                    }
+                });
+            }
+
+            $(document).ready(function() {
+                $("table.tableWithFloatingHeader").each(function() {
+                    $(this).wrap("<div class=\"divTableWithFloatingHeader\" style=\"position:relative\"></div>");
+
+                    var originalHeaderRow = $("tr:first", this)
+                    originalHeaderRow.before(originalHeaderRow.clone());
+                    var clonedHeaderRow = $("tr:first", this)
+
+                    clonedHeaderRow.addClass("tableFloatingHeader");
+                    clonedHeaderRow.css("position", "absolute");
+                    clonedHeaderRow.css("top", "0px");
+                    clonedHeaderRow.css("left", $(this).css("margin-left"));
+                    clonedHeaderRow.css("visibility", "hidden");
+
+                    originalHeaderRow.addClass("tableFloatingHeaderOriginal");
+                });
+                UpdateTableHeaders();
+                $(window).scroll(UpdateTableHeaders);
+                $(window).resize(UpdateTableHeaders);
+            });
+    
+    </script>
+    <style>
+            h1
+            {
+                padding: 16px;
+                text-align: center;
+            }
+
+            b
+            {
+                 font-size: 125%;
+            }
+    
+    </style>
+    <script src="../../../scripts/Autocoloration.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../../scripts/colors.css"/>
+    <link rel="stylesheet" type="text/css" href="../../../scripts/buttons.css"/>
+    <link rel="stylesheet" type="text/css" href="../../../scripts/tables.css"/>
+</head>
+<body onLoad="javascript:launchParser()">
+<h1>Explanation about <b class="redColor">Observable</b></h1>
+<h2>Introduction</h2>
+An observable is a data that alerts all its observers each time its value changed.<br>
+It is possible to launch task when observable match some condition.<br>
+Match condition can be simple one or combination of several conditions.
+
+<h2>Basic usage</h2>
+<b>jhelp.util.data.Observable</b> represents an observable value.<br>
+By default, all values are accepted from any one, if need to filter some values (or check some condition),
+have to extends the class and override the method:
+<code lang="java">protected boolean valueIsValid(@NotNull T value)</code>
+<br>
+<b>jhelp.util.data.Observer</b> represents an observer.<br>
+It will be alert on any changes of observables it was registered to.<br>
+<br>
+<h3 class="green">Simple usage</h3>
+Creation of class that contains the observable.
+<code lang="java">
+package samples.jhelp.util.data;
+
+import com.sun.istack.internal.NotNull;
+import jhelp.util.data.Observable;
+import jhelp.util.thread.VoidTask;
+import jhelp.util.util.Utilities;
+
+/**
+* Task that simulate a progress
+*/
+public class SimulateProgressTask implements VoidTask&lt;Integer&gt;
+{
+    /**
+     * Observable progress
+     */
+    private final Observable&lt;Integer&gt; progress;
+    
+    /**
+     * Create the simulation
+     */
+    public SimulateProgressTask()
+    {
+        this.progress = new Observable<>(0);
+    }
+    
+    /**
+     * Observable for follow the progress
+     *
+     * @return Observable for follow the progress
+     */
+    public @NotNull Observable&lt;Integer&gt; progress()
+    {
+        return this.progress;
+    }
+
+    /**
+     * Play the task
+     *
+     * @param parameter Number progress steps
+     */
+    @Override
+    public void task(@NotNull final Integer parameter)
+    {
+        this.progress.value(0);
+
+        for (int i = 0; i < parameter; i++)
+        {
+            Utilities.sleep(100);
+            this.progress.value((i * 100) / parameter);
+        }
+
+        Utilities.sleep(100);
+        this.progress.value(100);
+    }
+}
+</code>
+Then we can register to the observable to follow the progress, by example:
+<code lang="java">
+package samples.jhelp.util.data;
+
+import jhelp.util.data.Observable;
+import jhelp.util.data.Observer;
+import jhelp.util.debug.Debug;
+import jhelp.util.thread.ThreadManager;
+
+public class MainSimpleObservable implements Observer&lt;Integer&gt;
+{
+    public static void main(String[] arguments)
+    {
+        //Create the observer
+        MainSimpleObservable mainSimpleObservable = new MainSimpleObservable();
+        //Create the simulation task
+        SimulateProgressTask waitingTask = new SimulateProgressTask();
+        //Register the observer
+        waitingTask.progress().startObserve(mainSimpleObservable);
+        //Launch the task with 42 steps
+        ThreadManager.parallel(waitingTask, 42);
+    }
+
+    /**
+    * Called each time watched observable change.<br>
+    * It is also called when register to {@link Observable} via {@link Observable#startObserve(Observer)} to do something with initial value
+    *
+    * @param observable {@link Observable} that value changed
+    * @param newValue   New value give
+    */
+    @Override
+    public void valueChanged(final Observable&lt;Integer&gt; observable, final Integer newValue)
+    {
+        Debug.verbose("Progress=", newValue);
+    }
+}
+</code>
+<br>
+<h2>Calling task</h2>
+A task can be trigger when an observable value full fill a condition. 
+In other words, when the value change and full fill the condition ,the task will be called.<br>
+The task can be call one or several times depends the method called for associate task to condition.<br>
+In <b>jhelp.util.data.Observable</b> the 3 methods dedicated to that are:
+<table>
+    <tr><td><code lang="java">public final Observable&lt;T&gt; when(
+        @NotNull Condition&lt;T&gt; condition, 
+        @NotNull VoidTask&lt;T&gt; task)</code>
+        Play the <b class="redColor">task</b> one time.
+        If the observable already full fill the <b class="redColor">condition</b>, the <b class="redColor">task</b> is immediately launched.<br>
+        The <b class="redColor">task</b> parameter is the value of observable that match the <b class="redColor">condition</b>.
+    </td></tr>
+    <tr><td><code lang="java">public final &lt;R&gt; Observable&lt;T&gt; when(
+        @NotNull Condition&lt;T&gt; condition,
+        @NotNull Task&lt;T, R&gt; task,
+        int id,
+        @Nullable Combiner&lt;R, Integer, Boolean&gt; repeat)</code>
+        Play the <b class="redColor">task</b> one or several times.
+        If the observable already full fill the <b class="redColor">condition</b>, the <b class="redColor">task</b> is immediately launched.<br>
+        The <b class="redColor">task</b> parameter is the value of observable that match the <b class="redColor">condition</b>.<br>
+        The <b class="redColor">task</b> return value is given to the <b class="redColor">repeat</b> function.<br>
+        The <b class="redColor">id</b> parameter is the task id given to the <b class="redColor">repeat</b> function.<br>
+        The <b class="redColor">repeat</b> parameter decides with the <b class="redColor">task</b> result and its
+        <b class="redColor">id</b> if have to call again the task next time the <b class="redColor">condition</b> full fill.
+    </td></tr>
+    <tr><td><code lang="java">public final Observable&lt;T&gt; eachTime(
+        @NotNull Condition&lt;T&gt; condition,
+        @NotNull VoidTask&lt;T&gt; task)</code>
+        Play the <b class="redColor">task</b> each time the <b class="redColor">condition</b> full fill.<br>
+        If the observable already full fill the <b class="redColor">condition</b>, the <b class="redColor">task</b> is immediately launched.<br>
+        The <b class="redColor">task</b> parameter is the value of observable that match the <b class="redColor">condition</b>.
+    </td></tr>
+</table>
+<br>
+<h3 class="green">Example usage</h3>
+In this example, we use the class <b>SimulateProgressTask</b> defined in previous example.
+<code lang="java">
+package samples.jhelp.util.data;
+
+import jhelp.util.debug.Debug;
+import jhelp.util.thread.ThreadManager;
+
+public class MainCallingTask
+{
+    public static void main(String[] arguments)
+    {
+        //Create the simulation task
+        SimulateProgressTask waitingTask = new SimulateProgressTask();
+        //Link observable to tasks
+        waitingTask.progress()
+                   .when(value -> value == 0,
+                         parameter -> Debug.verbose("Progress started"))
+                   .eachTime(value -> value >= 25 && value <= 75,
+                             parameter -> Debug.verbose(parameter, " inside [25, 75]"))
+                   .when(value -> value == 100,
+                         parameter -> Debug.verbose("Progress finished"));
+        //Launch the task with 73 steps
+        ThreadManager.parallel(waitingTask, 73);
+    }
+}
+</code>
+<b class="violet">Note:</b> You can retrieve the same type of method in <b>jhelp.util.data.ConditionChecker</b>
+<br>
+<h2>Condition construction and combination</h2>
+A condition have to implements the interface <b>jhelp.util.data.Condition</b>.<br>
+The method <code lang="java">boolean isValid(@Nullable T value)</code> is called to validate the condition.
+Since it is the only one witch have no default implementation, it is the one mapped if condition used as lambda.
+By example in previous example: <code lang="java">value -> value == 0</code> map the method <b>isValid</b> of <b>jhelp.util.data.Condition</b>.<br>
+<br>
+It is possible to have the exact opposite of this condition with the method: <code lang="java">default @NotNull Condition&lt;T&gt; negate()</code><br>
+<br>
+The constant <code lang="java">Condition&lt;Boolean&gt; IS_TRUE</code> is a condition for check if a boolean is <b><i>true</i></b>.<br>
+The constant <code lang="java">Condition&lt;Boolean&gt; IS_FALSE</code> is a condition for check if a boolean is <b><i>false</i></b>.<br>
+<br>
+The methods:
+<code lang="java">
+    static @NotNull &lt;N extends Number&gt; Condition&lt;N&gt; insideInterval(@NotNull N number1, @NotNull N number2)
+    static @NotNull &lt;N extends Number&gt; Condition&lt;N&gt; insideInterval(@NotNull Interval&lt;N&gt; interval)
+    static @NotNull &lt;N extends Number&gt; Condition&lt;N&gt; outsideInterval(@NotNull N number1, @NotNull N number2)
+    static @NotNull &lt;N extends Number&gt; Condition&lt;N&gt; outsideInterval(@NotNull Interval&lt;N&gt; interval)
+</code>
+Checks if a number is inside or outside an interval.<br>
+<br>
+The combination of conditions are the methods:
+<code lang="java">
+    static @NotNull &lt;T&gt; Condition&lt;T&gt; not(@NotNull Condition&lt;T&gt; condition)
+    static @NotNull &lt;T&gt; Condition&lt;T&gt; and(final @NotNull Condition&lt;T&gt; condition1, final @NotNull Condition&lt;T&gt;... conditions)
+    static @NotNull &lt;T&gt; Condition&lt;T&gt; or(final @NotNull Condition&lt;T&gt; condition1, final @NotNull Condition&lt;T&gt;... conditions)
+</code>
+<br>
+<h2>Observable "transformation"</h2>
+An observable can be "transform" to an other one. The methods, from <b>jhelp.util.data.Observable</b>, for this are:
+<table>
+    <tr><td>
+        <code lang="java">public final @NotNull Observable&lt;Boolean&gt; and(
+            @NotNull Condition&lt;T&gt; condition, 
+            @NotNull Condition&lt;T&gt;... conditions)</code>
+        Creates an observable that <b><i>true</i></b> only when the original observable full fill all given conditions
+    </td></tr>
+    <tr><td>
+        <code lang="java">public final @NotNull Observable&lt;Boolean&gt; or(
+            @NotNull Condition&lt;T&gt; condition,
+            @NotNull Condition&lt;T&gt;... conditions)</code>
+        Creates an observable that <b><i>true</i></b> when the original observable full fill at least one of given conditions
+    </td></tr>
+    <tr><td>
+        <code lang="java">public final @NotNull Observable&lt;Boolean&gt; validate(
+            @NotNull Condition&lt;T&gt; condition)</code>
+        Creates an observable that <b><i>true</i></b> when the original observable full fill a condition
+    </td></tr>
+    <tr><td>
+        <code lang="java">public final @NotNull Observable&lt;Boolean&gt; not(
+            @NotNull Condition&lt;T&gt; condition)</code>
+        Creates an observable that <b><i>false</i></b> when the original observable full fill a condition
+    </td></tr>
+    <tr><td>
+        <code lang="java">public final @NotNull Observable&lt;Boolean&gt; and(
+            @NotNull Condition&lt;T&gt; condition, 
+            @NotNull Observable&lt;Boolean&gt; observable)
+
+public final @NotNull &lt;T1&gt; Observable&lt;Boolean&gt; and(
+            @NotNull Condition&lt;T&gt; condition,
+            @NotNull Observable&lt;T1&gt; observable,
+            @NotNull Condition&lt;T1&gt; conditionOther)</code>
+        Creates observable that <b><i>true</i></b> if origin observable match a condition <b>and</b> a given observable match an other condition.
+    </td></tr>
+    <tr><td>
+        <code lang="java">public final @NotNull Observable&lt;Boolean&gt; or(
+            @NotNull Condition&lt;T&gt; condition,
+            @NotNull Observable&lt;Boolean&gt; observable)
+
+public final @NotNull &lt;T1&gt; Observable&lt;Boolean&gt; or(
+            @NotNull Condition&lt;T&gt; condition,
+            @NotNull Observable&lt;T1&gt; observable,
+            @NotNull Condition&lt;T1&gt; conditionOther)</code>
+        Creates observable that <b><i>true</i></b> if origin observable match a condition <b>or</b> a given observable match an other condition.
+    </td></tr>
+    <tr><td>
+        <code lang="java">public final @NotNull &lt;T1, T2&gt; Observable&lt;T2&gt; combine(
+            @NotNull Observable&lt;T1&gt; observable, 
+            @NotNull Combiner&lt;T, T1, T2&gt; combiner)</code>
+        Creates an observable result of combination of origin observable and given one.
+    </td></tr>
+    <tr><td>
+        <code lang="java">public final @NotNull &lt;T1&gt; Observable&lt;T1&gt; map(
+            final @NotNull Task&lt;T, T1&gt; task)
+
+public final @NotNull &lt;T1&gt; Observable&lt;T1&gt; flatMap(
+            final @NotNull Task&lt;T, Observable&lt;T1&gt;&gt; task)</code>
+        The result observable value is the application of given <b>task</b> to original observable
+    </td></tr>
+</table>
+<br>
+<b class="violet">Note:</b> the other classes of <b>jhelp.util.data</b> are objects returned by some methods returns bellow.
+So there usage are already described.
+<br>
+</body>
+</html>

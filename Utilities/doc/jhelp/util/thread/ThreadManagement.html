@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Threads management</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+
+    <script type="text/javascript">
+            function UpdateTableHeaders() {
+                $("div.divTableWithFloatingHeader").each(function() {
+                    var originalHeaderRow = $(".tableFloatingHeaderOriginal", this);
+                    var floatingHeaderRow = $(".tableFloatingHeader", this);
+                    var offset = $(this).offset();
+                    var scrollTop = $(window).scrollTop();
+                    if ((scrollTop > offset.top) && (scrollTop < offset.top + $(this).height())) {
+                        floatingHeaderRow.css("visibility", "visible");
+                        floatingHeaderRow.css("top", Math.min(scrollTop - offset.top, $(this).height() - floatingHeaderRow.height()) + "px");
+
+                        // Copy cell widths from original header
+                        $("th", floatingHeaderRow).each(function(index) {
+                            var cellWidth = $("th", originalHeaderRow).eq(index).css('width');
+                            $(this).css('width', cellWidth);
+                        });
+
+                        // Copy row width from whole table
+                        floatingHeaderRow.css("width", $(this).css("width"));
+                    }
+                    else {
+                        floatingHeaderRow.css("visibility", "hidden");
+                        floatingHeaderRow.css("top", "0px");
+                    }
+                });
+            }
+
+            $(document).ready(function() {
+                $("table.tableWithFloatingHeader").each(function() {
+                    $(this).wrap("<div class=\"divTableWithFloatingHeader\" style=\"position:relative\"></div>");
+
+                    var originalHeaderRow = $("tr:first", this)
+                    originalHeaderRow.before(originalHeaderRow.clone());
+                    var clonedHeaderRow = $("tr:first", this)
+
+                    clonedHeaderRow.addClass("tableFloatingHeader");
+                    clonedHeaderRow.css("position", "absolute");
+                    clonedHeaderRow.css("top", "0px");
+                    clonedHeaderRow.css("left", $(this).css("margin-left"));
+                    clonedHeaderRow.css("visibility", "hidden");
+
+                    originalHeaderRow.addClass("tableFloatingHeaderOriginal");
+                });
+                UpdateTableHeaders();
+                $(window).scroll(UpdateTableHeaders);
+                $(window).resize(UpdateTableHeaders);
+            });
+    
+    </script>
+    <style>
+            h1
+            {
+                padding: 16px;
+                text-align: center;
+            }
+
+            b
+            {
+                 font-size: 125%;
+            }
+    
+    </style>
+    <script src="../../../scripts/Autocoloration.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../../scripts/colors.css"/>
+    <link rel="stylesheet" type="text/css" href="../../../scripts/buttons.css"/>
+    <link rel="stylesheet" type="text/css" href="../../../scripts/tables.css"/>
+</head>
+<body onLoad="javascript:launchParser()">
+<h1>Thread manager</h1>
+The class <b>jhelp.util.thread.ThreadManager</b> manage a thread pool, and launch tasks in parallel.<br>
+To use it just choose the type of task you need to choose the method.<br>
+For example for you have a task that computes the Fibonacci's number for a given rank:
+<code lang="java">
+package samples.jhelp.util.thread;
+
+import jhelp.util.debug.Debug;
+import jhelp.util.thread.Task;
+import jhelp.util.thread.TaskException;
+
+public class FibonacciTask implements Task&lt;Integer, Long&gt;
+{
+    public FibonacciTask()
+    {
+    }
+
+    /**
+     * Play the task
+     *
+     * @param rankValue Fibonacci's number rank
+     * @return Fibonacci's number
+     */
+    @Override
+    public Long playTask(final Integer rankValue)
+    {
+        int rank = rankValue;
+
+        if (rank < 0)
+        {
+            throw new IllegalArgumentException("rankValue MUST be >=0 not " + rank);
+        }
+
+        if (rank < 2)
+        {
+            return (long) rank;
+        }
+
+        long value  = 1;
+        long first  = 0;
+        long second = 1;
+
+        for (; rank > 1; rank--)
+        {
+            if (Long.MAX_VALUE - first < second)
+            {
+                throw new IllegalArgumentException("rankValue " + rankValue + " is too big !");
+            }
+
+            value = first + second;
+            first = second;
+            second = value;
+        }
+
+        return value;
+    }
+
+    /**
+     * Called if task failed.
+     * Does nothing by default
+     *
+     * @param taskException Task exception
+     */
+    @Override
+    public void taskError(final TaskException taskException)
+    {
+        Debug.exception(taskException, "Issue while computing Fibonacci's number");
+    }
+
+    /**
+     * Called when result is computed.
+     * Does nothing by default
+     *
+     * @param result Task result
+     */
+    @Override
+    public void taskResult(final Long result)
+    {
+        Debug.verbose("Fibonacci's number is ", result);
+    }
+}
+</code>
+You can then use use it like that:
+<code lang="java">
+    FibonacciTask fibonacciTask = new FibonacciTask();
+    ThreadManager.doTask(fibonacciTask, 6);
+    ThreadManager.doTask(fibonacciTask, 120);
+    ThreadManager.doTask(fibonacciTask, 12);
+    ThreadManager.doTask(fibonacciTask, -66);
+</code>
+As you see it is possible to reuse the same instance several times in separate thread in same time.<br>
+It is possible, without risk of thread lock, to launch the same task or other task from inside the task code.<br>
+With Java schedulers and executors doing this is risk of thread lock.
+This issue was the first motivation of the class <b>jhelp.util.thread.ThreadManager</b>.<br>
+It is designed to be fair, that is to say it is guarantee there no orphans.<br>
+It is compatible with lambdas:
+<code lang="java">
+    ThreadManager.parallel(() ->
+        {
+            //Do something
+        });
+</code>
+But exceptions inside task will be silently ignored.
+In case of task that sure not to fail or have nothing to do on failure it is not a big issue.
+<br>
+<h1>Mutex</h1>
+Let the class:
+<code lang="java">
+package samples.jhelp.util.thread;
+
+public class AccountBank
+{
+    private int money;
+
+    public AccountBank(int money)
+    {
+        this.money = money;
+    }
+
+    public void put(int amount)
+    {
+/*1*/   if (amount <= 0)
+        {
+            return;
+        }
+
+/*2*/   this.money += amount;
+    }
+
+    public int take(int desiredAmount)
+    {
+/*3*/   if (desiredAmount <= 0)
+        {
+            return 0;
+        }
+
+/*4*/   if (this.money < desiredAmount)
+        {
+/*5*/       int give = this.money;
+            this.money = 0;
+            return give;
+        }
+
+/*6*/   this.money -= desiredAmount;
+        return desiredAmount;
+    }
+}
+</code>
+Imagine now their at least 2 threads that share the same instance of this class.<br>
+One off thread (Named threadTake) call the method <b>take</b> and an other thread (Named threadPut) call the method <b>put</b>.<br>
+Imagine threadTake get more money that available, so it enters in (5) point.
+But native thread management decide now it is turn to threadPut to play, it put its money and then threadTake continue from (5) point.<br>
+So what ever the amount threadPut have put, the money will goes to 0.<br>
+This dangerous situation can be avoid if we not let takePut put its money until threadTake have finished its task.<br>
+To do this it is possible to use create <b>synchronized</b> blocks. It will work in this simple case.
+But it become very tricky in more complex situation.<br>
+Other solution is to use the mutual exclusive technique (Usually called mutex).<br>
+The principe is to decide where is the critical section (Part of code should be called by only one thread,
+other threads have to wait their turn until a thread inside critical section.<br>
+In our example the critical section have two parts, the code inside <b>take</b> and code inside <b>put</b>.<br>
+In java the class <b>java.util.concurrent.Semaphore</b> is dedicated to that:
+<code lang="java">
+    private final Semaphore mutex = new Semaphore(1, true);
+    //...
+
+        boolean locked = false;
+
+        try
+        {
+            this.mutex.acquire();
+            locked = true;
+        }
+        catch (Exception exception)
+        {
+            Debug.exception(exception, "Failed to acquire the mutex");
+        }
+
+        try
+        {
+            //Do operation in critical section
+        }
+        finally
+        {
+            if (locked)
+            {
+                this.mutex.release();
+            }
+        }
+</code>
+To avoid to type the try/catch blocks each time, <b>jhelp.util.thread.Mutex</b> simplify the life.<br>
+Our example become:
+<code lang="java">
+package samples.jhelp.util.thread;
+
+import jhelp.util.thread.Mutex;
+
+public class AccountBank
+{
+    private       int   money;
+    private final Mutex mutex;
+
+    public AccountBank(int money)
+    {
+        this.mutex = new Mutex();
+        this.money = money;
+    }
+
+    public void put(int amount)
+    {
+        this.mutex.playInCriticalSectionVoid(
+            amount1 ->
+            {
+                if (amount1 <= 0)
+                {
+                    return;
+                }
+
+                this.money += amount1;
+            },
+            amount);
+    }
+
+    public int take(int desiredAmount)
+    {
+        if (desiredAmount <= 0)
+        {
+            return 0;
+        }
+
+        return this.mutex.playInCriticalSection(
+            amount ->
+            {
+                if (this.money < amount)
+                {
+                    int give = this.money;
+                    this.money = 0;
+                    return give;
+                }
+
+                this.money -= amount;
+                return amount;
+            },
+            desiredAmount);
+    }
+}
+</code>
+<br>
+<h1>Reader writer situation</h1>
+Imagine you have data and want:
+<ul>
+    <li>Have several readers in same time</li>
+    <li>Have only one writer at a time</li>
+    <li>When come a reader, if their no writer waiting and/or writing it can read, else have to wait writer have finish</li>
+    <li>When come a writer if their readers waiting and/or reading or an other writer waiting and/or writing,
+        it have to wait its turn before writing</li>
+</ul>
+In that case the reader/writer algorithm is the solution. To simplify the writing, we create the class <b>jhelp.util.thread.ReaderWriter</b><br>
+<code lang="java">
+package samples.jhelp.util.thread;
+
+import jhelp.util.debug.Debug;
+import jhelp.util.math.JHelpRandom;
+import jhelp.util.text.UtilText;
+import jhelp.util.thread.ConsumerTask;
+import jhelp.util.thread.ProducerTask;
+import jhelp.util.thread.ReaderWriter;
+import jhelp.util.util.Utilities;
+
+public class MainReaderWriter
+{
+    static class Data
+    {
+        // data content and operations
+    }
+
+    static void consume(Data data)
+    {
+        //Do something with the data
+    }
+
+    public static void main(String[] arguments)
+    {
+        ReaderWriter&lt;Data&gt; readerWriter = new ReaderWriter&lt;&gt;(null);
+        ConsumerTask&lt;Data&gt; consumer     = MainReaderWriter::consume;
+        ProducerTask&lt;Data&gt; producer     = MainReaderWriter::produceData;
+
+        for (int i = 0; i &lt; 10; i++)
+        {
+            for (int j = 0; j &lt; 5; j++)
+            {
+                readerWriter.read(consumer);
+            }
+
+            readerWriter.write(producer);
+        }
+    }
+
+    static Data produceData()
+    {
+        // Create some Data instance
+    }
+}
+</code>
+<br>
+<h1>Message handler</h1>
+A message handler is an object that receive messages from different thread and treat then in order they are received.<br>
+The treatment is guarantee to be atomic, that is to say when a message is treat if received message,
+the message is enqueued and treat later at its turn.<br>
+It is guarantee that each message will be treat in correct order.<br>
+To create a message handler, have to extends <b>jhelp.util.thread.MessageHandler</b>.<br>
+The method to override is <code>protected abstract void handleMessage(@NotNull M message)</code> to decide how treat a message.<br>
+Example of message:
+<code lang="java">
+package samples.jhelp.util.thread;
+
+/**
+ * Message to say where print a message
+ */
+public class PrintMessage
+{
+    public enum PrintArea
+    {
+        TITLE,
+        INFORMATION
+    }
+
+    public static PrintMessage setInformation(String title)
+    {
+        return new PrintMessage(PrintArea.INFORMATION, title);
+    }
+
+    public static PrintMessage setTitle(String title)
+    {
+        return new PrintMessage(PrintArea.TITLE, title);
+    }
+
+    private final PrintArea printArea;
+    private final String    text;
+
+    PrintMessage(final PrintArea printArea, final String text)
+    {
+        this.printArea = printArea;
+        this.text = text;
+    }
+
+    public PrintArea printArea()
+    {
+        return this.printArea;
+    }
+
+    public String text()
+    {
+        return this.text;
+    }
+}
+</code>
+The handler that manage these messages:
+<code lang="java">
+package samples.jhelp.util.thread;
+
+import jhelp.util.debug.Debug;
+import jhelp.util.thread.MessageHandler;
+
+public class PrintMessageHandler extends MessageHandler&lt;PrintMessage&gt;
+{
+    public PrintMessageHandler()
+    {
+    }
+
+    /**
+    * Called when a message received and treat it
+    *
+    * @param message Received message
+    */
+    @Override
+    protected void handleMessage(final PrintMessage message)
+    {
+        switch (message.printArea())
+        {
+            case TITLE:
+                // print message.text() as title
+                Debug.mark(message.text());
+                break;
+            case INFORMATION:
+                // print message.text() as information
+                Debug.information(message.text());
+                break;
+        }
+    }
+}
+</code>
+And usage example:
+<code lang="java">
+package samples.jhelp.util.thread;
+
+public class MainPrintHandler
+{
+    public static void main(String[] args)
+    {
+        PrintMessageHandler printMessageHandler = new PrintMessageHandler();
+        printMessageHandler.post(PrintMessage.setTitle("Title 1"));
+        printMessageHandler.post(PrintMessage.setInformation("Info 1"));
+        printMessageHandler.post(PrintMessage.setTitle("Title in 2 seconds"), 2000);
+        printMessageHandler.post(PrintMessage.setInformation("Info in 2 seconds"), 2000);
+        printMessageHandler.post(PrintMessage.setTitle("Title in 1 second"), 1000);
+        printMessageHandler.post(PrintMessage.setInformation("Info in 1 second"), 1000);
+    }
+}
+</code>
+<br>
+<h1>Post office</h1>
+In situation on separate elements needs to send messages to each other<b>jhelp.util.thread.PostOffice</b> may help you.<br>
+The principe is having some <b>jhelp.util.thread.User</b> that register to <b>jhelp.util.thread.PostOffice</b> may help you.<br>
+Each time a <b>User</b> need to contact an other <b>User</b>, it will send message to him throw <b>PostOffice</b><br>
+Inside <b>PostOffice</b> it is possible to create groups to send a message to several <b>User</b>s in same time.<br>
+A same user can be in several group, so will receive message for each group it registered.<br>
+<br>
+<h1>State machine</h1>
+<br>
+TODO StateMachine/SimpleStateMachine
+</body>
+</html>

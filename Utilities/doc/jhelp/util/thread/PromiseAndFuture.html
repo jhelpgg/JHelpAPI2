@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Promise and future</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+
+    <script type="text/javascript">
+            function UpdateTableHeaders() {
+                $("div.divTableWithFloatingHeader").each(function() {
+                    var originalHeaderRow = $(".tableFloatingHeaderOriginal", this);
+                    var floatingHeaderRow = $(".tableFloatingHeader", this);
+                    var offset = $(this).offset();
+                    var scrollTop = $(window).scrollTop();
+                    if ((scrollTop > offset.top) && (scrollTop < offset.top + $(this).height())) {
+                        floatingHeaderRow.css("visibility", "visible");
+                        floatingHeaderRow.css("top", Math.min(scrollTop - offset.top, $(this).height() - floatingHeaderRow.height()) + "px");
+
+                        // Copy cell widths from original header
+                        $("th", floatingHeaderRow).each(function(index) {
+                            var cellWidth = $("th", originalHeaderRow).eq(index).css('width');
+                            $(this).css('width', cellWidth);
+                        });
+
+                        // Copy row width from whole table
+                        floatingHeaderRow.css("width", $(this).css("width"));
+                    }
+                    else {
+                        floatingHeaderRow.css("visibility", "hidden");
+                        floatingHeaderRow.css("top", "0px");
+                    }
+                });
+            }
+
+            $(document).ready(function() {
+                $("table.tableWithFloatingHeader").each(function() {
+                    $(this).wrap("<div class=\"divTableWithFloatingHeader\" style=\"position:relative\"></div>");
+
+                    var originalHeaderRow = $("tr:first", this)
+                    originalHeaderRow.before(originalHeaderRow.clone());
+                    var clonedHeaderRow = $("tr:first", this)
+
+                    clonedHeaderRow.addClass("tableFloatingHeader");
+                    clonedHeaderRow.css("position", "absolute");
+                    clonedHeaderRow.css("top", "0px");
+                    clonedHeaderRow.css("left", $(this).css("margin-left"));
+                    clonedHeaderRow.css("visibility", "hidden");
+
+                    originalHeaderRow.addClass("tableFloatingHeaderOriginal");
+                });
+                UpdateTableHeaders();
+                $(window).scroll(UpdateTableHeaders);
+                $(window).resize(UpdateTableHeaders);
+            });
+    </script>
+    <style>
+            h1
+            {
+                padding: 16px;
+                text-align: center;
+            }
+
+            b
+            {
+                 font-size: 125%;
+            }
+    </style>
+    <script src="../../../scripts/Autocoloration.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../../scripts/colors.css"/>
+    <link rel="stylesheet" type="text/css" href="../../../scripts/buttons.css"/>
+    <link rel="stylesheet" type="text/css" href="../../../scripts/tables.css"/>
+</head>
+<body onLoad="javascript:launchParser()">
+<h1>Introduction</h1>
+Suppose we have a task that we want do something with the result when it is known. For this create a <b>jhelp.util.thread.Promise</b>.
+The promise created is for say: I don't have the result now but I promise to give you the result since I have it.<br>
+The future result is represents by a <b>jhelp.util.thread.Future</b>, with it, it is possible to wait the task is
+finished,
+know the task status, get the result if there one, link an other task with the result when the result known.<br>
+The aim is to simplify the task treatment, to delegate to the API the thread management and synchronizations.
+So developer can concentrate on I do an operation, then if operation succeed I do something with the result.
+It is possible to manage failure or cancellation.<br>
+<h3 class="green">Simple example</h3>
+In thread that produce the result:
+<code lang="java">
+    //...
+    private final Promise&lt;Result&gt; promise = new Promise<>();
+    // ...
+    /**
+     * Future linked to the result to tack/link when the result computed
+     * @return Future linked to the result to tack/link when the result computed
+     */
+    public Future&lt;Result&gt; future()
+    {
+        return this.promise.future();
+    }
+    //...
+    private void computeResult()
+    {
+        //...
+        // Create and fill the result
+        Result result = // ....
+        //...
+        // Report the result is known
+        this.promise.setResult(result);
+        // ...
+    }
+    //...
+</code>
+And in other class to wait and get the result:
+<code lang="java">
+    // ...
+    Future&lt;Result&gt; future;
+    // ...
+    future = threadComputeResult.future();
+    // ...
+    //Wait and get the result
+    Result result = future.value();
+    // Do something with the result
+    // ...
+</code>
+<br>
+If the task need only a basic cancellation management,
+some convenient methods exists in <b>jhelp.util.thread.Future</b> to avoid the promise management:
+<code lang="java">public static @NotNull &lt;P, R&gt; Future&lt;R&gt; launch(
+    @NotNull Task&lt;P, R&gt; task,
+    @Nullable P parameter)
+
+public static @NotNull &lt;P&gt; Future&lt;Void&gt; launchConsume(
+    @NotNull ConsumerTask&lt;P&gt; task,
+    @Nullable P parameter)
+
+public static @NotNull &lt;R&gt; Future&lt;R&gt; launchProduce(
+    @NotNull ProducerTask&lt;R&gt; task)
+
+public static @NotNull Future&lt;Void&gt; launchRun(
+    @NotNull RunnableTask task)</code>
+All of them launch the given task and return a future to be able track/link the launched task.<br>
+Basic cancellation management means the future will report cancel status, but the task will continue in background for
+nothing.
+That why we recommend to use those methods for future you don't need to cancel. For a better cancel strategy,
+have to implements it yourself. For help in cancellation management, you will found bellow an explanation how
+cancellation work,
+and some tips for cancellation.<br>
+<br>
+<h1>Promise and future basics</h1>
+The promise owner is the task that create the result. With the methods in <b>jhelp.util.thread.Promise</b>:
+<code lang="java">public void setResult(@Nullable R result)
+
+public void setError(@NotNull TaskException taskException)
+
+public void cancel(@NotNull String reason)</code>
+you report the task status. The first call of one of these methods win. The other calls are ignored.
+So that once the task status is fixed with one of these 3 methods it can't be changed.<br>
+<br>
+The future gives by <code lang="java">public @NotNull Future&lt;R&gt; future()</code> have to be distribute to any one
+interested by the task result and/or task status.<br>
+<br>
+In <b>jhelp.util.thread.Future</b> the method <code lang="java">public @NotNull FutureStatus status()</code> gives the
+task current status. It is informative. It is very discouraged to loop on the value while future is on computing status.
+For waiting and/or get the result, use one of the 3 methods:
+<code lang="java">public @Nullable R get() throws TaskException
+
+public @Nullable R value()
+
+public Future&lt;R&gt; waitFinish()</code>
+These methods will block the current thread util the task succeed, failed or cancelled.<br>
+The method <b>get</b> give the result if their one else throw an exception if task failed or cancelled.<br>
+The method <b>value</b> is a convenient version of <b>get</b> when you are sure you have a result.<br>
+The method <b>waitFinish</b> just wait task succeed, failed or cancelled.<br>
+If you want/need avoid try/catch block, you can do something like that:
+<code lang="java">
+    // ...
+    if(future.waitFinish().status() == FutureStatus.RESULT)
+    {
+        result = future.value();
+        // Do something with the result
+    }
+</code>
+<br>
+To do action when the future is on error or cancelled, you have 2 strategies possible:
+<ul>
+    <li>Block the current thread until the task finished and do something with the status.</li>
+    <li>Register callbacks that called if task cancelled or on error</li>
+</ul>
+To do the second strategy, the dedicated methods are:
+<code lang="java">public @NotNull Future&lt;R&gt; onCancel(@NotNull ConsumerTask&lt;String&gt; cancelTask)
+
+public @NotNull Future&lt;R&gt; onError(@NotNull ConsumerTask&lt;TaskException&gt; task)</code>
+<br>
+For try to cancel a task, use the method <code lang="java">public Future&lt;R&gt; requestCancel(@NotNull String reason)</code>
+Just remember you can only cancel a task not already finished and some tasks may ignore the cancellation request.<br>
+<br>
+<h1>Cancellation information and strategy</h1>
+In the task side, to know if someone request cancellation register a listener in <b>jhelp.util.thread.Promise</b> via
+the method <code lang="java">public void registerRequestCancelListener(RequestCancelListener&lt;R&gt; requestCancelListener)</code>
+<b class="blue">Important</b>: the fact to register at least one listener, change cancellation behavior.<br>
+When no listener are registered, if a cancel request happen the task is automatically change to cancel status (If not finished).<br>
+Once at least one listener is register, it is the responsibility of listeners to decide to change the status or not.<br>
+In other words, if you register at least one listener and want change the status to cancel when someone request to cancel,
+at least one registered listener have to call the method <code lang="java">public void cancel(@NotNull String reason)</code>
+<br>
+<h1>Linking tasks</h1>
+With <b>jhelp.util.thread.Future</b> with what we said to chain futures, that is to say to launch an other task with the
+result and/or status of previous one, it need to wait the first task finished, get status and/or result and launch
+appropriate following task.<br>
+There are more powerful way to do it, this way is the linking. Linking philosophy is I do a task, <b>then</b> this other
+one. Here the <b>then</b> can be see as <b>when the task is finished</b>.<br>
+Depends on situation, there 20 methods dedicated to linking:
+<code lang="java">public @NotNull &lt;R2&gt; Future&lt;R2&gt; andCombine(@NotNull Task&lt;? super R, Future&lt;R2&gt;&gt; task)
+
+public @NotNull &lt;R2&gt; Future&lt;R2&gt; andCombineLink(@NotNull Task&lt;? super R, Future&lt;R2&gt;&gt; task)
+
+public @NotNull Future&lt;Void&gt; andConsume(@NotNull ConsumerTask&lt;? super R&gt; task)
+
+public @NotNull Future&lt;Void&gt; andConsumeLink(@NotNull ConsumerTask&lt;? super R&gt; task)
+
+public @NotNull &lt;R2&gt; Future&lt;R2&gt; andDo(@NotNull Task&lt;? super R, R2&gt; task)
+
+public @NotNull &lt;R2&gt; Future&lt;R2&gt; andDoLink(@NotNull Task&lt;? super R, R2&gt; task)
+
+public @NotNull &lt;R2&gt; Future&lt;R2&gt; andProduce(@NotNull ProducerTask&lt;R2&gt; task)
+
+public @NotNull &lt;R2&gt; Future&lt;R2&gt; andProduceLink(@NotNull ProducerTask&lt;R2&gt; task)
+
+public @NotNull Future&lt;Void&gt; andRun(@NotNull RunnableTask task)
+
+public @NotNull Future&lt;Void&gt; andRunLink(@NotNull RunnableTask task)
+
+public @NotNull &lt;R2&gt; Future&lt;R2&gt; thenCombine(@NotNull Task&lt;? super Future&lt;R&gt;, Future&lt;R2&gt;&gt; task)
+
+public @NotNull &lt;R2&gt; Future&lt;R2&gt; thenCombineLink(@NotNull Task&lt;? super Future&lt;R&gt;, Future&lt;R2&gt;&gt; task)
+
+public @NotNull Future&lt;Void&gt; thenConsume(@NotNull ConsumerTask&lt;? super Future&lt;R&gt;&gt; task)
+
+public @NotNull Future&lt;Void&gt; thenConsumeLink(@NotNull ConsumerTask&lt;? super Future&lt;R&gt;&gt; task)
+
+public @NotNull &lt;R2&gt; Future&lt;R2&gt; thenDo(@NotNull Task&lt;? super Future&lt;R&gt;, R2&gt; task)
+
+public @NotNull &lt;R2&gt; Future&lt;R2&gt; thenDoLink(@NotNull Task&lt;? super Future&lt;R&gt;, R2&gt; task)
+
+public @NotNull &lt;R2&gt; Future&lt;R2&gt; thenProduce(@NotNull ProducerTask&lt;R2&gt; task)
+
+public @NotNull &lt;R2&gt; Future&lt;R2&gt; thenProduceLink(@NotNull ProducerTask&lt;R2&gt; task)
+
+public @NotNull Future&lt;Void&gt; thenRun(@NotNull RunnableTask task)
+
+public @NotNull Future&lt;Void&gt; thenRunLink(@NotNull RunnableTask task)</code>
+The following will explain the role of these methods and tips for choose the good one.<br>
+First for convenience, we put those methods in groups (each method will be in 3 different groups)<br>
+Group <b>link</b> constitute of all methods with <i>link</i> in their names:
+<ul>
+    <li>andCombineLink</li>
+    <li>andConsumeLink</li>
+    <li>andDoLink</li>
+    <li>andProduceLink</li>
+    <li>andRunLink</li>
+    <li>thenCombineLink</li>
+    <li>thenConsumeLink</li>
+    <li>thenDoLink</li>
+    <li>thenProduceLink</li>
+    <li>thenRunLink</li>
+</ul>
+Group <b>free</b> constitute of all methods without <i>link</i> in their names:
+<ul>
+    <li>andCombine</li>
+    <li>andConsume</li>
+    <li>andDo</li>
+    <li>andProduce</li>
+    <li>andRun</li>
+    <li>thenCombine</li>
+    <li>thenConsume</li>
+    <li>thenDo</li>
+    <li>thenProduce</li>
+    <li>thenRun</li>
+</ul>
+Group <b>and</b> constitute of all methods with <i>and</i> in their names:
+<ul>
+    <li>andCombine</li>
+    <li>andCombineLink</li>
+    <li>andConsume</li>
+    <li>andConsumeLink</li>
+    <li>andDo</li>
+    <li>andDoLink</li>
+    <li>andProduce</li>
+    <li>andProduceLink</li>
+    <li>andRun</li>
+    <li>andRunLink</li>
+</ul>
+Group <b>then</b> constitute of all methods with <i>then</i> in their names:
+<ul>
+    <li>thenCombine</li>
+    <li>thenCombineLink</li>
+    <li>thenConsume</li>
+    <li>thenConsumeLink</li>
+    <li>thenDo</li>
+    <li>thenDoLink</li>
+    <li>thenProduce</li>
+    <li>thenProduceLink</li>
+    <li>thenRun</li>
+    <li>thenRunLink</li>
+</ul>
+Group <b>Combine</b> constitute of all methods with <i>Combine</i> in their names:
+<ul>
+    <li>andCombine</li>
+    <li>andCombineLink</li>
+    <li>thenCombine</li>
+    <li>thenCombineLink</li>
+</ul>
+Group <b>Consume</b> constitute of all methods with <i>Consume</i> in their names:
+<ul>
+    <li>andConsume</li>
+    <li>andConsumeLink</li>
+    <li>thenConsume</li>
+    <li>thenConsumeLink</li>
+</ul>
+Group <b>Do</b> constitute of all methods with <i>Do</i> in their names:
+<ul>
+    <li>andDo</li>
+    <li>andDoLink</li>
+    <li>thenDo</li>
+    <li>thenDoLink</li>
+</ul>
+Group <b>Produce</b> constitute of all methods with <i>Produce</i> in their names:
+<ul>
+    <li>andProduce</li>
+    <li>andProduceLink</li>
+    <li>thenProduce</li>
+    <li>thenProduceLink</li>
+</ul>
+Group <b>Run</b> constitute of all methods with <i>Run</i> in their names:
+<ul>
+    <li>andRun</li>
+    <li>andRunLink</li>
+    <li>thenRun</li>
+    <li>thenRunLink</li>
+</ul>
+Here table of groups:
+<table class="tableWithFloatingHeader">
+    <tr>
+        <th></th>
+        <th>link</th>
+        <th>free</th>
+        <th>and</th>
+        <th>then</th>
+        <th>Combine</th>
+        <th>Consume</th>
+        <th>Do</th>
+        <th>Produce</th>
+        <th>Run</th>
+    </tr>
+    <tr>
+        <td><center><b>andCombine</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+    </tr>
+    <tr>
+        <td><center><b>andCombineLink</b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+    </tr>
+    <tr>
+        <td><center><b>andConsume</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+    </tr>
+    <tr>
+        <td><center><b>andConsumeLink</b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+    </tr>
+    <tr>
+        <td><center><b>andDo</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+    </tr>
+    <tr>
+        <td><center><b>andDoLink</b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+    </tr>
+    <tr>
+        <td><center><b>andProduce</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+    </tr>
+    <tr>
+        <td><center><b>andProduceLink</b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+    </tr>
+    <tr>
+        <td><center><b>andRun</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+    </tr>
+    <tr>
+        <td><center><b>andRunLink</b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+    </tr>
+    <tr>
+        <td><center><b>thenCombine</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+    </tr>
+    <tr>
+        <td><center><b>thenCombineLink</b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+    </tr>
+    <tr>
+        <td><center><b>thenConsume</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+    </tr>
+    <tr>
+        <td><center><b>thenConsumeLink</b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+    </tr>
+    <tr>
+        <td><center><b>thenDo</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+    </tr>
+    <tr>
+        <td><center><b>thenDoLink</b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+    </tr>
+    <tr>
+        <td><center><b>thenProduce</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+    </tr>
+    <tr>
+        <td><center><b>thenProduceLink</b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+    </tr>
+    <tr>
+        <td><center><b>thenRun</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+    </tr>
+    <tr>
+        <td><center><b>thenRunLink</b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b></b></center></td>
+        <td><center><b>X</b></center></td>
+    </tr>
+</table>
+<br>
+For choose the best method for your need, we recommend to have 3 criteria in mind.<br>
+Those criteria are describe bellow.
+<br>
+<h2>1) Choose between <b>free</b> or <b>link</b> group</h2>
+To choose between <b>free</b> or <b>link</b> group is to choose between two cancellation strategies.<br>
+Imagine you have for a method from <b>free</b> group: <code lang="java">//...
+futureResult = futureOrigin.thenConsume(...);
+// ...
+futureResult.requestCancel("Stop to compute!");
+//...</code>
+If futureOrigin not already finished when the request cancel happen on futureResult,
+only the futureResult will be tried to cancel.<br>
+<br>
+Now similar situation for method from <b>link</b> group: <code lang="java">//...
+futureResult = futureOrigin.andDoLink(...);
+// ...
+futureResult.requestCancel("Stop to compute!");
+//...</code>
+If futureOrigin not already finished when the request cancel happen on futureResult,
+futureResult tried to be cancelled and if cancellation happen futureOrigin will be also tried to be cancel.<br>
+<br>
+These examples illustrate the difference between <b>free</b> and <b>link</b> group.<br>
+<b>Link</b> group create a strong link between the futures, so the result future can be considered as one block.<br>
+<b>Free</b> group don't create this link, so result future don't influence the origin future, they have their own life.<br>
+So the question to choose between <b>free</b> or <b>link</b> group is: Do I create a block or my futures are independents ?<br>
+If the answer is: I need a block so choose <b>link</b> group, if the block is not mandatory use <b>free</b> group.<br>
+<br>
+<h2>2) Choose between <b>and</b> or <b>then</b> group</h2>
+If the result if task succeed is enough use <b>and</b> group.
+If you need to do special case on error and/or cancel use<b>then</b> group.
+Examples:<code lang="java">futureResult = futureOrigin.andThenDo(number -> number + 1);</code>
+<code lang="java">
+    futureResult = futureOrigin.thenConsume(
+        future ->
+        {
+            switch(future.status())
+            {
+                case RESULT:
+                    // Do something with the value
+                    // Note here it is safe to do "future.value()" since we just checked the success state.
+                    break;
+                case ERROR :
+                    // Do something in error case
+                    break;
+                case CANCELLED :
+                    // Do something in cancel case
+                    break;
+            }
+        });
+</code>
+So the question is: Do I need to do with future status to manage cancel and/or error case<br>
+If answer is yes, use <b>then</b> group. If answer is no (So only interested by the result) use <b>and</b> group.<br>
+<br>
+<h2>3) Choose between <b>Combine</b>, <b>Consume</b>, <b>Do</b>, <b>Produce</b> or <b>Run</b> group</h2>
+This choice depends on the type of task you need/want to use.<br>
+<ul>
+    <li>If the task to use returns a <b>jhelp.util.thread.Future</b>, use <b>Combine</b> group</li>
+    <li>If the task to use consumes the result and return nothing, use <b>Consume</b> group</li>
+    <li>If the task to use take the result and produce a result, use <b>Do</b> group</li>
+    <li>If the task to use don't have parameter (Because origin future is a <b>Future&lt;Void&gt;</b>)
+        and produce a result, use <b>Produce</b> group</li>
+    <li>If the task to use don't have parameter (Because origin future is a <b>Future&lt;Void&gt;</b>)
+        and have no result, use <b>Run</b> group</li>
+</ul>
+<br>
+<h2>Resume</h2>
+<img src="The3Questions.svg"/>
+<br>
+<h1>Convenient methods</h1>
+<table>
+    <tr><td>
+        <code lang="java">public static @NotNull &lt;R&gt; Future&lt;R&gt; of(@Nullable R result)</code>
+        produce a future with an immediate a fixed value.
+    </td></tr>
+    <tr><td>
+        <code lang="java">public static @NotNull &lt;R&gt; Future&lt;List&lt;R&gt;&gt; and(final @NotNull Future&lt;R&gt;... futures)</code>
+        Wait for all given futures. 
+        If at least one given future cancelled or failed, the wait stop and the result future failed.<br>
+        If all given futures succeed, the result future contains the list of all given futures value.
+    </td></tr>
+    <tr><td>
+        <code lang="java">public static @NotNull &lt;R&gt; Future&lt;R&gt; or(@NotNull Future&lt;R&gt;... futures)
+
+public static @NotNull &lt;R&gt; Future&lt;R&gt; or(@NotNull Filter&lt;R&gt; filter, @NotNull Future&lt;R&gt;... futures)</code>
+        Wait for first future, in given ones, that succeed and satisfy the filter (If there one).<br>
+        The result future failed if all given futures failed or cancelled.
+    </td></tr>
+    <tr><td>
+        <code lang="java">public static @NotNull &lt;R&gt; Future&lt;R&gt; firstMatch(
+            @NotNull final Iterable&lt;R&gt; iterable, 
+            @NotNull final Filter&lt;R&gt; filter)
+
+public static &lt;R&gt; Future&lt;R&gt; firstMatch(
+            @NotNull final Collection&lt;R&gt; collection, 
+            @NotNull final Filter&lt;R&gt; filter)
+
+public static @NotNull &lt;R&gt; Future&lt;R&gt; firstMatch(
+            @NotNull final SizedIterable&lt;R&gt; sizedIterable, 
+            @NotNull final Filter&lt;R&gt; filter)</code>
+        Search the first element in given set that match a given criteria.<br>
+        The return future will contains the first found value that match.<br>
+        If no element match the future will be on error.<br>
+        The search is do on separate threads, so the method returns immediately.
+    </td></tr>
+    <tr><td>
+        <code lang="java">public static @NotNull Future&lt;List&lt;Future&lt;?&gt;&gt;&gt; waitAll(@NotNull Future&lt;?&gt;... futures)</code>
+        Create future that wait all given future finished (succeed, error or cancelled) and collect each future.
+    </td></tr>
+    <tr><td>
+        <code lang="java">public @NotNull Future&lt;R&gt; waitFor(@NotNull Future&lt;?&gt;... futures)</code>
+        Creates a future that wait all given futures finished before return the origin future result.
+    </td></tr>
+</table>
+<br>
+</body>
+</html>

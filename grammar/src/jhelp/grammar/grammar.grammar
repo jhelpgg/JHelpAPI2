@@ -1,0 +1,17 @@
+#rer
+GRAMMAR                 =   COMMENT* RULE ("\n" SPACE COMMENT* SPACE RULE SPACE)* ("\n" COMMENT*)?
+RULE                    =   RULE_NAME SPACE "=" SPACE RULE_DESCRIPTION
+RULE_NAME               =   "[a-zA-Z][a-zA-Z0-9_]*"
+SPACE                   =   "\s*"
+SPACE_2                 =   "\s+"
+RULE_DESCRIPTION        =  NOT_EMPTY_DESCRIPTION
+                        |  ALTERNATIVE
+ALTERNATIVE             =  NOT_EMPTY_DESCRIPTION SPACE "\|" SPACE ALTERNATIVE
+NOT_EMPTY_DESCRIPTION   =   RULE_NAME QUANTITY?
+                        |   REGULAR_EXPRESSION
+                        |   RULE_NAME QUANTITY? SPACE_2 NOT_EMPTY_DESCRIPTION
+                        |   REGULAR_EXPRESSION SPACE_2 NOT_EMPTY_DESCRIPTION
+                        |   RULE_NAME QUANTITY? SPACE_2 "\(" NOT_EMPTY_DESCRIPTION "\)" QUANTITY?
+QUANTITY                =   "[?*+]|\{[0-9]+(\s*,\s*[0-9]+)?}"
+REGULAR_EXPRESSION      =   "\".*\""
+COMMENT                 =   "\s*#.*\n"

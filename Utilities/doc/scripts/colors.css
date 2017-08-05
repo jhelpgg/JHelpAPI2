@@ -1,0 +1,122 @@
+.redColor
+{
+    color: #AF4C50;
+}
+
+.red
+{
+    color: white;
+	background-color: #AF4C50;
+}
+
+.red:active
+{
+    color: white;
+	background-color: #9E3B40;
+}
+
+.greenColor
+{
+    color: #4CAF50;
+}
+.green
+{
+    color: white;
+    background-color: #4CAF50;
+}
+
+.green:active
+{
+    color: white;
+    background-color: #3B9E40;
+}
+
+.blueColor
+{
+    color: #4C50AF;
+}
+
+.blue
+{
+    color: white;
+	background-color: #4C50AF;
+}
+
+.blue:active
+{
+    color: white;
+	background-color: #3B409E;
+}
+
+.cyanColor
+{
+    color: #4CAFAF;
+}
+
+.cyan
+{
+    color: white;
+	background-color: #4CAFAF;
+}
+
+.cyan:active
+{
+    color: white;
+	background-color: #3B9E9E;
+}
+
+.violetColor
+{
+    color: #AF50AF;
+}
+
+.violet
+{
+    color: white;
+	background-color: #AF50AF;
+}
+
+.violet:active
+{
+    color: white;
+	background-color: #9E409E;
+}
+
+.yellowColor
+{
+    color: #AFAF50;
+}
+
+.yellow
+{
+    color: white;
+	background-color: #AFAF50;
+}
+
+.yellow:active
+{
+    color: white;
+	background-color: #9E9E40;
+}
+
+.blackColor
+{
+    color: black;
+}
+
+.black
+{
+    color: white;
+	background-color: black;
+}
+
+.whiteColor
+{
+    color: white;
+}
+
+.white
+{
+    color: black;
+	background-color: white;
+}

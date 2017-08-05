@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cache</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+
+    <script type="text/javascript">
+            function UpdateTableHeaders() {
+                $("div.divTableWithFloatingHeader").each(function() {
+                    var originalHeaderRow = $(".tableFloatingHeaderOriginal", this);
+                    var floatingHeaderRow = $(".tableFloatingHeader", this);
+                    var offset = $(this).offset();
+                    var scrollTop = $(window).scrollTop();
+                    if ((scrollTop > offset.top) && (scrollTop < offset.top + $(this).height())) {
+                        floatingHeaderRow.css("visibility", "visible");
+                        floatingHeaderRow.css("top", Math.min(scrollTop - offset.top, $(this).height() - floatingHeaderRow.height()) + "px");
+
+                        // Copy cell widths from original header
+                        $("th", floatingHeaderRow).each(function(index) {
+                            var cellWidth = $("th", originalHeaderRow).eq(index).css('width');
+                            $(this).css('width', cellWidth);
+                        });
+
+                        // Copy row width from whole table
+                        floatingHeaderRow.css("width", $(this).css("width"));
+                    }
+                    else {
+                        floatingHeaderRow.css("visibility", "hidden");
+                        floatingHeaderRow.css("top", "0px");
+                    }
+                });
+            }
+
+            $(document).ready(function() {
+                $("table.tableWithFloatingHeader").each(function() {
+                    $(this).wrap("<div class=\"divTableWithFloatingHeader\" style=\"position:relative\"></div>");
+
+                    var originalHeaderRow = $("tr:first", this)
+                    originalHeaderRow.before(originalHeaderRow.clone());
+                    var clonedHeaderRow = $("tr:first", this)
+
+                    clonedHeaderRow.addClass("tableFloatingHeader");
+                    clonedHeaderRow.css("position", "absolute");
+                    clonedHeaderRow.css("top", "0px");
+                    clonedHeaderRow.css("left", $(this).css("margin-left"));
+                    clonedHeaderRow.css("visibility", "hidden");
+
+                    originalHeaderRow.addClass("tableFloatingHeaderOriginal");
+                });
+                UpdateTableHeaders();
+                $(window).scroll(UpdateTableHeaders);
+                $(window).resize(UpdateTableHeaders);
+            });
+    </script>
+    <style>
+            h1
+            {
+                padding: 16px;
+                text-align: center;
+            }
+
+            b
+            {
+                 font-size: 125%;
+            }
+    </style>
+    <script src="../../../scripts/Autocoloration.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../../scripts/colors.css"/>
+    <link rel="stylesheet" type="text/css" href="../../../scripts/buttons.css"/>
+    <link rel="stylesheet" type="text/css" href="../../../scripts/tables.css"/>
+</head>
+<body onLoad="javascript:launchParser()">
+<h1>Explanation about <b class="redColor">Cache</b></h1>
+<h2>Introduction</h2>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The aim is to represents a cache of elements. A cache is a map that associate key to
+value.
+The difference with classical map, is that the value is not computed the moment we strore a value, but the first moment
+we use it.
+For this we not directly store the value but a producer of the value. The cache will remove some computed value,
+if long time not used and JVM need some memory. So the producer is used in two case, the first moment we need the value
+or if the stored value is removed to make some memory space. The aim of the cache is to store heavy things like image,
+sounds, ...
+And the producer should be light, for example an URL and a way to lod image on need.
+<h2>Role of <b>jhelp.util.cache.Cache</b></h2>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>samples.jhelp.util.cache.Cache</b> is the cache itself, it is there the producer are
+stored.<br>
+<table class="tableWithFloatingHeader">
+    <tr>
+        <th>Method</th>
+        <th>Explanation</th>
+    </tr>
+    <tr>
+        <td><code lang="java">public void add(
+            @NotNull final String key,
+            @NotNull final CacheElement&lt;T&gt; element)</code>
+        </td>
+        <td>
+            Add element inside the cache<br>
+            <b class="redColor">key</b> Key associate<br>
+            <b class="redColor">element</b> Describe how create element
+        </td>
+    </tr>
+    <tr>
+        <td><code lang="java">public @Nullable T get(
+            final @NotNull String key)</code>
+        </td>
+        <td>
+            Obtain an element<br>
+            <b class="redColor">key</b> Element key<br>
+            <b class="blueColor">RETURN</b> Element OR <b><i>null</i></b> if no element attached to given key
+        </td>
+    </tr>
+    <tr>
+        <td><code lang="java">public @NotNull T get(
+            final @NotNull String key,
+            final @Nullable CacheElement&lt;T&gt;cacheElement)</code>
+        </td>
+        <td>
+            Obtain an element and give a default value if key is not already present<br>
+            <b class="redColor">key</b> Key to get<br>
+            <b class="redColor">cacheElement</b> Cache element to store and use if the key is not already defined.
+            Can be <b><i>null</i></b> if sure key exists<br>
+            <b class="blueColor">RETURN</b> The element
+        </td>
+    </tr>
+    <tr>
+        <td><code lang="java">public @NotNull Set&lt;String&gt; keys()</code></td>
+        <td>
+            List of keys in cache<br>
+            <b class="blueColor">RETURN</b> List of keys in cache
+        </td>
+    </tr>
+    <tr>
+        <td><code lang="java">public void remove(
+            final @NotNull String key)</code></td>
+        <td>
+            Remove an element from cache<br>
+            <b class="redColor">key</b> Element key
+        </td>
+    </tr>
+    <tr>
+        <td><code lang="java">public void clear()</code></td>
+        <td>Clear the cache. All the keys and values are removed from the cache. The cache become empty</td>
+    </tr>
+</table>
+<h2>Role of <b>jhelp.util.cache.CacheElement</b></h2>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>samples.jhelp.util.cache.CacheElement</b> is the producer of element.
+It produce element on demand (first time or is element no more on memory)<br>
+<table class="tableWithFloatingHeader">
+    <tr>
+        <th>Method</th>
+        <th>Explanation</th>
+    </tr>
+    <tr>
+        <td><code lang="java">protected abstract @NotNull T create()</code></td>
+        <td>
+            Create the element.<br>
+            Called each time the creation is necessary<br>
+            <b class="blueColor">RETURN</b> Created element
+        </td>
+    </tr>
+    <tr>
+        <td><code lang="java">public final @NotNull T element()</code></td>
+        <td>
+            Obtain the element<br>
+            The element is created and stored if necessary<br>
+            <b class="blueColor">RETURN</b> The element
+        </td>
+    </tr>
+    <tr>
+        <td><code lang="java">public final void clear()</code></td>
+        <td>
+            Remove the element from memory<br>
+            Element will be recreate the next time the element is need
+        </td>
+    </tr>
+    <tr>
+        <td><code lang="java">protected void cleared(
+            final @NotNull T element)</code></td>
+        <td>
+            Called when element is cleared.<br>
+            Does nothing by default<br>
+            Override it if need to do something when element is remove from memory<br>
+            <b class="redColor">element</b> Cleared value
+        </td>
+    </tr>
+</table>
+<h2>Example</h2>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Example for an image cache.<br>
+<h3 class="green">1) Create the image producer</h3>
+<code lang="java">
+package samples.jhelp.util.cache;
+
+import java.io.File;
+import jhelp.util.cache.CacheElement;
+import jhelp.util.gui.JHelpImage;
+
+/**
+ * Image element of cache
+ */
+public class ImageElement extends CacheElement&lt;JHelpImage&gt;
+{
+    /**
+     * File where lies the image
+     */
+    private final File file;
+
+    /**
+     * Create the cacheElement
+     *
+     * @param path Image path
+     */
+    public ImageElement(String path)
+    {
+        this.file = new File(path);
+    }
+
+    /**
+     * Create the image
+     *
+     * @return Created image
+     */
+    @Override
+    protected JHelpImage create()
+    {
+        try
+        {
+            return JHelpImage.loadImage(this.file);
+        }
+        catch (Exception exception)
+        {
+            return JHelpImage.DUMMY;
+        }
+    }
+}
+</code>
+<h3 class="green">2) Create the cache</h3>
+<code lang="java">
+    private static final Cache&lt;JHelpImage&gt; CACHE_IMAGE = new Cache&lt;&gt;();
+</code>
+<h3 class="green">3) Use the cache</h3>
+<code lang="java">
+    //Store image
+    MainImageCache.CACHE_IMAGE.add("Smiley", new ImageElement(imageSmilePath));
+    //...
+    //Get image to show it
+    JHelpImage imageSmile = MainImageCache.CACHE_IMAGE.get("Smiley");
+</code>
+If need to store (if need) and get image immediately, you can do
+<code lang="java">
+    JHelpImage imageSad = MainImageCache.CACHE_IMAGE.get("Sad", new ImageElement(imageSadPath));
+</code>
+</body>
+</html>
