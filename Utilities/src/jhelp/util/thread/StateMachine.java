@@ -14,13 +14,13 @@ import java.util.Objects;
 public class StateMachine<S extends Enum>
 {
     /**
-     * Map of registered tasks
-     */
-    private final Map<S, List<Task<S, ?>>> tasksMap = new HashMap<>();
-    /**
      * Current state
      */
     private S state;
+    /**
+     * Map of registered tasks
+     */
+    private final Map<S, List<Task<S, ?>>> tasksMap = new HashMap<>();
 
     /**
      * Create the state machine
@@ -34,13 +34,48 @@ public class StateMachine<S extends Enum>
     }
 
     /**
+     * Try to change the state.<br>
+     * The change only happen if transition between current state and given one is allowed.<br>
+     * If change happen, the corresponding tasks registered for the new state are launched.<br>
+     * See {@link #allowedTransition(Enum, Enum)}
+     *
+     * @param state State to go
+     * @return {@code true} if state changed
+     */
+    protected final boolean changeState(@NotNull S state)
+    {
+        Objects.requireNonNull(state);
+
+        synchronized (this.tasksMap)
+        {
+            if (!this.allowedTransition(this.state, state))
+            {
+                return false;
+            }
+
+            this.state = state;
+            final List<Task<S, ?>> list = this.tasksMap.get(state);
+
+            if (list != null)
+            {
+                for (Task<S, ?> task : list)
+                {
+                    ThreadManager.doTask(task, state);
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * Register a task for react to different state.<br>
      * If one off state is the current one, the task will be launch
      *
      * @param task   Task to register
      * @param states States to associate the task
      */
-    protected final void register(@NotNull Task<S, ?> task, @NotNull S... states)
+    protected final @SafeVarargs void register(@NotNull Task<S, ?> task, @NotNull S... states)
     {
         Objects.requireNonNull(task, "task");
 
@@ -76,7 +111,7 @@ public class StateMachine<S extends Enum>
      * @param task   Task to register
      * @param states States to associate the task
      */
-    protected final void unregister(@NotNull Task<S, ?> task, @NotNull S... states)
+    protected final @SafeVarargs void unregister(@NotNull Task<S, ?> task, @NotNull S... states)
     {
         synchronized (this.tasksMap)
         {
@@ -123,19 +158,6 @@ public class StateMachine<S extends Enum>
     }
 
     /**
-     * Current state
-     *
-     * @return Current state
-     */
-    public final @NotNull S state()
-    {
-        synchronized (this.tasksMap)
-        {
-            return this.state;
-        }
-    }
-
-    /**
      * Indicates if it is allow to go from a state to an other state.<br>
      * By default all transition are allowed
      *
@@ -149,37 +171,15 @@ public class StateMachine<S extends Enum>
     }
 
     /**
-     * Try to change the state.<br>
-     * The change only happen if transition between current state and given one is allowed.<br>
-     * If change happen, the corresponding tasks registered for the new state are launched.<br>
-     * See {@link #allowedTransition(Enum, Enum)}
+     * Current state
      *
-     * @param state State to go
-     * @return {@code true} if state changed
+     * @return Current state
      */
-    protected final boolean changeState(@NotNull S state)
+    public final @NotNull S state()
     {
-        Objects.requireNonNull(state);
-
         synchronized (this.tasksMap)
         {
-            if (!this.allowedTransition(this.state, state))
-            {
-                return false;
-            }
-
-            this.state = state;
-            final List<Task<S, ?>> list = this.tasksMap.get(state);
-
-            if (list != null)
-            {
-                for (Task<S, ?> task : list)
-                {
-                    ThreadManager.doTask(task, state);
-                }
-            }
+            return this.state;
         }
-
-        return true;
     }
 }

@@ -24,7 +24,7 @@ public class SimpleSateMachine<S extends Enum> extends StateMachine<S>
      * @param task   Task to register
      * @param states States to associate the task
      */
-    public final void associate(@NotNull Task<S, ?> task, @NotNull S... states)
+    public final @SafeVarargs void associate(@NotNull Task<S, ?> task, @NotNull S... states)
     {
         this.register(task, states);
     }

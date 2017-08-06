@@ -485,13 +485,169 @@ public class MainPrintHandler
 <br>
 <h1>Post office</h1>
 In situation on separate elements needs to send messages to each other<b>jhelp.util.thread.PostOffice</b> may help you.<br>
-The principe is having some <b>jhelp.util.thread.User</b> that register to <b>jhelp.util.thread.PostOffice</b> may help you.<br>
+The principe is having some <b>jhelp.util.thread.User</b> that register to <b>jhelp.util.thread.PostOffice</b><br>
 Each time a <b>User</b> need to contact an other <b>User</b>, it will send message to him throw <b>PostOffice</b><br>
 Inside <b>PostOffice</b> it is possible to create groups to send a message to several <b>User</b>s in same time.<br>
 A same user can be in several group, so will receive message for each group it registered.<br>
 <br>
 <h1>State machine</h1>
+A state machine is a object that have states.<br>
+For example in a sound player you will have the state: Not initialized, Loading sound, Ready to play sound,
+Playing sound, Release sound:<br>
+<img src="StateMachineExample.svg"/><br>
+Sound state enumeration:
+<code lang="java">
+    package samples.jhelp.util.thread;
+
+    public enum SoundState
+    {
+    NOT_INITIALIZED,
+    LOADING,
+    READY,
+    PLAYING,
+    RELEASING
+    }
+</code>
+The state machine:
+<code lang="java">
+    package samples.jhelp.util.thread;
+
+    import jhelp.util.debug.Debug;
+    import jhelp.util.math.JHelpRandom;
+    import jhelp.util.thread.ConsumerTask;
+    import jhelp.util.thread.StateMachine;
+
+    public class SoundStateMachine extends StateMachine&gt;SoundState&lt;
+    {
+    private String url;
+
+    public SoundStateMachine()
+    {
+    super(SoundState.NOT_INITIALIZED);
+    this.register((ConsumerTask&gt;SoundState&lt;) this::loading, SoundState.LOADING);
+    this.register((ConsumerTask&gt;SoundState&lt;) this::releasing, SoundState.RELEASING);
+    }
+
+    private void loading(SoundState soundState)
+    {
+    Debug.verbose("Loading: ", this.url);
+
+    if (JHelpRandom.random())
+    {
+    this.loadingSucceed();
+    }
+    else
+    {
+    this.loadingFailed();
+    }
+    }
+
+    private void loadingFailed()
+    {
+    this.changeState(SoundState.NOT_INITIALIZED);
+    }
+
+    private void loadingSucceed()
+    {
+    this.changeState(SoundState.READY);
+    }
+
+    private void releasing(SoundState soundState)
+    {
+    this.url = null;
+    this.releasingDone();
+    }
+
+    private void releasingDone()
+    {
+    this.changeState(SoundState.NOT_INITIALIZED);
+    }
+
+    /**
+    * Indicates if it is allow to go from a state to an other state.&gt;br&lt;
+    * By default all transition are allowed
+    *
+    * @param oldState State it leave
+    * @param newState State want go
+    * @return {@code true} if it is allow to go from a state to an other state
+    */
+    @Override
+    public boolean allowedTransition(final SoundState oldState, final SoundState newState)
+    {
+    switch (oldState)
+    {
+    case NOT_INITIALIZED:
+    return newState == SoundState.LOADING;
+    case LOADING:
+    return newState == SoundState.NOT_INITIALIZED || newState == SoundState.READY;
+    case READY:
+    return newState == SoundState.PLAYING || newState == SoundState.RELEASING;
+    case PLAYING:
+    return newState == SoundState.READY || newState == SoundState.RELEASING;
+    case RELEASING:
+    return newState == SoundState.NOT_INITIALIZED;
+    default:
+    throw new RuntimeException("Should never goes here! Not managed state=" + oldState);
+    }
+    }
+
+    public boolean playResume()
+    {
+    return this.changeState(SoundState.PLAYING);
+    }
+
+    public void registerSoundNotInitializedListener(ConsumerTask&gt;SoundState&lt; listener)
+    {
+    this.register(listener, SoundState.NOT_INITIALIZED);
+    }
+
+    public void registerSoundPlayingListener(ConsumerTask&gt;SoundState&lt; listener)
+    {
+    this.register(listener, SoundState.PLAYING);
+    }
+
+    public void registerSoundReadyListener(ConsumerTask&gt;SoundState&lt; listener)
+    {
+    this.register(listener, SoundState.READY);
+    }
+
+    public boolean release()
+    {
+    return this.changeState(SoundState.RELEASING);
+    }
+
+    public boolean setURL(String url)
+    {
+    this.url = url;
+    return this.changeState(SoundState.LOADING);
+    }
+
+    public boolean stopPauseFinished()
+    {
+    return this.changeState(SoundState.READY);
+    }
+
+    public void unregisterSoundNotInitializedListener(ConsumerTask&gt;SoundState&lt; listener)
+    {
+    this.register(listener, SoundState.NOT_INITIALIZED);
+    }
+
+    public void unregisterSoundPlayingListener(ConsumerTask&gt;SoundState&lt; listener)
+    {
+    this.unregister(listener, SoundState.PLAYING);
+    }
+
+    public void unregisterSoundReadyListener(ConsumerTask&gt;SoundState&lt; listener)
+    {
+    this.unregister(listener, SoundState.READY);
+    }
+    }
+</code>
+By default most of methods of <b>jhelp.util.thread.StateMachine</b> are protected.<br>
+They aren't exposed by purpose to allow extanded classes to expose only what they need and avoid external doing
+mess.<br>
+It exists a class that expose all: <b>jhelp.util.thread.SimpleStateMachine</b>, use it if anyone can change the state
+without control (Except choose allowed state transition).<br>
 <br>
-TODO StateMachine/SimpleStateMachine
 </body>
 </html>
