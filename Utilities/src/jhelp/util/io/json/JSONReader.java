@@ -1,15 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not
- * responsible about any damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that
- * avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.io.json;
 
 import java.io.IOException;
@@ -28,41 +28,6 @@ import jhelp.util.reflection.Reflection;
  */
 public class JSONReader
 {
-    /**
-     * Parse stream of JSON to get serialized object.<br>
-     * The class MUST ba a valid annotated {@link JSONObject}<br>
-     * If strict mode enable, only same version of given class serialized can be parsed. If not strict mode some
-     * modification can be tolerate.<br>
-     * Modifications tolerate are adding/removing fields annotated {@link JSONElement}, but not accept the type
-     * modification.
-     *
-     * @param clas        Object class to get
-     * @param inputStream Stream to read
-     * @param strict      Indicates if strict mode or not
-     * @param <OBJECT>    Class of object to parse
-     * @return Parsed object
-     * @throws IOException   On reading issue
-     * @throws JSONException If stream not valid JSON or not corresponds to desired class
-     */
-    @SuppressWarnings("unchecked")
-    public static <OBJECT> OBJECT readJSON(
-            Class<OBJECT> clas, InputStream inputStream,
-            boolean strict) throws
-                            IOException, JSONException
-    {
-        final JSONObject jsonObject = clas.getAnnotation(JSONObject.class);
-
-        if (jsonObject == null)
-        {
-            throw new JSONException(clas.getName(), " not annotated as JSONObject");
-        }
-
-        ObjectJSON objectJSON = ObjectJSON.parse(inputStream);
-        OBJECT     object     = (OBJECT) Reflection.newInstance(clas);
-        JSONReader.fillObject(clas, object, objectJSON, strict);
-        return object;
-    }
-
     /**
      * Fill object fields from JSON object
      *
@@ -258,5 +223,40 @@ public class JSONReader
                 throw new JSONException(e, "Can't write inside the field : ", key, " in ", clas.getName());
             }
         }
+    }
+
+    /**
+     * Parse stream of JSON to get serialized object.<br>
+     * The class MUST ba a valid annotated {@link JSONObject}<br>
+     * If strict mode enable, only same version of given class serialized can be parsed. If not strict mode some
+     * modification can be tolerate.<br>
+     * Modifications tolerate are adding/removing fields annotated {@link JSONElement}, but not accept the type
+     * modification.
+     *
+     * @param clas        Object class to get
+     * @param inputStream Stream to read
+     * @param strict      Indicates if strict mode or not
+     * @param <OBJECT>    Class of object to parse
+     * @return Parsed object
+     * @throws IOException   On reading issue
+     * @throws JSONException If stream not valid JSON or not corresponds to desired class
+     */
+    @SuppressWarnings("unchecked")
+    public static <OBJECT> OBJECT readJSON(
+            Class<OBJECT> clas, InputStream inputStream,
+            boolean strict) throws
+                            IOException, JSONException
+    {
+        final JSONObject jsonObject = clas.getAnnotation(JSONObject.class);
+
+        if (jsonObject == null)
+        {
+            throw new JSONException(clas.getName(), " not annotated as JSONObject");
+        }
+
+        ObjectJSON objectJSON = ObjectJSON.parse(inputStream);
+        OBJECT     object     = (OBJECT) Reflection.newInstance(clas);
+        JSONReader.fillObject(clas, object, objectJSON, strict);
+        return object;
     }
 }

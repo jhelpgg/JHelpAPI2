@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.data;
 
 import com.sun.istack.internal.NotNull;
@@ -31,18 +43,6 @@ public final class ObservableCondition<T> extends Observable<Boolean>
     }
 
     /**
-     * Indicates if a value is valid
-     *
-     * @param value Value to test
-     * @return {@code true} if value is valid
-     */
-    @Override
-    protected final boolean valueIsValid(final Boolean value)
-    {
-        return this.changeIsValid.get();
-    }
-
-    /**
      * Called when watched observable changed
      *
      * @param observable Changed observable
@@ -53,5 +53,17 @@ public final class ObservableCondition<T> extends Observable<Boolean>
         this.changeIsValid.set(true);
         this.value(this.condition.isValid(value));
         this.changeIsValid.set(false);
+    }
+
+    /**
+     * Indicates if a value is valid
+     *
+     * @param value Value to test
+     * @return {@code true} if value is valid
+     */
+    @Override
+    protected final boolean valueIsValid(final Boolean value)
+    {
+        return this.changeIsValid.get();
     }
 }

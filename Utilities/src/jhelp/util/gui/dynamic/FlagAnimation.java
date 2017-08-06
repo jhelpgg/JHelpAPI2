@@ -1,14 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any
- * damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.gui.dynamic;
 
 import jhelp.util.gui.JHelpImage;
@@ -29,6 +30,10 @@ public class FlagAnimation
      */
     private final int            amplitude;
     /**
+     * Actual start angle
+     */
+    private       double         angle;
+    /**
      * Image to animate
      */
     private final JHelpImage     flagImage;
@@ -41,14 +46,6 @@ public class FlagAnimation
      */
     private final int            numberOfWave;
     /**
-     * Transformation to use to do flag effect
-     */
-    private final Transformation transformation;
-    /**
-     * Actual start angle
-     */
-    private       double         angle;
-    /**
      * Sprite where draw flag
      */
     private       JHelpSprite    sprite;
@@ -56,6 +53,10 @@ public class FlagAnimation
      * Start absolute frame
      */
     private       float          startAbsoluteFrame;
+    /**
+     * Transformation to use to do flag effect
+     */
+    private final Transformation transformation;
     /**
      * Position X
      */
@@ -89,6 +90,20 @@ public class FlagAnimation
     }
 
     /**
+     * Refresh the flag in the sprite
+     */
+    private void refreshSprite()
+    {
+        this.transformation.toHorizontalSin(this.numberOfWave, this.amplitude, this.angle);
+
+        final JHelpImage image = this.sprite.getImage();
+        image.startDrawMode();
+        image.clear(0);
+        image.drawImage(0, this.amplitude, this.flagImage, this.transformation, false);
+        image.endDrawMode();
+    }
+
+    /**
      * Called each time animation refreshed <br>
      * <br>
      * <b>Parent documentation:</b><br>
@@ -106,20 +121,6 @@ public class FlagAnimation
                                   Math.PI * 2);
         this.refreshSprite();
         return true;
-    }
-
-    /**
-     * Refresh the flag in the sprite
-     */
-    private void refreshSprite()
-    {
-        this.transformation.toHorizontalSin(this.numberOfWave, this.amplitude, this.angle);
-
-        final JHelpImage image = this.sprite.getImage();
-        image.startDrawMode();
-        image.clear(0);
-        image.drawImage(0, this.amplitude, this.flagImage, this.transformation, false);
-        image.endDrawMode();
     }
 
     /**

@@ -1,14 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any
- * damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.gui;
 
 import jhelp.util.math.Math2;
@@ -23,49 +24,66 @@ import jhelp.util.math.Math2;
 public class JHelpGradientLightLine
         implements JHelpPaint
 {
-    /** a² (From aX+bY+c=0) */
+    /**
+     * a² (From aX+bY+c=0)
+     */
     private final double aa;
-    /** a*b (From aX+bY+c=0) */
+    /**
+     * a*b (From aX+bY+c=0)
+     */
     private final double ab;
-    /** a*c (From aX+bY+c=0) */
+    /**
+     * a*c (From aX+bY+c=0)
+     */
     private final double ac;
-    /** alpha to use on the line */
+    /**
+     * alpha to use on the line
+     */
     private final int    alpha;
-    /** Attenuation factor for accelerate the become transparent */
+    /**
+     * Attenuation factor for accelerate the become transparent
+     */
     private final int    attenuation;
-    /** b² (From aX+bY+c=0) */
+    /**
+     * b² (From aX+bY+c=0)
+     */
     private final double bb;
-    /** b*c (From aX+bY+c=0) */
+    /**
+     * b*c (From aX+bY+c=0)
+     */
     private final double bc;
 
-    /** Blue to use on the line */
+    /**
+     * Blue to use on the line
+     */
     private final int    blue;
-    /** a²+b² (From aX+bY+c=0) */
+    /**
+     * a²+b² (From aX+bY+c=0)
+     */
     private final double divisor;
-    /** Green to use on the line */
+    /**
+     * Green to use on the line
+     */
     private final int    green;
-    /** Red to use on the line */
+    /**
+     * Red to use on the line
+     */
     private final int    red;
 
     /**
      * Create a new instance of JHelpGradientAlphaLine.<br>
      * Line is define by 2 points
      *
-     * @param x1
-     *           First point x
-     * @param y1
-     *           First point y
-     * @param x2
-     *           Second point x
-     * @param y2
-     *           Second point y
-     * @param color
-     *           Color to use
-     * @param attenuation
-     *           Attenuation factor to accelerate the got transparent
+     * @param x1          First point x
+     * @param y1          First point y
+     * @param x2          Second point x
+     * @param y2          Second point y
+     * @param color       Color to use
+     * @param attenuation Attenuation factor to accelerate the got transparent
      */
-    public JHelpGradientLightLine(final int x1, final int y1, final int x2, final int y2, final int color,
-                                  final int attenuation)
+    public JHelpGradientLightLine(
+            final int x1, final int y1, final int x2, final int y2, final int color,
+            final int attenuation)
     {
         if ((x1 == x2) && (y1 == y2))
         {
@@ -108,10 +126,8 @@ public class JHelpGradientLightLine
      * <b>Parent documentation:</b><br>
      * {@inheritDoc}
      *
-     * @param width
-     *           Area width
-     * @param height
-     *           Area height
+     * @param width  Area width
+     * @param height Area height
      * @see jhelp.util.gui.JHelpPaint#initializePaint(int, int)
      */
     @Override
@@ -125,10 +141,8 @@ public class JHelpGradientLightLine
      * <b>Parent documentation:</b><br>
      * {@inheritDoc}
      *
-     * @param x
-     *           X
-     * @param y
-     *           Y
+     * @param x X
+     * @param y Y
      * @return Computed color
      * @see jhelp.util.gui.JHelpPaint#obtainColor(int, int)
      */
@@ -140,8 +154,8 @@ public class JHelpGradientLightLine
         final double dist  = Math.sqrt(Math2.square(x - xx) + Math2.square(y - yy));
         final int    minus = (int) (dist * this.attenuation);
         return (Math.max(0, this.alpha - minus) << 24)//
-                | (Math.max(0, this.red - minus) << 16)//
-                | (Math.max(0, this.green - minus) << 8)//
-                | Math.max(0, this.blue - minus);
+               | (Math.max(0, this.red - minus) << 16)//
+               | (Math.max(0, this.green - minus) << 8)//
+               | Math.max(0, this.blue - minus);
     }
 }

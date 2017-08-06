@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.math.rational;
 
 import java.text.NumberFormat;
@@ -12,6 +24,10 @@ import jhelp.util.util.HashCode;
 @SuppressWarnings("SuspiciousNameCombination")
 public class MatrixRational
 {
+    /**
+     * Matrix determinant
+     */
+    private       Rational   determinant;
     /**
      * Matrix height
      */
@@ -28,10 +44,6 @@ public class MatrixRational
      * Matrix width
      */
     private final int        width;
-    /**
-     * Matrix determinant
-     */
-    private       Rational   determinant;
 
     /**
      * Create a new instance of MatrixRational
@@ -67,67 +79,43 @@ public class MatrixRational
     }
 
     /**
-     * Compute the determinant of a sub matrix (matrix with one column and one row removed)
+     * Check if a cell is inside the matrix
      *
-     * @param x Column to remove
-     * @param y Row to remove
-     * @return Compute determinant
+     * @param x Cell X
+     * @param y Cell Y
+     * @throws IllegalArgumentException If cell outside the matrix
      */
-    Rational determinantSubMatrix(final int x, final int y)
+    private void check(final int x, final int y)
     {
+        if ((x < 0) || (x >= this.width) || (y < 0) || (y >= this.height))
+        {
+            throw new IllegalArgumentException(
+                    "x must be in [0, " + this.width + "[ and y in [0, " + this.height + "[ not (" + x + ", " + y +
+                    ")");
+        }
+    }
+
+    /**
+     * Compute internally the determinant
+     *
+     * @return Matrix determinant
+     */
+    private Rational determinantInternal()
+    {
+        if (this.width == 1)
+        {
+            this.determinant = this.matrix[0];
+            return this.determinant;
+        }
+
         if (this.width == 2)
         {
-            return this.matrix[(1 - x) + ((1 - y) * this.width)];
+            this.determinant = Rational.subtract(this.matrix[0].multiply(this.matrix[3]),
+                                                 this.matrix[2].multiply(this.matrix[1]));
+            return this.determinant;
         }
 
-        if (this.width == 3)
-        {
-            switch (x)
-            {
-                case 0:
-                    switch (y)
-                    {
-                        case 0:
-                            return Rational.subtract(this.matrix[4].multiply(this.matrix[8]),
-                                                     this.matrix[5].multiply(this.matrix[7]));
-                        case 1:
-                            return Rational.subtract(this.matrix[1].multiply(this.matrix[8]),
-                                                     this.matrix[2].multiply(this.matrix[7]));
-                        case 2:
-                            return Rational.subtract(this.matrix[1].multiply(this.matrix[5]),
-                                                     this.matrix[2].multiply(this.matrix[4]));
-                    }
-                case 1:
-                    switch (y)
-                    {
-                        case 0:
-                            return Rational.subtract(this.matrix[3].multiply(this.matrix[8]),
-                                                     this.matrix[5].multiply(this.matrix[6]));
-                        case 1:
-                            return Rational.subtract(this.matrix[0].multiply(this.matrix[8]),
-                                                     this.matrix[2].multiply(this.matrix[6]));
-                        case 2:
-                            return Rational.subtract(this.matrix[0].multiply(this.matrix[5]),
-                                                     this.matrix[2].multiply(this.matrix[3]));
-                    }
-                case 2:
-                    switch (y)
-                    {
-                        case 0:
-                            return Rational.subtract(this.matrix[3].multiply(this.matrix[7]),
-                                                     this.matrix[4].multiply(this.matrix[6]));
-                        case 1:
-                            return Rational.subtract(this.matrix[0].multiply(this.matrix[7]),
-                                                     this.matrix[1].multiply(this.matrix[6]));
-                        case 2:
-                            return Rational.subtract(this.matrix[0].multiply(this.matrix[4]),
-                                                     this.matrix[1].multiply(this.matrix[3]));
-                    }
-            }
-        }
-
-        return this.subMatrixRational(x, y)
-                   .determinantInternalMore2();
+        return this.determinantInternalMore2();
     }
 
     /**
@@ -226,19 +214,6 @@ public class MatrixRational
     }
 
     /**
-     * Create a matrix copy
-     *
-     * @return Matrix copy
-     */
-    public MatrixRational copy()
-    {
-        final MatrixRational matrixRational = new MatrixRational(this.width, this.height);
-        System.arraycopy(this.matrix, 0, matrixRational.matrix, 0, this.size);
-        matrixRational.determinant = this.determinant;
-        return matrixRational;
-    }
-
-    /**
      * Compute a submatrix on removing one column and one row
      *
      * @param removedColumn Column to remove
@@ -277,6 +252,70 @@ public class MatrixRational
     }
 
     /**
+     * Compute the determinant of a sub matrix (matrix with one column and one row removed)
+     *
+     * @param x Column to remove
+     * @param y Row to remove
+     * @return Compute determinant
+     */
+    Rational determinantSubMatrix(final int x, final int y)
+    {
+        if (this.width == 2)
+        {
+            return this.matrix[(1 - x) + ((1 - y) * this.width)];
+        }
+
+        if (this.width == 3)
+        {
+            switch (x)
+            {
+                case 0:
+                    switch (y)
+                    {
+                        case 0:
+                            return Rational.subtract(this.matrix[4].multiply(this.matrix[8]),
+                                                     this.matrix[5].multiply(this.matrix[7]));
+                        case 1:
+                            return Rational.subtract(this.matrix[1].multiply(this.matrix[8]),
+                                                     this.matrix[2].multiply(this.matrix[7]));
+                        case 2:
+                            return Rational.subtract(this.matrix[1].multiply(this.matrix[5]),
+                                                     this.matrix[2].multiply(this.matrix[4]));
+                    }
+                case 1:
+                    switch (y)
+                    {
+                        case 0:
+                            return Rational.subtract(this.matrix[3].multiply(this.matrix[8]),
+                                                     this.matrix[5].multiply(this.matrix[6]));
+                        case 1:
+                            return Rational.subtract(this.matrix[0].multiply(this.matrix[8]),
+                                                     this.matrix[2].multiply(this.matrix[6]));
+                        case 2:
+                            return Rational.subtract(this.matrix[0].multiply(this.matrix[5]),
+                                                     this.matrix[2].multiply(this.matrix[3]));
+                    }
+                case 2:
+                    switch (y)
+                    {
+                        case 0:
+                            return Rational.subtract(this.matrix[3].multiply(this.matrix[7]),
+                                                     this.matrix[4].multiply(this.matrix[6]));
+                        case 1:
+                            return Rational.subtract(this.matrix[0].multiply(this.matrix[7]),
+                                                     this.matrix[1].multiply(this.matrix[6]));
+                        case 2:
+                            return Rational.subtract(this.matrix[0].multiply(this.matrix[4]),
+                                                     this.matrix[1].multiply(this.matrix[3]));
+                    }
+            }
+        }
+
+        return this.subMatrixRational(x, y)
+                   .determinantInternalMore2();
+    }
+
+    /**
      * Add an other matrix.<br>
      * The added matrix MUST have same dimensions
      *
@@ -298,6 +337,66 @@ public class MatrixRational
     }
 
     /**
+     * Compute the matrix adjacent.<br>
+     * The matrix MUST be square
+     *
+     * @return Adjacent matrix
+     */
+    public MatrixRational adjacent()
+    {
+        if (this.width != this.height)
+        {
+            throw new IllegalStateException("Adjacent only for square matrix");
+        }
+
+        if (this.width == 1)
+        {
+            return this.copy();
+        }
+
+        if (this.width == 2)
+        {
+            final MatrixRational adjacent = new MatrixRational(2, 2);
+            adjacent.matrix[0] = this.matrix[3];
+            adjacent.matrix[1] = this.matrix[1].opposite();
+            adjacent.matrix[2] = this.matrix[2].opposite();
+            adjacent.matrix[3] = this.matrix[0];
+            adjacent.determinant = this.determinant;
+            return adjacent;
+        }
+
+        final MatrixRational adjacent = new MatrixRational(this.width, this.height);
+        int                  index    = 0;
+        Rational             signMain = Rational.ONE;
+        final AtomicInteger  count    = new AtomicInteger(this.width);
+
+        for (int x = 0; x < this.width; x++)
+        {
+            (new TaskAdjacent(count, adjacent.matrix, signMain, index, x, this.height, this)).start();
+            signMain = signMain.opposite();
+            index += this.width;
+        }
+
+        //noinspection SynchronizationOnLocalVariableOrMethodParameter
+        synchronized (count)
+        {
+            while (count.get() > 0)
+            {
+                try
+                {
+                    count.wait();
+                }
+                catch (final Exception ignored)
+                {
+                }
+            }
+        }
+
+        adjacent.determinant = Rational.INVALID;
+        return adjacent;
+    }
+
+    /**
      * Indicates if the matrix can be invert
      *
      * @return {@code true} if matrix can be invert
@@ -305,6 +404,19 @@ public class MatrixRational
     public boolean canBeInvert()
     {
         return (this.isSquare()) && (this.determinant() != Rational.ZERO);
+    }
+
+    /**
+     * Create a matrix copy
+     *
+     * @return Matrix copy
+     */
+    public MatrixRational copy()
+    {
+        final MatrixRational matrixRational = new MatrixRational(this.width, this.height);
+        System.arraycopy(this.matrix, 0, matrixRational.matrix, 0, this.size);
+        matrixRational.determinant = this.determinant;
+        return matrixRational;
     }
 
     /**
@@ -329,39 +441,6 @@ public class MatrixRational
     }
 
     /**
-     * Compute internally the determinant
-     *
-     * @return Matrix determinant
-     */
-    private Rational determinantInternal()
-    {
-        if (this.width == 1)
-        {
-            this.determinant = this.matrix[0];
-            return this.determinant;
-        }
-
-        if (this.width == 2)
-        {
-            this.determinant = Rational.subtract(this.matrix[0].multiply(this.matrix[3]),
-                                                 this.matrix[2].multiply(this.matrix[1]));
-            return this.determinant;
-        }
-
-        return this.determinantInternalMore2();
-    }
-
-    /**
-     * Indicates if the matrix is square
-     *
-     * @return {@code true} if the matrix is square
-     */
-    public boolean isSquare()
-    {
-        return this.width == this.height;
-    }
-
-    /**
      * Obtain a matrix cell value
      *
      * @param x Cell X
@@ -373,23 +452,6 @@ public class MatrixRational
         this.check(x, y);
 
         return this.matrix[x + (y * this.width)];
-    }
-
-    /**
-     * Check if a cell is inside the matrix
-     *
-     * @param x Cell X
-     * @param y Cell Y
-     * @throws IllegalArgumentException If cell outside the matrix
-     */
-    private void check(final int x, final int y)
-    {
-        if ((x < 0) || (x >= this.width) || (y < 0) || (y >= this.height))
-        {
-            throw new IllegalArgumentException(
-                    "x must be in [0, " + this.width + "[ and y in [0, " + this.height + "[ not (" + x + ", " + y +
-                    ")");
-        }
     }
 
     /**
@@ -593,66 +655,6 @@ public class MatrixRational
     }
 
     /**
-     * Compute the matrix adjacent.<br>
-     * The matrix MUST be square
-     *
-     * @return Adjacent matrix
-     */
-    public MatrixRational adjacent()
-    {
-        if (this.width != this.height)
-        {
-            throw new IllegalStateException("Adjacent only for square matrix");
-        }
-
-        if (this.width == 1)
-        {
-            return this.copy();
-        }
-
-        if (this.width == 2)
-        {
-            final MatrixRational adjacent = new MatrixRational(2, 2);
-            adjacent.matrix[0] = this.matrix[3];
-            adjacent.matrix[1] = this.matrix[1].opposite();
-            adjacent.matrix[2] = this.matrix[2].opposite();
-            adjacent.matrix[3] = this.matrix[0];
-            adjacent.determinant = this.determinant;
-            return adjacent;
-        }
-
-        final MatrixRational adjacent = new MatrixRational(this.width, this.height);
-        int                  index    = 0;
-        Rational             signMain = Rational.ONE;
-        final AtomicInteger  count    = new AtomicInteger(this.width);
-
-        for (int x = 0; x < this.width; x++)
-        {
-            (new TaskAdjacent(count, adjacent.matrix, signMain, index, x, this.height, this)).start();
-            signMain = signMain.opposite();
-            index += this.width;
-        }
-
-        //noinspection SynchronizationOnLocalVariableOrMethodParameter
-        synchronized (count)
-        {
-            while (count.get() > 0)
-            {
-                try
-                {
-                    count.wait();
-                }
-                catch (final Exception ignored)
-                {
-                }
-            }
-        }
-
-        adjacent.determinant = Rational.INVALID;
-        return adjacent;
-    }
-
-    /**
      * Indicates if the matrix is an identity matrix
      *
      * @return {@code true} if the matrix is an identity matrix
@@ -687,6 +689,16 @@ public class MatrixRational
         }
 
         return true;
+    }
+
+    /**
+     * Indicates if the matrix is square
+     *
+     * @return {@code true} if the matrix is square
+     */
+    public boolean isSquare()
+    {
+        return this.width == this.height;
     }
 
     /**

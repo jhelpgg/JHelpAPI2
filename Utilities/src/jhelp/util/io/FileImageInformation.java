@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.io;
 
 import java.awt.Dimension;
@@ -18,6 +30,33 @@ import jhelp.util.text.UtilText;
  */
 public class FileImageInformation
 {
+    static
+    {
+        GIF = "GIF";
+        JPG = "JPG";
+        PNG = "PNG";
+        BMP = "BMP";
+        PCX = "PCX";
+        final ArrayList<ImageReader> imageReaders = new ArrayList<>();
+
+        final String[] suffixs =
+                {
+                        FileImageInformation.JPG, FileImageInformation.PNG, FileImageInformation.GIF,
+                        FileImageInformation.BMP
+                };
+
+        for (final String suffix : suffixs)
+        {
+            for (final ImageReader imageReader : new EnumerationIterator<>(
+                    ImageIO.getImageReadersBySuffix(suffix)))
+            {
+                imageReaders.add(imageReader);
+            }
+        }
+
+        IMAGES_READERS = imageReaders.toArray(new ImageReader[imageReaders.size()]);
+    }
+
     /**
      * JVM known readers
      */
@@ -82,7 +121,6 @@ public class FileImageInformation
             return (new FileImageInformation(pathname)).getFormatName() != null;
         }
     };
-
     /**
      * GIF image file format name
      */
@@ -99,34 +137,6 @@ public class FileImageInformation
      * PNG image file format name
      */
     public static final String PNG;
-
-    static
-    {
-        GIF = "GIF";
-        JPG = "JPG";
-        PNG = "PNG";
-        BMP = "BMP";
-        PCX = "PCX";
-        final ArrayList<ImageReader> imageReaders = new ArrayList<ImageReader>();
-
-        final String[] suffixs =
-                {
-                        FileImageInformation.JPG, FileImageInformation.PNG, FileImageInformation.GIF,
-                        FileImageInformation.BMP
-                };
-
-        for (final String suffix : suffixs)
-        {
-            for (final ImageReader imageReader : new EnumerationIterator<ImageReader>(
-                    ImageIO.getImageReadersBySuffix(suffix)))
-            {
-                imageReaders.add(imageReader);
-            }
-        }
-
-        IMAGES_READERS = imageReaders.toArray(new ImageReader[imageReaders.size()]);
-    }
-
     /**
      * Image file
      */

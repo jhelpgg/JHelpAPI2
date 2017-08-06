@@ -1,13 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.io.json;
 
 import java.io.BufferedWriter;
@@ -57,231 +59,6 @@ public final class ValueJSON
      * True value
      */
     public final static  ValueJSON TRUE      = new ValueJSON(ValueType.BOOLEAN, true);
-
-    /**
-     * Search the corresponding } OR ] on string.<br>
-     * We count { and [ as +1, } and ] as -1, if we have negative value, we found the corresponding.<br>
-     * It returns -1 if not found
-     *
-     * @param string String to parse
-     * @param start  Index where start the search (Just after the opening [ OR {
-     * @param end    Last index where search
-     * @return Corresponding index or -1 if not found
-     */
-    private static int serachCorrespondingEnd(final String string, final int start, final int end)
-    {
-        final char[] chars = string.toCharArray();
-
-        boolean insideString = false;
-        boolean antiSlash    = false;
-        int     accolades    = 0;
-        int     barks        = 0;
-
-        for (int i = start; i <= end; i++)
-        {
-            switch (chars[i])
-            {
-                case '{':
-                    if ((!insideString) && (!antiSlash))
-                    {
-                        accolades++;
-                    }
-
-                    antiSlash = false;
-                    break;
-                case '[':
-                    if ((!insideString) && (!antiSlash))
-                    {
-                        barks++;
-                    }
-
-                    antiSlash = false;
-                    break;
-                case '}':
-                    if ((!insideString) && (!antiSlash))
-                    {
-                        accolades--;
-
-                        if (accolades < 0)
-                        {
-                            return i;
-                        }
-                    }
-
-                    antiSlash = false;
-                    break;
-                case ']':
-                    if ((!insideString) && (!antiSlash))
-                    {
-                        barks--;
-
-                        if (barks < 0)
-                        {
-                            return i;
-                        }
-                    }
-
-                    antiSlash = false;
-                    break;
-                case '\\':
-                    antiSlash = !antiSlash;
-                    break;
-                case '"':
-                    if (!antiSlash)
-                    {
-                        insideString = !insideString;
-                    }
-
-                    antiSlash = false;
-                    break;
-                default:
-                    antiSlash = false;
-                    break;
-            }
-        }
-
-        return -1;
-    }
-
-    /**
-     * Parse a part of String to JSON value and next index to read.<br>
-     * It returns {@code null} if part String not a JSON value
-     *
-     * @param string String to parse
-     * @param first  Start index to parse
-     * @param last   End index to parse
-     * @return JSON value and next index OR {@code null} if part String not a JSON value
-     */
-    static Pair<ValueJSON, Integer> parse(final String string, int first, final int last)
-    {
-        // Search first not white character
-        while ((first <= last) && (string.charAt(first) <= 32))
-        {
-            first++;
-        }
-
-        if (first > last)
-        {
-            return null;
-        }
-
-        // Is their, at least, 2 characters
-        if (first < last)
-        {
-            switch (string.charAt(first))
-            {
-                // Try to parse as String
-                case '"':
-                {
-                    int     end       = first + 1;
-                    boolean antiSlash = false;
-                    boolean found     = false;
-
-                    // Search String end
-                    for (; (end <= last) && (!found); end++)
-                    {
-                        switch (string.charAt(end))
-                        {
-                            case '\\':
-                                antiSlash = !antiSlash;
-                                break;
-                            case '"':
-                                if (!antiSlash)
-                                {
-                                    found = true;
-                                }
-
-                                antiSlash = false;
-                                break;
-                            default:
-                                antiSlash = false;
-                                break;
-                        }
-                    }
-
-                    if (end <= last)
-                    {
-                        // Found String
-                        return new Pair<ValueJSON, Integer>(ValueJSON.newValue(string.substring(first + 1, end - 1)),
-                                                            end);
-                    }
-                }
-                break;
-                // Try to parse as JSON object
-                case '{':
-                {
-                    // Search ending definition
-                    final int end = ValueJSON.serachCorrespondingEnd(string, first + 1, last);
-
-                    if (end >= 0)
-                    {
-                        // Parse the JSON object
-                        final Pair<ObjectJSON, Integer> pair = ObjectJSON.parse(string, first, end);
-
-                        if (pair != null)
-                        {
-                            return new Pair<ValueJSON, Integer>(ValueJSON.newValue(pair.first), pair.second);
-                        }
-                    }
-                }
-                break;
-                // Try to parse as JSON array
-                case '[':
-                {
-                    // Search ending definition
-                    final int end = ValueJSON.serachCorrespondingEnd(string, first + 1, last);
-
-                    if (end >= 0)
-                    {
-                        // Parse the JSON array
-                        final Pair<ArrayJSON, Integer> pair = ArrayJSON.parse(string, first, end);
-
-                        if (pair != null)
-                        {
-                            return new Pair<ValueJSON, Integer>(ValueJSON.newValue(pair.first), pair.second);
-                        }
-                    }
-                }
-                break;
-            }
-        }
-
-        // Search key word or number end
-        int end = first + 1;
-        while ((end <= last) && (string.charAt(end) > 32) && (string.charAt(end) != ',') &&
-               (string.charAt(end) != ']') && (string.charAt(end) != '}'))
-        {
-            end++;
-        }
-
-        // Try to recognize the extracted word
-        final String value = string.substring(first, end);
-
-        if (ValueJSON.KEY_NULL.equals(value))
-        {
-            return new Pair<ValueJSON, Integer>(ValueJSON.NULL, end);
-        }
-
-        if (ValueJSON.KEY_TRUE.equals(value))
-        {
-            return new Pair<ValueJSON, Integer>(ValueJSON.TRUE, end);
-        }
-
-        if (ValueJSON.KEY_FALSE.equals(value))
-        {
-            return new Pair<ValueJSON, Integer>(ValueJSON.FALSE, end);
-        }
-
-        try
-        {
-            return new Pair<ValueJSON, Integer>(ValueJSON.newValue(Double.parseDouble(value)), end);
-        }
-        catch (final Exception ignored)
-        {
-        }
-
-        return null;
-    }
 
     /**
      * Create JSON value with a JSON array inside
@@ -412,6 +189,231 @@ public final class ValueJSON
     }
 
     /**
+     * Parse a part of String to JSON value and next index to read.<br>
+     * It returns {@code null} if part String not a JSON value
+     *
+     * @param string String to parse
+     * @param first  Start index to parse
+     * @param last   End index to parse
+     * @return JSON value and next index OR {@code null} if part String not a JSON value
+     */
+    static Pair<ValueJSON, Integer> parse(final String string, int first, final int last)
+    {
+        // Search first not white character
+        while ((first <= last) && (string.charAt(first) <= 32))
+        {
+            first++;
+        }
+
+        if (first > last)
+        {
+            return null;
+        }
+
+        // Is their, at least, 2 characters
+        if (first < last)
+        {
+            switch (string.charAt(first))
+            {
+                // Try to parse as String
+                case '"':
+                {
+                    int     end       = first + 1;
+                    boolean antiSlash = false;
+                    boolean found     = false;
+
+                    // Search String end
+                    for (; (end <= last) && (!found); end++)
+                    {
+                        switch (string.charAt(end))
+                        {
+                            case '\\':
+                                antiSlash = !antiSlash;
+                                break;
+                            case '"':
+                                if (!antiSlash)
+                                {
+                                    found = true;
+                                }
+
+                                antiSlash = false;
+                                break;
+                            default:
+                                antiSlash = false;
+                                break;
+                        }
+                    }
+
+                    if (end <= last)
+                    {
+                        // Found String
+                        return new Pair<>(ValueJSON.newValue(string.substring(first + 1, end - 1)),
+                                          end);
+                    }
+                }
+                break;
+                // Try to parse as JSON object
+                case '{':
+                {
+                    // Search ending definition
+                    final int end = ValueJSON.serachCorrespondingEnd(string, first + 1, last);
+
+                    if (end >= 0)
+                    {
+                        // Parse the JSON object
+                        final Pair<ObjectJSON, Integer> pair = ObjectJSON.parse(string, first, end);
+
+                        if (pair != null)
+                        {
+                            return new Pair<>(ValueJSON.newValue(pair.first), pair.second);
+                        }
+                    }
+                }
+                break;
+                // Try to parse as JSON array
+                case '[':
+                {
+                    // Search ending definition
+                    final int end = ValueJSON.serachCorrespondingEnd(string, first + 1, last);
+
+                    if (end >= 0)
+                    {
+                        // Parse the JSON array
+                        final Pair<ArrayJSON, Integer> pair = ArrayJSON.parse(string, first, end);
+
+                        if (pair != null)
+                        {
+                            return new Pair<>(ValueJSON.newValue(pair.first), pair.second);
+                        }
+                    }
+                }
+                break;
+            }
+        }
+
+        // Search key word or number end
+        int end = first + 1;
+        while ((end <= last) && (string.charAt(end) > 32) && (string.charAt(end) != ',') &&
+               (string.charAt(end) != ']') && (string.charAt(end) != '}'))
+        {
+            end++;
+        }
+
+        // Try to recognize the extracted word
+        final String value = string.substring(first, end);
+
+        if (ValueJSON.KEY_NULL.equals(value))
+        {
+            return new Pair<>(ValueJSON.NULL, end);
+        }
+
+        if (ValueJSON.KEY_TRUE.equals(value))
+        {
+            return new Pair<>(ValueJSON.TRUE, end);
+        }
+
+        if (ValueJSON.KEY_FALSE.equals(value))
+        {
+            return new Pair<>(ValueJSON.FALSE, end);
+        }
+
+        try
+        {
+            return new Pair<>(ValueJSON.newValue(Double.parseDouble(value)), end);
+        }
+        catch (final Exception ignored)
+        {
+        }
+
+        return null;
+    }
+
+    /**
+     * Search the corresponding } OR ] on string.<br>
+     * We count { and [ as +1, } and ] as -1, if we have negative value, we found the corresponding.<br>
+     * It returns -1 if not found
+     *
+     * @param string String to parse
+     * @param start  Index where start the search (Just after the opening [ OR {
+     * @param end    Last index where search
+     * @return Corresponding index or -1 if not found
+     */
+    private static int serachCorrespondingEnd(final String string, final int start, final int end)
+    {
+        final char[] chars = string.toCharArray();
+
+        boolean insideString = false;
+        boolean antiSlash    = false;
+        int     accolades    = 0;
+        int     barks        = 0;
+
+        for (int i = start; i <= end; i++)
+        {
+            switch (chars[i])
+            {
+                case '{':
+                    if ((!insideString) && (!antiSlash))
+                    {
+                        accolades++;
+                    }
+
+                    antiSlash = false;
+                    break;
+                case '[':
+                    if ((!insideString) && (!antiSlash))
+                    {
+                        barks++;
+                    }
+
+                    antiSlash = false;
+                    break;
+                case '}':
+                    if ((!insideString) && (!antiSlash))
+                    {
+                        accolades--;
+
+                        if (accolades < 0)
+                        {
+                            return i;
+                        }
+                    }
+
+                    antiSlash = false;
+                    break;
+                case ']':
+                    if ((!insideString) && (!antiSlash))
+                    {
+                        barks--;
+
+                        if (barks < 0)
+                        {
+                            return i;
+                        }
+                    }
+
+                    antiSlash = false;
+                    break;
+                case '\\':
+                    antiSlash = !antiSlash;
+                    break;
+                case '"':
+                    if (!antiSlash)
+                    {
+                        insideString = !insideString;
+                    }
+
+                    antiSlash = false;
+                    break;
+                default:
+                    antiSlash = false;
+                    break;
+            }
+        }
+
+        return -1;
+    }
+
+    /**
      * Value content
      */
     private final Object value;
@@ -474,56 +476,6 @@ public final class ValueJSON
         }
 
         bufferedWriter.flush();
-    }
-
-    /**
-     * Indicates if an object is equals to this value <br>
-     * <br>
-     * <b>Parent documentation:</b><br>
-     * {@inheritDoc}
-     *
-     * @param object Tested object
-     * @return {@code true} if the object is equals to this value
-     * @see Object#equals(Object)
-     */
-    @Override
-    public boolean equals(final Object object)
-    {
-        if (this == object)
-        {
-            return true;
-        }
-
-        if (object == null)
-        {
-            return false;
-        }
-
-        if (!(object instanceof ValueJSON))
-        {
-            return false;
-        }
-
-        final ValueJSON value = (ValueJSON) object;
-
-        if (this.valueType != value.valueType)
-        {
-            return false;
-        }
-
-        if (this.valueType == ValueType.NUMBER)
-        {
-            final double thisNumber  = (Double) this.value;
-            final double otherNumber = (Double) value.value;
-            return Math2.equals(thisNumber, otherNumber);
-        }
-
-        if (this.valueType == ValueType.NULL)
-        {
-            return true;
-        }
-
-        return this.value.equals(value.value);
     }
 
     /**
@@ -711,37 +663,53 @@ public final class ValueJSON
     }
 
     /**
-     * Indicates if it is the{@link #NULL} value
+     * Indicates if an object is equals to this value <br>
+     * <br>
+     * <b>Parent documentation:</b><br>
+     * {@inheritDoc}
      *
-     * @return {@code true} if it is the{@link #NULL} value
+     * @param object Tested object
+     * @return {@code true} if the object is equals to this value
+     * @see Object#equals(Object)
      */
-    public boolean isNull()
+    @Override
+    public boolean equals(final Object object)
     {
-        return this.value == null;
-    }
+        if (this == object)
+        {
+            return true;
+        }
 
-    /**
-     * Serialize inside a stream
-     *
-     * @param bufferedWriter Stream where write
-     * @param compact        Indicates if compact mode
-     * @throws IOException On writing issue
-     */
-    public void serialize(final BufferedWriter bufferedWriter, final boolean compact) throws IOException
-    {
-        this.serialize(bufferedWriter, compact, 0);
-    }
+        if (object == null)
+        {
+            return false;
+        }
 
-    /**
-     * Serialize inside a stream
-     *
-     * @param outputStream Stream where write
-     * @param compact      Indicates if compact mode
-     * @throws IOException On writing issue
-     */
-    public void serialize(final OutputStream outputStream, final boolean compact) throws IOException
-    {
-        this.serialize(new BufferedWriter(new OutputStreamWriter(outputStream)), compact);
+        if (!(object instanceof ValueJSON))
+        {
+            return false;
+        }
+
+        final ValueJSON value = (ValueJSON) object;
+
+        if (this.valueType != value.valueType)
+        {
+            return false;
+        }
+
+        if (this.valueType == ValueType.NUMBER)
+        {
+            final double thisNumber  = (Double) this.value;
+            final double otherNumber = (Double) value.value;
+            return Math2.equals(thisNumber, otherNumber);
+        }
+
+        if (this.valueType == ValueType.NULL)
+        {
+            return true;
+        }
+
+        return this.value.equals(value.value);
     }
 
     /**
@@ -780,5 +748,39 @@ public final class ValueJSON
         }
 
         return null;
+    }
+
+    /**
+     * Indicates if it is the{@link #NULL} value
+     *
+     * @return {@code true} if it is the{@link #NULL} value
+     */
+    public boolean isNull()
+    {
+        return this.value == null;
+    }
+
+    /**
+     * Serialize inside a stream
+     *
+     * @param bufferedWriter Stream where write
+     * @param compact        Indicates if compact mode
+     * @throws IOException On writing issue
+     */
+    public void serialize(final BufferedWriter bufferedWriter, final boolean compact) throws IOException
+    {
+        this.serialize(bufferedWriter, compact, 0);
+    }
+
+    /**
+     * Serialize inside a stream
+     *
+     * @param outputStream Stream where write
+     * @param compact      Indicates if compact mode
+     * @throws IOException On writing issue
+     */
+    public void serialize(final OutputStream outputStream, final boolean compact) throws IOException
+    {
+        this.serialize(new BufferedWriter(new OutputStreamWriter(outputStream)), compact);
     }
 }

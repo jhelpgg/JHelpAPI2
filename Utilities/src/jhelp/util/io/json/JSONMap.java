@@ -1,19 +1,18 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not
- * responsible about any damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that
- * avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.io.json;
 
 import com.sun.istack.internal.NotNull;
-
 import java.util.Stack;
 
 /**
@@ -48,13 +47,142 @@ public class JSONMap<KEY extends Comparable, VALUE>
     }
 
     /**
-     * Map size
+     * Place a copy of a node inside an other node
      *
-     * @return Map size
+     * @param parent  Node where add
+     * @param toPlace Node to place
      */
-    public int size()
+    @SuppressWarnings("unchecked")
+    private void placeCopy(Node<KEY, VALUE> parent, Node<KEY, VALUE> toPlace)
     {
-        return this.size;
+        int comparison;
+
+        while (true)
+        {
+            comparison = parent.key.compareTo(toPlace.key);
+
+            if (comparison == 0)
+            {
+                parent.value = toPlace.value;
+                return;
+            }
+
+            if (comparison < 0)
+            {
+                if (parent.lower == null)
+                {
+                    parent.lower = new Node<>(toPlace.key, toPlace.value);
+                    return;
+                }
+
+                parent = parent.lower;
+            }
+            else
+            {
+                if (parent.upper == null)
+                {
+                    parent.upper = new Node<>(toPlace.key, toPlace.value);
+                    return;
+                }
+
+                parent = parent.upper;
+            }
+        }
+    }
+
+    /**
+     * Create union of 2 nodes
+     *
+     * @param node1 First
+     * @param node2 Second
+     * @return Union
+     */
+    private Node<KEY, VALUE> union(Node<KEY, VALUE> node1, Node<KEY, VALUE> node2)
+    {
+        if (node1 == null)
+        {
+            return node2;
+        }
+
+        if (node2 == null)
+        {
+            return node1;
+        }
+
+        Node<KEY, VALUE>        union = new Node<>(node1.key, node1.value);
+        Stack<Node<KEY, VALUE>> stack = new Stack<>();
+
+        if (node1.lower != null)
+        {
+            stack.push(node1.lower);
+        }
+
+        if (node1.upper != null)
+        {
+            stack.push(node1.upper);
+        }
+
+        stack.push(node2);
+        Node<KEY, VALUE> node;
+
+        while (!stack.empty())
+        {
+            node = stack.pop();
+            this.placeCopy(union, node);
+
+            if (node.lower != null)
+            {
+                stack.push(node.lower);
+            }
+
+            if (node.upper != null)
+            {
+                stack.push(node.upper);
+            }
+        }
+
+        return union;
+    }
+
+    /**
+     * Obtain a value
+     *
+     * @param key Value key
+     * @return Desired value OR {@code null} if no key
+     */
+    @SuppressWarnings("unchecked")
+    public VALUE get(
+            @NotNull
+                    KEY key)
+    {
+        if (key == null)
+        {
+            throw new NullPointerException("key MUST NOT be null !");
+        }
+
+        Node<KEY, VALUE> node = this.root;
+        int              comparison;
+
+        while (node != null)
+        {
+            comparison = node.key.compareTo(key);
+
+            if (comparison == 0)
+            {
+                return node.value;
+            }
+
+            if (comparison < 0)
+            {
+                node = node.lower;
+            }
+            else
+            {
+                node = node.upper;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -65,6 +193,43 @@ public class JSONMap<KEY extends Comparable, VALUE>
     public boolean isEmpty()
     {
         return this.size == 0;
+    }
+
+    /**
+     * Keys list
+     *
+     * @return Keys list
+     */
+    public JSONList<KEY> keys()
+    {
+        JSONList<KEY> keys = new JSONList<>();
+
+        Stack<Node<KEY, VALUE>> stack = new Stack<>();
+
+        if (this.root != null)
+        {
+            stack.push(this.root);
+        }
+
+        Node<KEY, VALUE> node;
+
+        while (!stack.empty())
+        {
+            node = stack.pop();
+            keys.add(node.key);
+
+            if (node.lower != null)
+            {
+                stack.push(node.lower);
+            }
+
+            if (node.upper != null)
+            {
+                stack.push(node.upper);
+            }
+        }
+
+        return keys;
     }
 
     /**
@@ -86,7 +251,7 @@ public class JSONMap<KEY extends Comparable, VALUE>
         if (this.root == null)
         {
             this.size = 1;
-            this.root = new Node<KEY, VALUE>(key, value);
+            this.root = new Node<>(key, value);
             return;
         }
 
@@ -108,7 +273,7 @@ public class JSONMap<KEY extends Comparable, VALUE>
                 if (node.lower == null)
                 {
                     this.size++;
-                    node.lower = new Node<KEY, VALUE>(key, value);
+                    node.lower = new Node<>(key, value);
                     return;
                 }
 
@@ -119,7 +284,7 @@ public class JSONMap<KEY extends Comparable, VALUE>
                 if (node.upper == null)
                 {
                     this.size++;
-                    node.upper = new Node<KEY, VALUE>(key, value);
+                    node.upper = new Node<>(key, value);
                     return;
                 }
 
@@ -190,101 +355,13 @@ public class JSONMap<KEY extends Comparable, VALUE>
     }
 
     /**
-     * Create union of 2 nodes
+     * Map size
      *
-     * @param node1 First
-     * @param node2 Second
-     * @return Union
+     * @return Map size
      */
-    private Node<KEY, VALUE> union(Node<KEY, VALUE> node1, Node<KEY, VALUE> node2)
+    public int size()
     {
-        if (node1 == null)
-        {
-            return node2;
-        }
-
-        if (node2 == null)
-        {
-            return node1;
-        }
-
-        Node<KEY, VALUE>        union = new Node<>(node1.key, node1.value);
-        Stack<Node<KEY, VALUE>> stack = new Stack<>();
-
-        if (node1.lower != null)
-        {
-            stack.push(node1.lower);
-        }
-
-        if (node1.upper != null)
-        {
-            stack.push(node1.upper);
-        }
-
-        stack.push(node2);
-        Node<KEY, VALUE> node;
-
-        while (!stack.empty())
-        {
-            node = stack.pop();
-            this.placeCopy(union, node);
-
-            if (node.lower != null)
-            {
-                stack.push(node.lower);
-            }
-
-            if (node.upper != null)
-            {
-                stack.push(node.upper);
-            }
-        }
-
-        return union;
-    }
-
-    /**
-     * Place a copy of a node inside an other node
-     *
-     * @param parent  Node where add
-     * @param toPlace Node to place
-     */
-    @SuppressWarnings("unchecked")
-    private void placeCopy(Node<KEY, VALUE> parent, Node<KEY, VALUE> toPlace)
-    {
-        int comparison;
-
-        while (true)
-        {
-            comparison = parent.key.compareTo(toPlace.key);
-
-            if (comparison == 0)
-            {
-                parent.value = toPlace.value;
-                return;
-            }
-
-            if (comparison < 0)
-            {
-                if (parent.lower == null)
-                {
-                    parent.lower = new Node<KEY, VALUE>(toPlace.key, toPlace.value);
-                    return;
-                }
-
-                parent = parent.lower;
-            }
-            else
-            {
-                if (parent.upper == null)
-                {
-                    parent.upper = new Node<KEY, VALUE>(toPlace.key, toPlace.value);
-                    return;
-                }
-
-                parent = parent.upper;
-            }
-        }
+        return this.size;
     }
 
     /**
@@ -314,83 +391,5 @@ public class JSONMap<KEY extends Comparable, VALUE>
 
         stringBuilder.append('}');
         return stringBuilder.toString();
-    }
-
-    /**
-     * Obtain a value
-     *
-     * @param key Value key
-     * @return Desired value OR {@code null} if no key
-     */
-    @SuppressWarnings("unchecked")
-    public VALUE get(
-            @NotNull
-                    KEY key)
-    {
-        if (key == null)
-        {
-            throw new NullPointerException("key MUST NOT be null !");
-        }
-
-        Node<KEY, VALUE> node = this.root;
-        int              comparison;
-
-        while (node != null)
-        {
-            comparison = node.key.compareTo(key);
-
-            if (comparison == 0)
-            {
-                return node.value;
-            }
-
-            if (comparison < 0)
-            {
-                node = node.lower;
-            }
-            else
-            {
-                node = node.upper;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Keys list
-     *
-     * @return Keys list
-     */
-    public JSONList<KEY> keys()
-    {
-        JSONList<KEY> keys = new JSONList<KEY>();
-
-        Stack<Node<KEY, VALUE>> stack = new Stack<>();
-
-        if (this.root != null)
-        {
-            stack.push(this.root);
-        }
-
-        Node<KEY, VALUE> node;
-
-        while (!stack.empty())
-        {
-            node = stack.pop();
-            keys.add(node.key);
-
-            if (node.lower != null)
-            {
-                stack.push(node.lower);
-            }
-
-            if (node.upper != null)
-            {
-                stack.push(node.upper);
-            }
-        }
-
-        return keys;
     }
 }

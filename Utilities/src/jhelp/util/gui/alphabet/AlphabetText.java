@@ -1,13 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.gui.alphabet;
 
 import com.sun.istack.internal.NotNull;
@@ -297,26 +299,6 @@ public final class AlphabetText
     }
 
     /**
-     * Image where alphabet text is draw
-     *
-     * @return Image where alphabet text is draw
-     */
-    public JHelpImage image()
-    {
-        return this.image;
-    }
-
-    /**
-     * Current text
-     *
-     * @return Current text
-     */
-    public String text()
-    {
-        return this.text;
-    }
-
-    /**
      * Indicates if text have next part
      *
      * @return {@code true} if text have next part
@@ -336,6 +318,16 @@ public final class AlphabetText
         final int size = this.previousOffsets.getSize();
 
         return (this.offset > 0) && (size > 0) && (this.previousOffsets.getInteger(size - 1) > 0);
+    }
+
+    /**
+     * Image where alphabet text is draw
+     *
+     * @return Image where alphabet text is draw
+     */
+    public JHelpImage image()
+    {
+        return this.image;
     }
 
     /**
@@ -376,6 +368,16 @@ public final class AlphabetText
         }
 
         this.updateText();
+    }
+
+    /**
+     * Current text
+     *
+     * @return Current text
+     */
+    public String text()
+    {
+        return this.text;
     }
 
     /**

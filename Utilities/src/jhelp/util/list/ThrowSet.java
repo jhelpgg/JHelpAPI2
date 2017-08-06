@@ -1,11 +1,23 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.list;
 
 import java.util.ArrayList;
 import jhelp.util.text.UtilText;
+import jhelp.util.thread.ConsumerTask;
 import jhelp.util.thread.Filter;
 import jhelp.util.thread.Future;
 import jhelp.util.thread.Task;
-import jhelp.util.thread.ConsumerTask;
 
 /**
  * Set of elements, where elements have no order
@@ -29,43 +41,18 @@ public class ThrowSet<T> implements ParallelList<T, ThrowSet<T>>
     }
 
     /**
-     * Execute a task in parallel on each element (filtered gby given filter) of the list.<br>
-     * Tasks are launch, and method return immediately<br>
-     * Note:
-     * <ul>
-     * <li> Their no guarantee about the order of elements' list meet by the task. If order mandatory use {@link #consumeAsync(ConsumerTask, Filter)}</li>
-     * <li> Since order is not important, thread management is simplified, so it is faster than {@link #consumeAsync(ConsumerTask, Filter)} </li>
-     * </ul>
+     * Obtain an element from the list that match the given filter.<br>
+     * The result can be any element in list that match.<br>
+     * If no element found, the result future will be on error.<br>
+     * The search is do in separate thread
      *
-     * @param task   Task to play
-     * @param filter Filter to select elements. If {@code null}, all elements are taken
-     * @return The list itself, convenient for chaining
+     * @param filter Filter to use for search
+     * @return Future link to the search. It will contains the found element or be on error if no elements match
      */
     @Override
-    public ThrowSet<T> forEach(final ConsumerTask<T> task, final Filter<T> filter)
+    public Future<T> any(final Filter<T> filter)
     {
-        ForEach.forEach(this.set, task, filter);
-        return this;
-    }
-
-    /**
-     * Execute a task in parallel on each element (filtered gby given filter) of the list.<br>
-     * The method will wait all parallel task finished before return<br>
-     * Note:
-     * <ul>
-     * <li> Their no guarantee about the order of elements' list meet by the task. If order mandatory use {@link #consumeAsync(ConsumerTask, Filter)} and {@link Future#waitFinish()}</li>
-     * <li> Since order is not important, thread management is simplified, so it is faster than {@link #consumeAsync(ConsumerTask, Filter)} and {@link Future#waitFinish()} </li>
-     * </ul>
-     *
-     * @param task   Task to play
-     * @param filter Filter to select elements. If {@code null}, all elements are taken
-     * @return The list itself, convenient for chaining
-     */
-    @Override
-    public ThrowSet<T> sync(final ConsumerTask<T> task, final Filter<T> filter)
-    {
-        ForEach.sync(this.set, task, filter);
-        return this;
+        return Future.firstMatch(this.set, filter);
     }
 
     /**
@@ -88,6 +75,27 @@ public class ThrowSet<T> implements ParallelList<T, ThrowSet<T>>
     }
 
     /**
+     * Execute task for each element (that respects the given filter) of the list
+     *
+     * @param task   Task to do
+     * @param filter Filter to select elements. If {@code null}, all elements are taken
+     * @return This list itself, convenient for chaining
+     */
+    @Override
+    public ThrowSet<T> consume(final ConsumerTask<T> task, final Filter<T> filter)
+    {
+        for (T element : this.set)
+        {
+            if (filter == null || filter.isFiltered(element))
+            {
+                task.consume(element);
+            }
+        }
+
+        return this;
+    }
+
+    /**
      * Create list composed of filtered elements of the list
      *
      * @param filter Filter to select elements
@@ -102,18 +110,93 @@ public class ThrowSet<T> implements ParallelList<T, ThrowSet<T>>
     }
 
     /**
-     * Obtain an element from the list that match the given filter.<br>
-     * The result can be any element in list that match.<br>
-     * If no element found, the result future will be on error.<br>
-     * The search is do in separate thread
+     * Execute task for each element (that respects the given filter) of the list and collect the result in other list
      *
-     * @param filter Filter to use for search
-     * @return Future link to the search. It will contains the found element or be on error if no elements match
+     * @param task   Task to do
+     * @param filter Filter to select elements. If {@code null}, all elements are taken
+     * @param <R>    Result list element type
+     * @return List with transformed elements
      */
     @Override
-    public Future<T> any(final Filter<T> filter)
+    public <R> ParallelList<R, ?> flatMap(
+            final Task<T, ParallelList<R, ?>> task, final Filter<T> filter)
     {
-        return Future.firstMatch(this.set, filter);
+        final ThrowSet<R>     throwSet = new ThrowSet<>();
+        final ConsumerTask<R> add      = throwSet::throwElement;
+
+        for (T element : this.set)
+        {
+            if (filter == null || filter.isFiltered(element))
+            {
+                task.playTask(element).consume(add);
+            }
+        }
+
+        return throwSet;
+    }
+
+    /**
+     * Execute a task in parallel on each element (filtered gby given filter) of the list.<br>
+     * Tasks are launch, and method return immediately<br>
+     * Note:
+     * <ul>
+     * <li> Their no guarantee about the order of elements' list meet by the task. If order mandatory use {@link #consumeAsync(ConsumerTask, Filter)}</li>
+     * <li> Since order is not important, thread management is simplified, so it is faster than {@link #consumeAsync(ConsumerTask, Filter)} </li>
+     * </ul>
+     *
+     * @param task   Task to play
+     * @param filter Filter to select elements. If {@code null}, all elements are taken
+     * @return The list itself, convenient for chaining
+     */
+    @Override
+    public ThrowSet<T> forEach(final ConsumerTask<T> task, final Filter<T> filter)
+    {
+        ForEach.forEach(this.set, task, filter);
+        return this;
+    }
+
+    /**
+     * Execute task for each element (that respects the given filter) of the list and collect the result in other list
+     *
+     * @param task   Task to do
+     * @param filter Filter to select elements. If {@code null}, all elements are taken
+     * @param <R>    Result list element type
+     * @return List with transformed elements
+     */
+    @Override
+    public <R> ParallelList<R, ?> map(final Task<T, R> task, final Filter<T> filter)
+    {
+        final ThrowSet<R> throwSet = new ThrowSet<>();
+
+        for (T element : this.set)
+        {
+            if (filter == null || filter.isFiltered(element))
+            {
+                throwSet.throwElement(task.playTask(element));
+            }
+        }
+
+        return throwSet;
+    }
+
+    /**
+     * Execute a task in parallel on each element (filtered gby given filter) of the list.<br>
+     * The method will wait all parallel task finished before return<br>
+     * Note:
+     * <ul>
+     * <li> Their no guarantee about the order of elements' list meet by the task. If order mandatory use {@link #consumeAsync(ConsumerTask, Filter)} and {@link Future#waitFinish()}</li>
+     * <li> Since order is not important, thread management is simplified, so it is faster than {@link #consumeAsync(ConsumerTask, Filter)} and {@link Future#waitFinish()} </li>
+     * </ul>
+     *
+     * @param task   Task to play
+     * @param filter Filter to select elements. If {@code null}, all elements are taken
+     * @return The list itself, convenient for chaining
+     */
+    @Override
+    public ThrowSet<T> sync(final ConsumerTask<T> task, final Filter<T> filter)
+    {
+        ForEach.sync(this.set, task, filter);
+        return this;
     }
 
     /**
@@ -202,77 +285,6 @@ public class ThrowSet<T> implements ParallelList<T, ThrowSet<T>>
     public String toString()
     {
         return UtilText.concatenate("ThrowSet:", this.set);
-    }
-
-    /**
-     * Execute task for each element (that respects the given filter) of the list and collect the result in other list
-     *
-     * @param task   Task to do
-     * @param filter Filter to select elements. If {@code null}, all elements are taken
-     * @param <R>    Result list element type
-     * @return List with transformed elements
-     */
-    @Override
-    public <R> ParallelList<R, ?> map(final Task<T, R> task, final Filter<T> filter)
-    {
-        final ThrowSet<R> throwSet = new ThrowSet<>();
-
-        for (T element : this.set)
-        {
-            if (filter == null || filter.isFiltered(element))
-            {
-                throwSet.throwElement(task.playTask(element));
-            }
-        }
-
-        return throwSet;
-    }
-
-    /**
-     * Execute task for each element (that respects the given filter) of the list
-     *
-     * @param task   Task to do
-     * @param filter Filter to select elements. If {@code null}, all elements are taken
-     * @return This list itself, convenient for chaining
-     */
-    @Override
-    public ThrowSet<T> consume(final ConsumerTask<T> task, final Filter<T> filter)
-    {
-        for (T element : this.set)
-        {
-            if (filter == null || filter.isFiltered(element))
-            {
-                task.consume(element);
-            }
-        }
-
-        return this;
-    }
-
-    /**
-     * Execute task for each element (that respects the given filter) of the list and collect the result in other list
-     *
-     * @param task   Task to do
-     * @param filter Filter to select elements. If {@code null}, all elements are taken
-     * @param <R>    Result list element type
-     * @return List with transformed elements
-     */
-    @Override
-    public <R> ParallelList<R, ?> flatMap(
-            final Task<T, ParallelList<R, ?>> task, final Filter<T> filter)
-    {
-        final ThrowSet<R>     throwSet = new ThrowSet<>();
-        final ConsumerTask<R> add      = throwSet::throwElement;
-
-        for (T element : this.set)
-        {
-            if (filter == null || filter.isFiltered(element))
-            {
-                task.playTask(element).consume(add);
-            }
-        }
-
-        return throwSet;
     }
 
 }

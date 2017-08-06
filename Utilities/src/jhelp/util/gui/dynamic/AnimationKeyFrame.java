@@ -1,14 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any
- * damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.gui.dynamic;
 
 import jhelp.util.gui.JHelpImage;
@@ -21,39 +22,113 @@ import jhelp.util.list.SortedArray;
  * defined frame.<br>
  * See {@link AnimationPosition} to have an example how extends it
  *
+ * @param <OBJECT> Object to animate type
+ * @param <VALUE>  Value to change type
  * @author JHelp
- * @param <OBJECT>
- *           Object to animate type
- * @param <VALUE>
- *           Value to change type
  */
 public abstract class AnimationKeyFrame<OBJECT, VALUE>
         implements DynamicAnimation
 {
-    /** Interpolation to use */
+    /**
+     * Key frame description
+     *
+     * @param <V> Value type
+     * @author JHelp
+     */
+    @SuppressWarnings("rawtypes")
+    class KeyFrame<V>
+            implements Comparable<KeyFrame>
+    {
+        /**
+         * Frame number
+         */
+        final int frame;
+        /**
+         * Value at given frame
+         */
+        V value;
+
+        /**
+         * Create a new instance of KeyFrame
+         *
+         * @param frame Frame number
+         * @param value Value at given frame
+         */
+        KeyFrame(final int frame, final V value)
+        {
+            this.frame = frame;
+            this.value = value;
+        }
+
+        /**
+         * Compare with an other key frame.<br>
+         * It returns :
+         * <table border=0>
+         * <tr>
+         * <th>&lt;0</th>
+         * <td>: If this frame before given one</td>
+         * </tr>
+         * <tr>
+         * <th>0</th>
+         * <td>: If this frame at same place at given one</td>
+         * </tr>
+         * <tr>
+         * <th>&gt;0</th>
+         * <td>: If this frame after given one</td>
+         * </tr>
+         * </table>
+         * <br>
+         * <br>
+         * <b>Parent documentation:</b><br>
+         * {@inheritDoc}
+         *
+         * @param keyFrame Key frame to compare with
+         * @return Comparison result
+         * @see Comparable#compareTo(Object)
+         */
+        @Override
+        public int compareTo(final KeyFrame keyFrame)
+        {
+            return this.frame - keyFrame.frame;
+        }
+    }
+
+    /**
+     * Interpolation to use
+     */
     private final Interpolation         interpolation;
-    /** Key frame list */
+    /**
+     * Key frame list
+     */
     @SuppressWarnings("rawtypes")
     private final SortedArray<KeyFrame> keyFrames;
-    /** Number of loop */
+    /**
+     * Number of loop
+     */
     private final int                   loop;
-    /** Object to modify */
-    private final OBJECT                object;
-    /** Number of loop left */
+    /**
+     * Number of loop left
+     */
     private       int                   loopLeft;
-    /** Start absolute frame */
+    /**
+     * Object to modify
+     */
+    private final OBJECT                object;
+    /**
+     * Start absolute frame
+     */
     private       float                 startAbsoluteFrame;
-    /** Start value */
+    /**
+     * Start value
+     */
     private       VALUE                 startValue;
+
     /**
      * Create a new instance of AnimationKeyFrame
      *
-     * @param object
-     *           Object to modify
-     * @param numberOfLoop
-     *           Number of loop to do
-     * @param interpolation
-     *           Interpolation type to use
+     * @param object        Object to modify
+     * @param numberOfLoop  Number of loop to do
+     * @param interpolation Interpolation type to use
      */
     @SuppressWarnings("rawtypes")
     public AnimationKeyFrame(final OBJECT object, final int numberOfLoop, final Interpolation interpolation)
@@ -75,12 +150,39 @@ public abstract class AnimationKeyFrame<OBJECT, VALUE>
     }
 
     /**
+     * Do an animation loop
+     *
+     * @param absoluteFrame Absolute frame
+     * @return Indicates if there more loop to do
+     */
+    @SuppressWarnings("unchecked")
+    private boolean doLoop(final float absoluteFrame)
+    {
+        this.loopLeft--;
+
+        if (this.loopLeft <= 0)
+        {
+            return false;
+        }
+
+        this.startAbsoluteFrame = absoluteFrame;
+        this.startValue = null;
+
+        final KeyFrame<VALUE> keyFrame = this.keyFrames.get(0);
+
+        if (keyFrame.frame == 0)
+        {
+            this.setValue(this.object, keyFrame.value);
+        }
+
+        return true;
+    }
+
+    /**
      * Define a value to a frame position
      *
-     * @param frame
-     *           Frame position
-     * @param value
-     *           Value to set
+     * @param frame Frame position
+     * @param value Value to set
      */
     @SuppressWarnings("unchecked")
     public final void addFrame(final int frame, final VALUE value)
@@ -97,7 +199,7 @@ public abstract class AnimationKeyFrame<OBJECT, VALUE>
 
         synchronized (this.keyFrames)
         {
-            final KeyFrame<VALUE> keyFrame = new KeyFrame<VALUE>(frame, value);
+            final KeyFrame<VALUE> keyFrame = new KeyFrame<>(frame, value);
             final int             index    = this.keyFrames.indexOf(keyFrame);
 
             if (index < 0)
@@ -117,10 +219,8 @@ public abstract class AnimationKeyFrame<OBJECT, VALUE>
      * <b>Parent documentation:</b><br>
      * {@inheritDoc}
      *
-     * @param absoluteFrame
-     *           Absolute frame
-     * @param image
-     *           Image parent
+     * @param absoluteFrame Absolute frame
+     * @param image         Image parent
      * @return {@code true} if animation have to continue. {@code false} if animation finished
      * @see DynamicAnimation#animate(float, jhelp.util.gui.JHelpImage)
      */
@@ -220,52 +320,12 @@ public abstract class AnimationKeyFrame<OBJECT, VALUE>
     }
 
     /**
-     * Do an animation loop
-     *
-     * @param absoluteFrame
-     *           Absolute frame
-     * @return Indicates if there more loop to do
-     */
-    @SuppressWarnings("unchecked")
-    private boolean doLoop(final float absoluteFrame)
-    {
-        this.loopLeft--;
-
-        if (this.loopLeft <= 0)
-        {
-            return false;
-        }
-
-        this.startAbsoluteFrame = absoluteFrame;
-        this.startValue = null;
-
-        final KeyFrame<VALUE> keyFrame = this.keyFrames.get(0);
-
-        if (keyFrame.frame == 0)
-        {
-            this.setValue(this.object, keyFrame.value);
-        }
-
-        return true;
-    }
-
-    /**
-     * Obtain the current value for the object
-     *
-     * @param object
-     *           Object to extract value
-     * @return Current value from the object
-     */
-    public abstract VALUE createValue(OBJECT object);
-
-    /**
      * Called when animation stopped <br>
      * <br>
      * <b>Parent documentation:</b><br>
      * {@inheritDoc}
      *
-     * @param image
-     *           Image parent
+     * @param image Image parent
      * @see DynamicAnimation#endAnimation(jhelp.util.gui.JHelpImage)
      */
     @Override
@@ -279,10 +339,8 @@ public abstract class AnimationKeyFrame<OBJECT, VALUE>
      * <b>Parent documentation:</b><br>
      * {@inheritDoc}
      *
-     * @param startAbsoluteFrame
-     *           Start absolute frame
-     * @param image
-     *           Image parent
+     * @param startAbsoluteFrame Start absolute frame
+     * @param image              Image parent
      * @see DynamicAnimation#startAnimation(float, jhelp.util.gui.JHelpImage)
      */
     @SuppressWarnings("unchecked")
@@ -308,105 +366,42 @@ public abstract class AnimationKeyFrame<OBJECT, VALUE>
     }
 
     /**
+     * Obtain the current value for the object
+     *
+     * @param object Object to extract value
+     * @return Current value from the object
+     */
+    public abstract VALUE createValue(OBJECT object);
+
+    /**
      * Interpolate value and set the object
      *
-     * @param object
-     *           Object to modify
-     * @param before
-     *           Value of first frame
-     * @param after
-     *           Value of second frame
-     * @param percent
-     *           Percent of interpolation between first and second frame
+     * @param object  Object to modify
+     * @param before  Value of first frame
+     * @param after   Value of second frame
+     * @param percent Percent of interpolation between first and second frame
      */
     public abstract void interpolate(OBJECT object, VALUE before, VALUE after, float percent);
 
     /**
-     * Set a value to the object
-     *
-     * @param object
-     *           Object to modify
-     * @param value
-     *           Value to set
-     */
-    public abstract void setValue(OBJECT object, VALUE value);
-
-    /**
      * Remove a frame
      *
-     * @param frame
-     *           Frame to remove
+     * @param frame Frame to remove
      */
     public final void removeFrame(final int frame)
     {
         synchronized (this.keyFrames)
         {
-            final KeyFrame<VALUE> keyFrame = new KeyFrame<VALUE>(frame, null);
+            final KeyFrame<VALUE> keyFrame = new KeyFrame<>(frame, null);
             this.keyFrames.remove(keyFrame);
         }
     }
 
     /**
-     * Key frame description
+     * Set a value to the object
      *
-     * @author JHelp
-     * @param <V>
-     *           Value type
+     * @param object Object to modify
+     * @param value  Value to set
      */
-    @SuppressWarnings("rawtypes")
-    class KeyFrame<V>
-            implements Comparable<KeyFrame>
-    {
-        /** Frame number */
-        final int frame;
-        /** Value at given frame */
-        V value;
-
-        /**
-         * Create a new instance of KeyFrame
-         *
-         * @param frame
-         *           Frame number
-         * @param value
-         *           Value at given frame
-         */
-        KeyFrame(final int frame, final V value)
-        {
-            this.frame = frame;
-            this.value = value;
-        }
-
-        /**
-         * Compare with an other key frame.<br>
-         * It returns :
-         * <table border=0>
-         * <tr>
-         * <th>&lt;0</th>
-         * <td>: If this frame before given one</td>
-         * </tr>
-         * <tr>
-         * <th>0</th>
-         * <td>: If this frame at same place at given one</td>
-         * </tr>
-         * <tr>
-         * <th>&gt;0</th>
-         * <td>: If this frame after given one</td>
-         * </tr>
-         * </table>
-         * <br>
-         * <br>
-         * <b>Parent documentation:</b><br>
-         * {@inheritDoc}
-         *
-         * @param keyFrame
-         *           Key frame to compare with
-         * @return Comparison result
-         * @see Comparable#compareTo(Object)
-         */
-        @Override
-        public int compareTo(final KeyFrame keyFrame)
-        {
-            return this.frame - keyFrame.frame;
-        }
-    }
+    public abstract void setValue(OBJECT object, VALUE value);
 }

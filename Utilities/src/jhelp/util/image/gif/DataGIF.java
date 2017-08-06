@@ -1,13 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.image.gif;
 
 import java.awt.Dimension;
@@ -25,8 +27,8 @@ import jhelp.util.thread.Pointer;
 /**
  * Represents data of GIF<br>
  *
- * @see <a href="http://www.w3.org/Graphics/GIF/spec-gif89a.txt">GIF specification</a>
  * @author JHelp
+ * @see <a href="http://www.w3.org/Graphics/GIF/spec-gif89a.txt">GIF specification</a>
  */
 public class DataGIF
         implements GIFConstants
@@ -35,8 +37,7 @@ public class DataGIF
      * Compute size of an GIF image.<br>
      * If the given file is not a GIF image file, {@code null} is return
      *
-     * @param file
-     *           Image GIF file
+     * @param file Image GIF file
      * @return GIF image size OR {@code null} if given file not a valid GIF image file
      */
     public static Dimension computeGifSize(final File file)
@@ -61,8 +62,7 @@ public class DataGIF
     /**
      * Indicates if a file is a GIF image file
      *
-     * @param file
-     *           Tested file
+     * @param file Tested file
      * @return {@code true} if the file is a GIF image file
      */
     public static boolean isGIF(final File file)
@@ -70,27 +70,49 @@ public class DataGIF
         return DataGIF.computeGifSize(file) != null;
     }
 
-    /** Aspect ratio */
+    /**
+     * Aspect ratio
+     */
     private Rational      aspectRatio;
-    /** Background color index */
+    /**
+     * Background color index
+     */
     private int           backgroundColorIndex;
-    /** Blocks read from stream */
+    /**
+     * Blocks read from stream
+     */
     private List<Block>   blocks;
-    /** Indicates if color table is ordered */
+    /**
+     * Indicates if color table is ordered
+     */
     private boolean       colorOrdered;
-    /** Color resolution */
+    /**
+     * Color resolution
+     */
     private int           colorResolution;
-    /** Global color table */
+    /**
+     * Global color table
+     */
     private GIFColorTable globalColorTable;
-    /** Indicates if color table follows */
+    /**
+     * Indicates if color table follows
+     */
     private boolean       globalTableColorFollow;
-    /** Global color table size */
+    /**
+     * Global color table size
+     */
     private int           globalTableSize;
-    /** Image height */
+    /**
+     * Image height
+     */
     private int           height;
-    /** GIF version */
+    /**
+     * GIF version
+     */
     private String        version;
-    /** Image width */
+    /**
+     * Image width
+     */
     private int           width;
 
     /**
@@ -103,10 +125,8 @@ public class DataGIF
     /**
      * Read image header
      *
-     * @param inputStream
-     *           Stream to read
-     * @throws IOException
-     *            If header is invalid
+     * @param inputStream Stream to read
+     * @throws IOException If header is invalid
      */
     private void readHeader(final InputStream inputStream) throws IOException
     {
@@ -128,10 +148,8 @@ public class DataGIF
     /**
      * Read logical screen information
      *
-     * @param inputStream
-     *           Stream to read
-     * @throws IOException
-     *            If stream contains invalid data for logical screen
+     * @param inputStream Stream to read
+     * @throws IOException If stream contains invalid data for logical screen
      */
     private void readLogicalScreen(final InputStream inputStream) throws IOException
     {
@@ -181,8 +199,7 @@ public class DataGIF
     /**
      * Collect images from data GIF
      *
-     * @param dataGIFVisitor
-     *           Visitor to signal progression
+     * @param dataGIFVisitor Visitor to signal progression
      */
     public void collectImages(final DataGIFVisitor dataGIFVisitor)
     {
@@ -343,14 +360,12 @@ public class DataGIF
     /**
      * Read stream to fill data GIF
      *
-     * @param inputStream
-     *           Stream to read
-     * @throws IOException
-     *            If stream not a valid GIF
+     * @param inputStream Stream to read
+     * @throws IOException If stream not a valid GIF
      */
     public void read(final InputStream inputStream) throws IOException
     {
-        this.blocks = new ArrayList<Block>();
+        this.blocks = new ArrayList<>();
         this.readHeader(inputStream);
         this.readLogicalScreen(inputStream);
 

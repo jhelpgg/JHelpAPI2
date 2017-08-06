@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.antology;
 
 import java.util.Iterator;
@@ -39,16 +51,12 @@ public final class Path implements SizedIterable<Triplet>
 
     public Node firstSubject()
     {
-        if(this.path.isEmpty()) return null;
+        if (this.path.isEmpty())
+        {
+            return null;
+        }
 
         return this.path.first().subject();
-    }
-
-    public Node lastInformation()
-    {
-        if(this.path.isEmpty()) return null;
-
-        return this.path.last().information();
     }
 
     /**
@@ -60,6 +68,16 @@ public final class Path implements SizedIterable<Triplet>
     public Iterator<Triplet> iterator()
     {
         return this.path.iterator();
+    }
+
+    public Node lastInformation()
+    {
+        if (this.path.isEmpty())
+        {
+            return null;
+        }
+
+        return this.path.last().information();
     }
 
     /**

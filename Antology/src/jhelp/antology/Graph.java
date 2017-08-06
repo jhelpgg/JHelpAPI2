@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.antology;
 
 import com.sun.istack.internal.NotNull;
@@ -37,11 +49,10 @@ public final class Graph
 
         return graph;
     }
-
-    private final SortedArray<Node>          nodes;
-    private       int                        version;
     private final ArrayObject<GraphListener> graphListeners;
+    private final SortedArray<Node>          nodes;
     private final ArrayObject<Rule>          rules;
+    private       int                        version;
 
     public Graph()
     {
@@ -49,82 +60,6 @@ public final class Graph
         this.nodes = new SortedArray<>(Node.class, true);
         this.graphListeners = new ArrayObject<>();
         this.rules = new ArrayObject<>();
-    }
-
-    public void register(GraphListener graphListener)
-    {
-        if (graphListener == null)
-        {
-            return;
-        }
-
-        synchronized (this.graphListeners)
-        {
-            if (!this.graphListeners.contains(graphListener))
-            {
-                this.graphListeners.add(graphListener);
-            }
-        }
-    }
-
-    public void unregister(GraphListener graphListener)
-    {
-        synchronized (this.graphListeners)
-        {
-            this.graphListeners.remove(graphListener);
-        }
-    }
-
-    /**
-     * Add a rule and apply it.<br>
-     * The rule will become immutable after the call of this method,
-     * so if have to add constraints, do it before call this method.
-     *
-     * @param rule Rule to add
-     */
-    public void addAndApplyRule(@NotNull Rule rule)
-    {
-        rule.makeImmutable();
-        boolean add = false;
-
-        synchronized (this.rules)
-        {
-            if (!this.rules.contains(rule))
-            {
-                this.rules.add(rule);
-                add = true;
-            }
-        }
-
-        if (add)
-        {
-            this.applyRule(rule);
-            this.fireChanged();
-        }
-    }
-
-    public void removeRule(Rule rule)
-    {
-        synchronized (this.rules)
-        {
-            if (this.rules.remove(rule))
-            {
-                this.fireChanged();
-            }
-        }
-    }
-
-    private void fireChanged()
-    {
-        synchronized (this.graphListeners)
-        {
-            this.graphListeners.forEach((ConsumerTask<GraphListener>) listener -> listener.graphChanged(this));
-        }
-    }
-
-    private void applyRules()
-    {
-        this.rules.consume(this::applyRule);
     }
 
     private void applyRule(@NotNull final Rule rule)
@@ -162,35 +97,36 @@ public final class Graph
                                                 }));
     }
 
-    public int version()
+    private void applyRules()
     {
-        return this.version;
+        this.rules.consume(this::applyRule);
     }
 
-    public void version(int version)
+    private void fireChanged()
     {
-        if (version <= this.version)
+        synchronized (this.graphListeners)
         {
-            return;
+            this.graphListeners.forEach((ConsumerTask<GraphListener>) listener -> listener.graphChanged(this));
         }
-
-        this.version = version;
-        this.fireChanged();
     }
 
-    public void serialize(ByteArray byteArray)
+    private void remove(Triplet triplet)
     {
-        byteArray.writeInteger(this.version);
-        byteArray.writeInteger(this.nodes.size());
-        this.nodes.consume(node -> node.serialize(byteArray));
-        byteArray.writeInteger(this.rules.size());
-        this.rules.consume(rule -> rule.serialize(byteArray));
-    }
+        Node subject     = triplet.subject();
+        Node predicate   = triplet.predicate();
+        Node information = triplet.information();
 
-    public void addTwoWay(Node subject1, Node relation, Node subject2)
-    {
-        this.add(subject1, relation, subject2);
-        this.add(subject2, relation, subject1);
+        predicate.removeChild(information);
+
+        if (predicate.numberChildren() == 0)
+        {
+            subject.removeChild(predicate);
+
+            if (subject.numberChildren() == 0)
+            {
+                this.nodes.remove(subject);
+            }
+        }
     }
 
     public void add(Node subject, Node predicate, Node information)
@@ -245,63 +181,45 @@ public final class Graph
         }
     }
 
+    /**
+     * Add a rule and apply it.<br>
+     * The rule will become immutable after the call of this method,
+     * so if have to add constraints, do it before call this method.
+     *
+     * @param rule Rule to add
+     */
+    public void addAndApplyRule(@NotNull Rule rule)
+    {
+        rule.makeImmutable();
+        boolean add = false;
+
+        synchronized (this.rules)
+        {
+            if (!this.rules.contains(rule))
+            {
+                this.rules.add(rule);
+                add = true;
+            }
+        }
+
+        if (add)
+        {
+            this.applyRule(rule);
+            this.fireChanged();
+        }
+    }
+
+    public void addTwoWay(Node subject1, Node relation, Node subject2)
+    {
+        this.add(subject1, relation, subject2);
+        this.add(subject2, relation, subject1);
+    }
+
     public void clear()
     {
         this.nodes.clear();
         this.rules.clear();
         this.fireChanged();
-    }
-
-    public void removeAll(Node node)
-    {
-        this.remove(node, Node.WILDCARD, Node.WILDCARD);
-        this.remove(Node.WILDCARD, node, Node.WILDCARD);
-        this.remove(Node.WILDCARD, Node.WILDCARD, node);
-    }
-
-    public void remove(Node subject, Node predicate, Node information)
-    {
-        this.search(subject, predicate, information).consume(this::remove);
-        this.fireChanged();
-    }
-
-    private void remove(Triplet triplet)
-    {
-        Node subject     = triplet.subject();
-        Node predicate   = triplet.predicate();
-        Node information = triplet.information();
-
-        predicate.removeChild(information);
-
-        if (predicate.numberChildren() == 0)
-        {
-            subject.removeChild(predicate);
-
-            if (subject.numberChildren() == 0)
-            {
-                this.nodes.remove(subject);
-            }
-        }
-    }
-
-    public SortedArray<Triplet> search(Node subject, Node predicate, Node information)
-    {
-        final SortedArray<Triplet> triplets        = new SortedArray<>(Triplet.class, true);
-        final NodeTest             subjectTest     = new NodeTest(subject);
-        final NodeTest             predicateTest   = new NodeTest(predicate);
-        final NodeTest             informationTest = new NodeTest(information);
-        this.nodes.seekElements(subjectTest)
-                  .consume(subject1 ->
-                                   subject1.search(predicateTest)
-                                           .consume(predicate1 ->
-                                                            predicate1.search(informationTest)
-                                                                      .consume(information1 ->
-                                                                                       triplets.add(
-                                                                                               new Triplet(
-                                                                                                       subject1,
-                                                                                                       predicate1,
-                                                                                                       information1)))));
-        return triplets;
     }
 
     public ArrayObject<Path> computePath(Node subject, Node information)
@@ -357,6 +275,99 @@ public final class Graph
     public boolean empty()
     {
         return this.nodes.empty();
+    }
+
+    public void register(GraphListener graphListener)
+    {
+        if (graphListener == null)
+        {
+            return;
+        }
+
+        synchronized (this.graphListeners)
+        {
+            if (!this.graphListeners.contains(graphListener))
+            {
+                this.graphListeners.add(graphListener);
+            }
+        }
+    }
+
+    public void remove(Node subject, Node predicate, Node information)
+    {
+        this.search(subject, predicate, information).consume(this::remove);
+        this.fireChanged();
+    }
+
+    public void removeAll(Node node)
+    {
+        this.remove(node, Node.WILDCARD, Node.WILDCARD);
+        this.remove(Node.WILDCARD, node, Node.WILDCARD);
+        this.remove(Node.WILDCARD, Node.WILDCARD, node);
+    }
+
+    public void removeRule(Rule rule)
+    {
+        synchronized (this.rules)
+        {
+            if (this.rules.remove(rule))
+            {
+                this.fireChanged();
+            }
+        }
+    }
+
+    public SortedArray<Triplet> search(Node subject, Node predicate, Node information)
+    {
+        final SortedArray<Triplet> triplets        = new SortedArray<>(Triplet.class, true);
+        final NodeTest             subjectTest     = new NodeTest(subject);
+        final NodeTest             predicateTest   = new NodeTest(predicate);
+        final NodeTest             informationTest = new NodeTest(information);
+        this.nodes.seekElements(subjectTest)
+                  .consume(subject1 ->
+                                   subject1.search(predicateTest)
+                                           .consume(predicate1 ->
+                                                            predicate1.search(informationTest)
+                                                                      .consume(information1 ->
+                                                                                       triplets.add(
+                                                                                               new Triplet(
+                                                                                                       subject1,
+                                                                                                       predicate1,
+                                                                                                       information1)))));
+        return triplets;
+    }
+
+    public void serialize(ByteArray byteArray)
+    {
+        byteArray.writeInteger(this.version);
+        byteArray.writeInteger(this.nodes.size());
+        this.nodes.consume(node -> node.serialize(byteArray));
+        byteArray.writeInteger(this.rules.size());
+        this.rules.consume(rule -> rule.serialize(byteArray));
+    }
+
+    public void unregister(GraphListener graphListener)
+    {
+        synchronized (this.graphListeners)
+        {
+            this.graphListeners.remove(graphListener);
+        }
+    }
+
+    public int version()
+    {
+        return this.version;
+    }
+
+    public void version(int version)
+    {
+        if (version <= this.version)
+        {
+            return;
+        }
+
+        this.version = version;
+        this.fireChanged();
     }
 
     public void visit(@NotNull GraphVisitor graphVisitor)

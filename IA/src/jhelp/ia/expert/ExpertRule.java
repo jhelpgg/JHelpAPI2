@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.ia.expert;
 
 import com.sun.istack.internal.NotNull;
@@ -10,8 +22,8 @@ import jhelp.util.data.Observable;
  */
 public abstract class ExpertRule<P, R>
 {
-    private final Observable<P> observable;
     private final Condition<P>  condition;
+    private final Observable<P> observable;
 
     public ExpertRule(@NotNull Observable<P> observable, @NotNull Condition<P> condition)
     {
@@ -20,6 +32,8 @@ public abstract class ExpertRule<P, R>
         this.observable = observable;
         this.condition = condition;
     }
+
+    protected abstract R apply(P value);
 
     public final boolean applicable()
     {
@@ -35,6 +49,4 @@ public abstract class ExpertRule<P, R>
 
         return this.apply(this.observable.value());
     }
-
-    protected abstract R apply(P value);
 }

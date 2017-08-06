@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.math;
 
 import com.sun.istack.internal.NotNull;
@@ -20,6 +32,14 @@ public class Math2
      */
     public static final BigInteger BIG_TWO             = Math2.createBigInteger(2);
     /**
+     * One centimeter in pica
+     */
+    public static final double     CENTIMETER_IN_PICA  = 6.0 / 2.54;
+    /**
+     * One centimeter in point
+     */
+    public static final double     CENTIMETER_IN_POINT = 72.0 / 2.54;
+    /**
      * Double precision, the "zero"
      */
     public static final double     EPSILON             = Math2.maximum(Double.MIN_VALUE,
@@ -32,22 +52,6 @@ public class Math2
                                                                        Math.abs((float) Math.E - (float) Math.exp(1.0)),
                                                                        Math.abs((float) Math.PI -
                                                                                 (float) Math.acos(-1.0)));
-    /**
-     * PI / 2
-     */
-    public static final double     PI_2                = Math.PI / 2;
-    /**
-     * 2 * PI
-     */
-    public static final double     TWO_PI              = Math.PI * 2;
-    /**
-     * One centimeter in pica
-     */
-    public static final double     CENTIMETER_IN_PICA  = 6.0 / 2.54;
-    /**
-     * One centimeter in point
-     */
-    public static final double     CENTIMETER_IN_POINT = 72.0 / 2.54;
     /**
      * One inch in centimeter
      */
@@ -76,315 +80,81 @@ public class Math2
      * One pica in point
      */
     public static final double     PICA_IN_POINT       = 12.0;
+    /**
+     * PI / 2
+     */
+    public static final double     PI_2                = Math.PI / 2;
+    /**
+     * 2 * PI
+     */
+    public static final double     TWO_PI              = Math.PI * 2;
 
     /**
-     * Get maximum of given numbers
+     * Compute the Bernoulli value
      *
-     * @param first  First number
-     * @param others Other numbers
-     * @return Maximum
+     * @param n Number of elements
+     * @param m Total of elements
+     * @param t Factor in [0, 1]
+     * @return Bernoulli value
      */
-    public static double maximum(double first, @NotNull double... others)
+    public static double Bernoulli(final int n, final int m, final double t)
     {
-        double maximum = first;
-
-        for (double other : others)
-        {
-            maximum = Math.max(maximum, other);
-        }
-
-        return maximum;
+        return Math2.numberOfCombination(n, m) * Math.pow(t, n) * Math.pow(1d - t, m - n);
     }
 
     /**
-     * Get minimum of given numbers
+     * Convert big integer to big decimal
      *
-     * @param first  First number
-     * @param others Other numbers
-     * @return Minimum
+     * @param integer Big integer to convert
+     * @return Converted big decimal
      */
-    public static double minimum(double first, @NotNull double... others)
+    public static BigDecimal bigIntegerToBigDecimal(final BigInteger integer)
     {
-        double minimum = first;
-
-        for (double other : others)
-        {
-            minimum = Math.min(minimum, other);
-        }
-
-        return minimum;
+        return new BigDecimal(integer.toString());
     }
 
     /**
-     * Get maximum of given numbers
+     * Convert centimeter to inch
      *
-     * @param first  First number
-     * @param others Other numbers
-     * @return Maximum
+     * @param centimeter Centimeter to convert
+     * @return Converted inch
      */
-    public static float maximum(float first, @NotNull float... others)
+    public static double centimeterToInch(final double centimeter)
     {
-        float maximum = first;
-
-        for (float other : others)
-        {
-            maximum = Math.max(maximum, other);
-        }
-
-        return maximum;
+        return centimeter / Math2.INCH_IN_CENTIMETER;
     }
 
     /**
-     * Get minimum of given numbers
+     * Convert centimeter to millimeter
      *
-     * @param first  First number
-     * @param others Other numbers
-     * @return Minimum
+     * @param centimeter Centimeter to convert
+     * @return Converted millimeter
      */
-    public static float minimum(float first, @NotNull float... others)
+    public static double centimeterToMillimeter(final double centimeter)
     {
-        float minimum = first;
-
-        for (float other : others)
-        {
-            minimum = Math.min(minimum, other);
-        }
-
-        return minimum;
+        return centimeter * 10.0;
     }
 
     /**
-     * Get maximum of given numbers
+     * Convert centimeter to pica
      *
-     * @param first  First number
-     * @param others Other numbers
-     * @return Maximum
+     * @param centimeter Centimeter to convert
+     * @return Converted pica
      */
-    public static long maximum(long first, @NotNull long... others)
+    public static double centimeterToPica(final double centimeter)
     {
-        long maximum = first;
-
-        for (long other : others)
-        {
-            maximum = Math.max(maximum, other);
-        }
-
-        return maximum;
+        return centimeter * Math2.CENTIMETER_IN_PICA;
     }
 
     /**
-     * Get minimum of given numbers
+     * Convert centimeter to point
      *
-     * @param first  First number
-     * @param others Other numbers
-     * @return Minimum
+     * @param centimeter Centimeter to convert
+     * @return Converted point
      */
-    public static long minimum(long first, @NotNull long... others)
+    public static double centimeterToPoint(final double centimeter)
     {
-        long minimum = first;
-
-        for (long other : others)
-        {
-            minimum = Math.min(minimum, other);
-        }
-
-        return minimum;
-    }
-
-    /**
-     * Get maximum of given numbers
-     *
-     * @param first  First number
-     * @param others Other numbers
-     * @return Maximum
-     */
-    public static int maximum(int first, @NotNull int... others)
-    {
-        int maximum = first;
-
-        for (int other : others)
-        {
-            maximum = Math.max(maximum, other);
-        }
-
-        return maximum;
-    }
-
-    /**
-     * Get minimum of given numbers
-     *
-     * @param first  First number
-     * @param others Other numbers
-     * @return Minimum
-     */
-    public static int minimum(int first, @NotNull int... others)
-    {
-        int minimum = first;
-
-        for (int other : others)
-        {
-            minimum = Math.min(minimum, other);
-        }
-
-        return minimum;
-    }
-
-    /**
-     * Indicates if given value can be considered as zero
-     *
-     * @param value Value to test
-     * @return {@code true} if given value can be considered as zero
-     */
-    public static boolean isNul(double value)
-    {
-        return Math.abs(value) <= Math2.EPSILON;
-    }
-
-    /**
-     * Indicates if given value can be considered as zero
-     *
-     * @param value Value to test
-     * @return {@code true} if given value can be considered as zero
-     */
-    public static boolean isNul(float value)
-    {
-        return Math.abs(value) <= Math2.EPSILON_FLOAT;
-    }
-
-    /**
-     * Sign of a number.<br>
-     * It returns:
-     * <ul>
-     * <li>-1 : if number is negative </li>
-     * <li>0 : if number is zero </li>
-     * <li>1 : if number is positive </li>
-     * </ul>
-     *
-     * @param value Number to have its sign
-     * @return Number's sign
-     */
-    public static int sign(double value)
-    {
-        if (Math2.isNul(value))
-        {
-            return 0;
-        }
-        else if (value > 0)
-        {
-            return 1;
-        }
-        else
-        {
-            return -1;
-        }
-    }
-
-    /**
-     * Sign of a number.<br>
-     * It returns:
-     * <ul>
-     * <li>-1 : if number is negative </li>
-     * <li>0 : if number is zero </li>
-     * <li>1 : if number is positive </li>
-     * </ul>
-     *
-     * @param value Number to have its sign
-     * @return Number's sign
-     */
-    public static int sign(float value)
-    {
-        if (Math2.isNul(value))
-        {
-            return 0;
-        }
-        else if (value > 0)
-        {
-            return 1;
-        }
-        else
-        {
-            return -1;
-        }
-    }
-
-    /**
-     * Sign of a number.<br>
-     * It returns:
-     * <ul>
-     * <li>-1 : if number is negative </li>
-     * <li>0 : if number is zero </li>
-     * <li>1 : if number is positive </li>
-     * </ul>
-     *
-     * @param value Number to have its sign
-     * @return Number's sign
-     */
-    public static int sign(long value)
-    {
-        if (value > 0)
-        {
-            return 1;
-        }
-        else if (value < 0)
-        {
-            return -1;
-        }
-        else
-        {
-            return 0;
-        }
-    }
-
-    /**
-     * Sign of a number.<br>
-     * It returns:
-     * <ul>
-     * <li>-1 : if number is negative </li>
-     * <li>0 : if number is zero </li>
-     * <li>1 : if number is positive </li>
-     * </ul>
-     *
-     * @param value Number to have its sign
-     * @return Number's sign
-     */
-    public static int sign(int value)
-    {
-        if (value > 0)
-        {
-            return 1;
-        }
-        else if (value < 0)
-        {
-            return -1;
-        }
-        else
-        {
-            return 0;
-        }
-    }
-
-    /**
-     * Indicates if two given real can be considered as equals
-     *
-     * @param value1 First real
-     * @param value2 Second real
-     * @return {@code true} if two given real can be considered as equals
-     */
-    public static boolean equals(double value1, double value2)
-    {
-        return Math2.isNul(value1 - value2);
-    }
-
-    /**
-     * Indicates if two given real can be considered as equals
-     *
-     * @param value1 First real
-     * @param value2 Second real
-     * @return {@code true} if two given real can be considered as equals
-     */
-    public static boolean equals(float value1, float value2)
-    {
-        return Math2.isNul(value1 - value2);
+        return centimeter * Math2.CENTIMETER_IN_POINT;
     }
 
     /**
@@ -421,6 +191,145 @@ public class Math2
     public static int compare(float value1, float value2)
     {
         return Math2.sign(value1 - value2);
+    }
+
+    /**
+     * Compute intersection area between two rectangles
+     *
+     * @param rectangle1 First rectangle
+     * @param rectangle2 Second rectangle
+     * @return Computed area
+     */
+    public static int computeIntersectedArea(final Rectangle rectangle1, final Rectangle rectangle2)
+    {
+        final int xmin1 = rectangle1.x;
+        final int xmax1 = rectangle1.x + rectangle1.width;
+        final int ymin1 = rectangle1.y;
+        final int ymax1 = rectangle1.y + rectangle1.height;
+        final int xmin2 = rectangle2.x;
+        final int xmax2 = rectangle2.x + rectangle2.width;
+        final int ymin2 = rectangle2.y;
+        final int ymax2 = rectangle2.y + rectangle2.height;
+
+        if ((xmin1 > xmax2) || (ymin1 > ymax2) || (xmin2 > xmax1) || (ymin2 > ymax1))
+        {
+            return 0;
+        }
+
+        final int xmin = Math.max(xmin1, xmin2);
+        final int xmax = Math.min(xmax1, xmax2);
+        if (xmin >= xmax)
+        {
+            return 0;
+        }
+
+        final int ymin = Math.max(ymin1, ymin2);
+        final int ymax = Math.min(ymax1, ymax2);
+        if (ymin >= ymax)
+        {
+            return 0;
+        }
+
+        return (xmax - xmin) * (ymax - ymin);
+    }
+
+    /**
+     * Create big integer from an integer
+     *
+     * @param value Integer base
+     * @return Big integer created
+     */
+    public static BigInteger createBigInteger(final int value)
+    {
+        return new BigInteger(String.valueOf(value));
+    }
+
+    /**
+     * Create big integer from an integer
+     *
+     * @param value Integer base
+     * @return Big integer created
+     */
+    public static BigInteger createBigInteger(final long value)
+    {
+        return new BigInteger(String.valueOf(value));
+    }
+
+    /**
+     * Compute the cubic interpolation
+     *
+     * @param cp Start value
+     * @param p1 First control point
+     * @param p2 Second control point
+     * @param p3 Third control point
+     * @param t  Factor in [0, 1]
+     * @return Interpolation
+     */
+    public static double cubic(final double cp, final double p1, final double p2, final double p3, final double t)
+    {
+        final double u = 1d - t;
+        return (u * u * u * cp) + (3d * t * u * u * p1) + (3d * t * t * u * p2) + (t * t * t * p3);
+    }
+
+    /**
+     * Compute several cubic interpolation
+     *
+     * @param cp        Start value
+     * @param p1        First control point
+     * @param p2        Second control point
+     * @param p3        Third control point
+     * @param precision Number of interpolation
+     * @param cubic     Where write interpolations
+     * @return Interpolations
+     */
+    public static double[] cubic(
+            final double cp, final double p1, final double p2, final double p3, final int precision, double[] cubic)
+    {
+        double step;
+        double actual;
+        int    i;
+
+        if ((cubic == null) || (cubic.length < precision))
+        {
+            cubic = new double[precision];
+        }
+
+        step = 1.0 / (precision - 1.0);
+        actual = 0;
+        for (i = 0; i < precision; i++)
+        {
+            if (i == (precision - 1))
+            {
+                actual = 1.0;
+            }
+            cubic[i] = Math2.cubic(cp, p1, p2, p3, actual);
+            actual += step;
+        }
+        return cubic;
+    }
+
+    /**
+     * Indicates if two given real can be considered as equals
+     *
+     * @param value1 First real
+     * @param value2 Second real
+     * @return {@code true} if two given real can be considered as equals
+     */
+    public static boolean equals(double value1, double value2)
+    {
+        return Math2.isNul(value1 - value2);
+    }
+
+    /**
+     * Indicates if two given real can be considered as equals
+     *
+     * @param value1 First real
+     * @param value2 Second real
+     * @return {@code true} if two given real can be considered as equals
+     */
+    public static boolean equals(float value1, float value2)
+    {
+        return Math2.isNul(value1 - value2);
     }
 
     /**
@@ -474,81 +383,129 @@ public class Math2
     }
 
     /**
-     * Compute the lower common multiple of two numbers
+     * Convert inch to centimeter
      *
-     * @param long1 First
-     * @param long2 Second
-     * @return The greater common divider
+     * @param inch Inch to convert
+     * @return Converted centimeter
      */
-    public static long lowerCommonMultiple(long long1, long long2)
+    public static double inchToCentimeter(final double inch)
     {
-        long gcd = Math2.greaterCommonDivider(long1, long2);
-
-        if (gcd == 0)
-        {
-            return 0;
-        }
-
-        return long1 * (long2 / gcd);
+        return inch * Math2.INCH_IN_CENTIMETER;
     }
 
     /**
-     * Compute the lower common multiple of two numbers
+     * Convert inch to millimeter
      *
-     * @param int1 First
-     * @param int2 Second
-     * @return The greater common divider
+     * @param inch Inch to convert
+     * @return Converted millimeter
      */
-    public static int lowerCommonMultiple(int int1, int int2)
+    public static double inchToMillimeter(final double inch)
     {
-        int gcd = Math2.greaterCommonDivider(int1, int2);
-
-        if (gcd == 0)
-        {
-            return 0;
-        }
-
-        return int1 * (int2 / gcd);
+        return inch * Math2.INCH_IN_MILLIMETER;
     }
 
     /**
-     * Compute intersection area between two rectangles
+     * Convert inch to pica
      *
-     * @param rectangle1 First rectangle
-     * @param rectangle2 Second rectangle
-     * @return Computed area
+     * @param inch Inch to convert
+     * @return Converted pica
      */
-    public static int computeIntersectedArea(final Rectangle rectangle1, final Rectangle rectangle2)
+    public static double inchToPica(final double inch)
     {
-        final int xmin1 = rectangle1.x;
-        final int xmax1 = rectangle1.x + rectangle1.width;
-        final int ymin1 = rectangle1.y;
-        final int ymax1 = rectangle1.y + rectangle1.height;
-        final int xmin2 = rectangle2.x;
-        final int xmax2 = rectangle2.x + rectangle2.width;
-        final int ymin2 = rectangle2.y;
-        final int ymax2 = rectangle2.y + rectangle2.height;
+        return inch * Math2.INCH_IN_PICA;
+    }
 
-        if ((xmin1 > xmax2) || (ymin1 > ymax2) || (xmin2 > xmax1) || (ymin2 > ymax1))
-        {
-            return 0;
-        }
+    /**
+     * Convert inch to point
+     *
+     * @param inch Inch to convert
+     * @return Converted point
+     */
+    public static double inchToPoint(final double inch)
+    {
+        return inch * Math2.INCH_IN_POINT;
+    }
 
-        final int xmin = Math.max(xmin1, xmin2);
-        final int xmax = Math.min(xmax1, xmax2);
-        if (xmin >= xmax)
-        {
-            return 0;
-        }
+    /**
+     * Compute cosinus interpolation.<br>
+     * f : [0, 1] -> [0, 1]<br>
+     * f(0)=0<br>
+     * f(1)=1<br>
+     * f is strictly increase
+     *
+     * @param t Value to interpolate in [0, 1]
+     * @return Interpolated result in [0, 1]
+     */
+    public static double interpolationCosinus(final double t)
+    {
+        return 0.5d + Math.cos((t + 1) * Math.PI) / 2d;
+    }
 
-        final int ymin = Math.max(ymin1, ymin2);
-        final int ymax = Math.min(ymax1, ymax2);
-        if (ymin >= ymax)
-        {
-            return 0;
-        }
+    /**
+     * Compute exponential interpolation.<br>
+     * f : [0, 1] -> [0, 1]<br>
+     * f(0)=0<br>
+     * f(1)=1<br>
+     * f is strictly increase
+     *
+     * @param t Value to interpolate in [0, 1]
+     * @return Interpolated result in [0, 1]
+     */
+    public static double interpolationExponential(final double t)
+    {
+        return Math.expm1(t) / (Math.E - 1d);
+    }
 
-        return (xmax - xmin) * (ymax - ymin);
+    /**
+     * Compute logarithm interpolation.<br>
+     * f : [0, 1] -> [0, 1]<br>
+     * f(0)=0<br>
+     * f(1)=1<br>
+     * f is strictly increase
+     *
+     * @param t Value to interpolate in [0, 1]
+     * @return Interpolated result in [0, 1]
+     */
+    public static double interpolationLogarithm(final double t)
+    {
+        return Math.log1p(t) / Math.log(2d);
+    }
+
+    /**
+     * Compute sinus interpolation.<br>
+     * f : [0, 1] -> [0, 1]<br>
+     * f(0)=0<br>
+     * f(1)=1<br>
+     * f is strictly increase
+     *
+     * @param t Value to interpolate in [0, 1]
+     * @return Interpolated result in [0, 1]
+     */
+    public static double interpolationSinus(final double t)
+    {
+        return 0.5d + (Math.sin((t * Math.PI) - Math2.PI_2) / 2d);
+    }
+
+    /**
+     * Indicates if given value can be considered as zero
+     *
+     * @param value Value to test
+     * @return {@code true} if given value can be considered as zero
+     */
+    public static boolean isNul(double value)
+    {
+        return Math.abs(value) <= Math2.EPSILON;
+    }
+
+    /**
+     * Indicates if given value can be considered as zero
+     *
+     * @param value Value to test
+     * @return {@code true} if given value can be considered as zero
+     */
+    public static boolean isNul(float value)
+    {
+        return Math.abs(value) <= Math2.EPSILON_FLOAT;
     }
 
     /**
@@ -599,36 +556,237 @@ public class Math2
     }
 
     /**
-     * Square of a number
+     * Compute the lower common multiple of two numbers
      *
-     * @param real Number to square
-     * @return Square result
+     * @param long1 First
+     * @param long2 Second
+     * @return The greater common divider
      */
-    public static double square(final double real)
+    public static long lowerCommonMultiple(long long1, long long2)
     {
-        return real * real;
+        long gcd = Math2.greaterCommonDivider(long1, long2);
+
+        if (gcd == 0)
+        {
+            return 0;
+        }
+
+        return long1 * (long2 / gcd);
     }
 
     /**
-     * Square of a number
+     * Compute the lower common multiple of two numbers
      *
-     * @param real Number to square
-     * @return Square result
+     * @param int1 First
+     * @param int2 Second
+     * @return The greater common divider
      */
-    public static float square(final float real)
+    public static int lowerCommonMultiple(int int1, int int2)
     {
-        return real * real;
+        int gcd = Math2.greaterCommonDivider(int1, int2);
+
+        if (gcd == 0)
+        {
+            return 0;
+        }
+
+        return int1 * (int2 / gcd);
     }
 
     /**
-     * Square of a number
+     * Get maximum of given numbers
      *
-     * @param integer Number to square
-     * @return Square result
+     * @param first  First number
+     * @param others Other numbers
+     * @return Maximum
      */
-    public static int square(final int integer)
+    public static double maximum(double first, @NotNull double... others)
     {
-        return integer * integer;
+        double maximum = first;
+
+        for (double other : others)
+        {
+            maximum = Math.max(maximum, other);
+        }
+
+        return maximum;
+    }
+
+    /**
+     * Get maximum of given numbers
+     *
+     * @param first  First number
+     * @param others Other numbers
+     * @return Maximum
+     */
+    public static float maximum(float first, @NotNull float... others)
+    {
+        float maximum = first;
+
+        for (float other : others)
+        {
+            maximum = Math.max(maximum, other);
+        }
+
+        return maximum;
+    }
+
+    /**
+     * Get maximum of given numbers
+     *
+     * @param first  First number
+     * @param others Other numbers
+     * @return Maximum
+     */
+    public static long maximum(long first, @NotNull long... others)
+    {
+        long maximum = first;
+
+        for (long other : others)
+        {
+            maximum = Math.max(maximum, other);
+        }
+
+        return maximum;
+    }
+
+    /**
+     * Get maximum of given numbers
+     *
+     * @param first  First number
+     * @param others Other numbers
+     * @return Maximum
+     */
+    public static int maximum(int first, @NotNull int... others)
+    {
+        int maximum = first;
+
+        for (int other : others)
+        {
+            maximum = Math.max(maximum, other);
+        }
+
+        return maximum;
+    }
+
+    /**
+     * Convert millimeter to centimeter
+     *
+     * @param millimeter Millimeter to convert
+     * @return Converted centimeter
+     */
+    public static double millimeterToCentimeter(final double millimeter)
+    {
+        return millimeter * 0.1;
+    }
+
+    /**
+     * Convert millimeter to inch
+     *
+     * @param millimeter Millimeter to convert
+     * @return Converted inch
+     */
+    public static double millimeterToInch(final double millimeter)
+    {
+        return millimeter / Math2.INCH_IN_MILLIMETER;
+    }
+
+    /**
+     * Convert millimeter to pica
+     *
+     * @param millimeter Millimeter to convert
+     * @return Converted pica
+     */
+    public static double millimeterToPica(final double millimeter)
+    {
+        return millimeter / Math2.PICA_IN_MILLIMETER;
+    }
+
+    /**
+     * Convert millimeter to point
+     *
+     * @param millimeter Millimeter to convert
+     * @return Converted point
+     */
+    public static double millimeterToPoint(final double millimeter)
+    {
+        return millimeter * Math2.MILLIMETER_IN_POINT;
+    }
+
+    /**
+     * Get minimum of given numbers
+     *
+     * @param first  First number
+     * @param others Other numbers
+     * @return Minimum
+     */
+    public static double minimum(double first, @NotNull double... others)
+    {
+        double minimum = first;
+
+        for (double other : others)
+        {
+            minimum = Math.min(minimum, other);
+        }
+
+        return minimum;
+    }
+
+    /**
+     * Get minimum of given numbers
+     *
+     * @param first  First number
+     * @param others Other numbers
+     * @return Minimum
+     */
+    public static float minimum(float first, @NotNull float... others)
+    {
+        float minimum = first;
+
+        for (float other : others)
+        {
+            minimum = Math.min(minimum, other);
+        }
+
+        return minimum;
+    }
+
+    /**
+     * Get minimum of given numbers
+     *
+     * @param first  First number
+     * @param others Other numbers
+     * @return Minimum
+     */
+    public static long minimum(long first, @NotNull long... others)
+    {
+        long minimum = first;
+
+        for (long other : others)
+        {
+            minimum = Math.min(minimum, other);
+        }
+
+        return minimum;
+    }
+
+    /**
+     * Get minimum of given numbers
+     *
+     * @param first  First number
+     * @param others Other numbers
+     * @return Minimum
+     */
+    public static int minimum(int first, @NotNull int... others)
+    {
+        int minimum = first;
+
+        for (int other : others)
+        {
+            minimum = Math.min(minimum, other);
+        }
+
+        return minimum;
     }
 
     /**
@@ -764,332 +922,6 @@ public class Math2
     }
 
     /**
-     * Convert centimeter to inch
-     *
-     * @param centimeter Centimeter to convert
-     * @return Converted inch
-     */
-    public static double centimeterToInch(final double centimeter)
-    {
-        return centimeter / Math2.INCH_IN_CENTIMETER;
-    }
-
-    /**
-     * Convert centimeter to millimeter
-     *
-     * @param centimeter Centimeter to convert
-     * @return Converted millimeter
-     */
-    public static double centimeterToMillimeter(final double centimeter)
-    {
-        return centimeter * 10.0;
-    }
-
-    /**
-     * Convert centimeter to pica
-     *
-     * @param centimeter Centimeter to convert
-     * @return Converted pica
-     */
-    public static double centimeterToPica(final double centimeter)
-    {
-        return centimeter * Math2.CENTIMETER_IN_PICA;
-    }
-
-    /**
-     * Convert centimeter to point
-     *
-     * @param centimeter Centimeter to convert
-     * @return Converted point
-     */
-    public static double centimeterToPoint(final double centimeter)
-    {
-        return centimeter * Math2.CENTIMETER_IN_POINT;
-    }
-
-    /**
-     * Convert inch to centimeter
-     *
-     * @param inch Inch to convert
-     * @return Converted centimeter
-     */
-    public static double inchToCentimeter(final double inch)
-    {
-        return inch * Math2.INCH_IN_CENTIMETER;
-    }
-
-    /**
-     * Convert inch to millimeter
-     *
-     * @param inch Inch to convert
-     * @return Converted millimeter
-     */
-    public static double inchToMillimeter(final double inch)
-    {
-        return inch * Math2.INCH_IN_MILLIMETER;
-    }
-
-    /**
-     * Convert inch to pica
-     *
-     * @param inch Inch to convert
-     * @return Converted pica
-     */
-    public static double inchToPica(final double inch)
-    {
-        return inch * Math2.INCH_IN_PICA;
-    }
-
-    /**
-     * Convert inch to point
-     *
-     * @param inch Inch to convert
-     * @return Converted point
-     */
-    public static double inchToPoint(final double inch)
-    {
-        return inch * Math2.INCH_IN_POINT;
-    }
-
-    /**
-     * Convert millimeter to centimeter
-     *
-     * @param millimeter Millimeter to convert
-     * @return Converted centimeter
-     */
-    public static double millimeterToCentimeter(final double millimeter)
-    {
-        return millimeter * 0.1;
-    }
-
-    /**
-     * Convert millimeter to inch
-     *
-     * @param millimeter Millimeter to convert
-     * @return Converted inch
-     */
-    public static double millimeterToInch(final double millimeter)
-    {
-        return millimeter / Math2.INCH_IN_MILLIMETER;
-    }
-
-    /**
-     * Convert millimeter to pica
-     *
-     * @param millimeter Millimeter to convert
-     * @return Converted pica
-     */
-    public static double millimeterToPica(final double millimeter)
-    {
-        return millimeter / Math2.PICA_IN_MILLIMETER;
-    }
-
-    /**
-     * Convert millimeter to point
-     *
-     * @param millimeter Millimeter to convert
-     * @return Converted point
-     */
-    public static double millimeterToPoint(final double millimeter)
-    {
-        return millimeter * Math2.MILLIMETER_IN_POINT;
-    }
-
-    /**
-     * Convert pica to centimeter
-     *
-     * @param pica Pica to convert
-     * @return Converted centimeter
-     */
-    public static double picaToCentimeter(final double pica)
-    {
-        return pica / Math2.CENTIMETER_IN_PICA;
-    }
-
-    /**
-     * Convert pica to inch
-     *
-     * @param pica Pica to convert
-     * @return Converted inch
-     */
-    public static double picaToInch(final double pica)
-    {
-        return pica / Math2.INCH_IN_PICA;
-    }
-
-    /**
-     * Convert pica to millimeter
-     *
-     * @param pica Pica to convert
-     * @return Converted millimeter
-     */
-    public static double picaToMillimeter(final double pica)
-    {
-        return pica * Math2.PICA_IN_MILLIMETER;
-    }
-
-    /**
-     * Convert pica to point
-     *
-     * @param pica Pica to convert
-     * @return Converted point
-     */
-    public static double picaToPoint(final double pica)
-    {
-        return pica * Math2.PICA_IN_POINT;
-    }
-
-    /**
-     * Convert point to centimeter
-     *
-     * @param point Point to convert
-     * @return Converted centimeter
-     */
-    public static double pointToCentimeter(final double point)
-    {
-        return point / Math2.CENTIMETER_IN_POINT;
-    }
-
-    /**
-     * Convert point to inch
-     *
-     * @param point Point to convert
-     * @return Converted inch
-     */
-    public static double pointToInch(final double point)
-    {
-        return point / Math2.INCH_IN_POINT;
-    }
-
-    /**
-     * Convert point to millimeter
-     *
-     * @param point Point to convert
-     * @return Converted millimeter
-     */
-    public static double pointToMillimeter(final double point)
-    {
-        return point / Math2.MILLIMETER_IN_POINT;
-    }
-
-    /**
-     * Convert point to point
-     *
-     * @param point Point to convert
-     * @return Converted point
-     */
-    public static double pointToPica(final double point)
-    {
-        return point / Math2.PICA_IN_POINT;
-    }
-
-    /**
-     * Compute exponential interpolation.<br>
-     * f : [0, 1] -> [0, 1]<br>
-     * f(0)=0<br>
-     * f(1)=1<br>
-     * f is strictly increase
-     *
-     * @param t Value to interpolate in [0, 1]
-     * @return Interpolated result in [0, 1]
-     */
-    public static double interpolationExponential(final double t)
-    {
-        return Math.expm1(t) / (Math.E - 1d);
-    }
-
-    /**
-     * Compute logarithm interpolation.<br>
-     * f : [0, 1] -> [0, 1]<br>
-     * f(0)=0<br>
-     * f(1)=1<br>
-     * f is strictly increase
-     *
-     * @param t Value to interpolate in [0, 1]
-     * @return Interpolated result in [0, 1]
-     */
-    public static double interpolationLogarithm(final double t)
-    {
-        return Math.log1p(t) / Math.log(2d);
-    }
-
-    /**
-     * Compute sinus interpolation.<br>
-     * f : [0, 1] -> [0, 1]<br>
-     * f(0)=0<br>
-     * f(1)=1<br>
-     * f is strictly increase
-     *
-     * @param t Value to interpolate in [0, 1]
-     * @return Interpolated result in [0, 1]
-     */
-    public static double interpolationSinus(final double t)
-    {
-        return 0.5d + (Math.sin((t * Math.PI) - Math2.PI_2) / 2d);
-    }
-
-    /**
-     * Compute cosinus interpolation.<br>
-     * f : [0, 1] -> [0, 1]<br>
-     * f(0)=0<br>
-     * f(1)=1<br>
-     * f is strictly increase
-     *
-     * @param t Value to interpolate in [0, 1]
-     * @return Interpolated result in [0, 1]
-     */
-    public static double interpolationCosinus(final double t)
-    {
-        return 0.5d + Math.cos((t + 1) * Math.PI) / 2d;
-    }
-
-    /**
-     * Create big integer from an integer
-     *
-     * @param value Integer base
-     * @return Big integer created
-     */
-    public static BigInteger createBigInteger(final int value)
-    {
-        return new BigInteger(String.valueOf(value));
-    }
-
-    /**
-     * Create big integer from an integer
-     *
-     * @param value Integer base
-     * @return Big integer created
-     */
-    public static BigInteger createBigInteger(final long value)
-    {
-        return new BigInteger(String.valueOf(value));
-    }
-
-    /**
-     * Convert big integer to big decimal
-     *
-     * @param integer Big integer to convert
-     * @return Converted big decimal
-     */
-    public static BigDecimal bigIntegerToBigDecimal(final BigInteger integer)
-    {
-        return new BigDecimal(integer.toString());
-    }
-
-    /**
-     * Compute the Bernoulli value
-     *
-     * @param n Number of elements
-     * @param m Total of elements
-     * @param t Factor in [0, 1]
-     * @return Bernoulli value
-     */
-    public static double Bernoulli(final int n, final int m, final double t)
-    {
-        return Math2.numberOfCombination(n, m) * Math.pow(t, n) * Math.pow(1d - t, m - n);
-    }
-
-    /**
      * Compute the combination of N elements in M
      * <p>
      * <pre>
@@ -1136,7 +968,7 @@ public class Math2
 
         // Real work : n>1 and m>n and m-n>1
 
-        /**
+        /*
          * Remember we want reduce
          *
          * <pre>
@@ -1265,56 +1097,91 @@ public class Math2
     }
 
     /**
-     * Compute the cubic interpolation
+     * Convert pica to centimeter
      *
-     * @param cp Start value
-     * @param p1 First control point
-     * @param p2 Second control point
-     * @param p3 Third control point
-     * @param t  Factor in [0, 1]
-     * @return Interpolation
+     * @param pica Pica to convert
+     * @return Converted centimeter
      */
-    public static double cubic(final double cp, final double p1, final double p2, final double p3, final double t)
+    public static double picaToCentimeter(final double pica)
     {
-        final double u = 1d - t;
-        return (u * u * u * cp) + (3d * t * u * u * p1) + (3d * t * t * u * p2) + (t * t * t * p3);
+        return pica / Math2.CENTIMETER_IN_PICA;
     }
 
     /**
-     * Compute several cubic interpolation
+     * Convert pica to inch
      *
-     * @param cp        Start value
-     * @param p1        First control point
-     * @param p2        Second control point
-     * @param p3        Third control point
-     * @param precision Number of interpolation
-     * @param cubic       Where write interpolations
-     * @return Interpolations
+     * @param pica Pica to convert
+     * @return Converted inch
      */
-    public static double[] cubic(
-            final double cp, final double p1, final double p2, final double p3, final int precision, double[] cubic)
+    public static double picaToInch(final double pica)
     {
-        double step;
-        double actual;
-        int    i;
+        return pica / Math2.INCH_IN_PICA;
+    }
 
-        if ((cubic == null) || (cubic.length < precision))
-        {
-            cubic = new double[precision];
-        }
+    /**
+     * Convert pica to millimeter
+     *
+     * @param pica Pica to convert
+     * @return Converted millimeter
+     */
+    public static double picaToMillimeter(final double pica)
+    {
+        return pica * Math2.PICA_IN_MILLIMETER;
+    }
 
-        step = 1.0 / (precision - 1.0);
-        actual = 0;
-        for (i = 0; i < precision; i++)
-        {
-            if (i == (precision - 1))
-            {
-                actual = 1.0;
-            }
-            cubic[i] = Math2.cubic(cp, p1, p2, p3, actual);
-            actual += step;
-        }
-        return cubic;
+    /**
+     * Convert pica to point
+     *
+     * @param pica Pica to convert
+     * @return Converted point
+     */
+    public static double picaToPoint(final double pica)
+    {
+        return pica * Math2.PICA_IN_POINT;
+    }
+
+    /**
+     * Convert point to centimeter
+     *
+     * @param point Point to convert
+     * @return Converted centimeter
+     */
+    public static double pointToCentimeter(final double point)
+    {
+        return point / Math2.CENTIMETER_IN_POINT;
+    }
+
+    /**
+     * Convert point to inch
+     *
+     * @param point Point to convert
+     * @return Converted inch
+     */
+    public static double pointToInch(final double point)
+    {
+        return point / Math2.INCH_IN_POINT;
+    }
+
+    /**
+     * Convert point to millimeter
+     *
+     * @param point Point to convert
+     * @return Converted millimeter
+     */
+    public static double pointToMillimeter(final double point)
+    {
+        return point / Math2.MILLIMETER_IN_POINT;
+    }
+
+    /**
+     * Convert point to point
+     *
+     * @param point Point to convert
+     * @return Converted point
+     */
+    public static double pointToPica(final double point)
+    {
+        return point / Math2.PICA_IN_POINT;
     }
 
     /**
@@ -1339,7 +1206,7 @@ public class Math2
      * @param p1        First control point
      * @param p2        Second control point
      * @param precision Number of interpolation
-     * @param quadratic      Where write interpolations
+     * @param quadratic Where write interpolations
      * @return Interpolations
      */
     public static double[] quadratic(
@@ -1366,5 +1233,139 @@ public class Math2
             actual += step;
         }
         return quadratic;
+    }
+
+    /**
+     * Sign of a number.<br>
+     * It returns:
+     * <ul>
+     * <li>-1 : if number is negative </li>
+     * <li>0 : if number is zero </li>
+     * <li>1 : if number is positive </li>
+     * </ul>
+     *
+     * @param value Number to have its sign
+     * @return Number's sign
+     */
+    public static int sign(double value)
+    {
+        if (Math2.isNul(value))
+        {
+            return 0;
+        }
+        else if (value > 0)
+        {
+            return 1;
+        }
+        else
+        {
+            return -1;
+        }
+    }
+
+    /**
+     * Sign of a number.<br>
+     * It returns:
+     * <ul>
+     * <li>-1 : if number is negative </li>
+     * <li>0 : if number is zero </li>
+     * <li>1 : if number is positive </li>
+     * </ul>
+     *
+     * @param value Number to have its sign
+     * @return Number's sign
+     */
+    public static int sign(float value)
+    {
+        if (Math2.isNul(value))
+        {
+            return 0;
+        }
+        else if (value > 0)
+        {
+            return 1;
+        }
+        else
+        {
+            return -1;
+        }
+    }
+
+    /**
+     * Sign of a number.<br>
+     * It returns:
+     * <ul>
+     * <li>-1 : if number is negative </li>
+     * <li>0 : if number is zero </li>
+     * <li>1 : if number is positive </li>
+     * </ul>
+     *
+     * @param value Number to have its sign
+     * @return Number's sign
+     */
+    public static int sign(long value)
+    {
+        if (value > 0)
+        {
+            return 1;
+        }
+        else if (value < 0)
+        {
+            return -1;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+    /**
+     * Sign of a number.<br>
+     * It returns:
+     * <ul>
+     * <li>-1 : if number is negative </li>
+     * <li>0 : if number is zero </li>
+     * <li>1 : if number is positive </li>
+     * </ul>
+     *
+     * @param value Number to have its sign
+     * @return Number's sign
+     */
+    public static int sign(int value)
+    {
+        return Integer.compare(value, 0);
+    }
+
+    /**
+     * Square of a number
+     *
+     * @param real Number to square
+     * @return Square result
+     */
+    public static double square(final double real)
+    {
+        return real * real;
+    }
+
+    /**
+     * Square of a number
+     *
+     * @param real Number to square
+     * @return Square result
+     */
+    public static float square(final float real)
+    {
+        return real * real;
+    }
+
+    /**
+     * Square of a number
+     *
+     * @param integer Number to square
+     * @return Square result
+     */
+    public static int square(final int integer)
+    {
+        return integer * integer;
     }
 }

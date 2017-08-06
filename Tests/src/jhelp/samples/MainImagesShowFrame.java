@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.samples;
 
 import java.awt.BorderLayout;
@@ -10,8 +22,8 @@ import jhelp.util.gui.JHelpImage;
 import jhelp.util.gui.UtilGUI;
 import jhelp.util.io.UtilIO;
 import jhelp.util.list.ThrowSet;
-import jhelp.util.thread.ThreadManager;
 import jhelp.util.thread.RunnableTask;
+import jhelp.util.thread.ThreadManager;
 
 /**
  * Created by jhelp on 17/07/17.
@@ -19,11 +31,11 @@ import jhelp.util.thread.RunnableTask;
 public class MainImagesShowFrame extends JFrame implements RunnableTask
 {
     private static final long IMAGE_TIME = 2048;
-    private       long           startImageTime;
     private final ComponentImage componentImage;
-    private final ThrowSet<File> images;
     private final ThrowSet<File> directories;
     private final FileFilter     fileFilter;
+    private final ThrowSet<File> images;
+    private       long           startImageTime;
 
     public MainImagesShowFrame()
     {

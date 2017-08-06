@@ -1,13 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.math.simplex;
 
 import jhelp.util.list.SortedArray;
@@ -60,15 +62,6 @@ import jhelp.util.util.Utilities;
  */
 public class EquationNP
 {
-    /**
-     * Possibles slack/surplus names
-     */
-    private static final char[] NAMES;
-    /**
-     * Number of possible slack/surplus names
-     */
-    private static final int    NAMES_LENGTH;
-
     static
     {
         NAMES_LENGTH = (('z' - 'a') + 1) << 1;
@@ -87,21 +80,29 @@ public class EquationNP
     }
 
     /**
+     * Possibles slack/surplus names
+     */
+    private static final char[]      NAMES;
+    /**
+     * Number of possible slack/surplus names
+     */
+    private static final int         NAMES_LENGTH;
+    /**
      * Constraints to respect
      */
-    private final Condition[] constraints;
+    private final        Condition[] constraints;
     /**
      * Indicates if have to maximize or minimize the objective
      */
-    private final boolean     maximize;
+    private final        boolean     maximize;
     /**
      * Objective condition
      */
-    private final Condition   objectiveCondition;
+    private final        Condition   objectiveCondition;
     /**
      * Objective name
      */
-    private final char        objectiveSymbol;
+    private final        char        objectiveSymbol;
 
     /**
      * Create a new instance of EquationNP.<br>
@@ -146,7 +147,7 @@ public class EquationNP
      */
     private char[] extractVariables()
     {
-        final SortedArray<Character> symbols = new SortedArray<Character>(Character.class, true);
+        final SortedArray<Character> symbols = new SortedArray<>(Character.class, true);
         this.objectiveCondition.collectSymbols(symbols);
 
         for (final Condition constraint : this.constraints)

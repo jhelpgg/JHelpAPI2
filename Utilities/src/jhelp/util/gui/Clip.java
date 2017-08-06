@@ -1,13 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.gui;
 
 import jhelp.util.text.UtilText;
@@ -22,13 +24,21 @@ import jhelp.util.util.HashCode;
 public class Clip
         implements Cloneable
 {
-    /** X maximum. The X of bottom right corner of the rectangle */
+    /**
+     * X maximum. The X of bottom right corner of the rectangle
+     */
     public int xMax;
-    /** X minimum. The X of up left corner of the rectangle */
+    /**
+     * X minimum. The X of up left corner of the rectangle
+     */
     public int xMin;
-    /** Y maximum. The Y of bottom right corner of the rectangle */
+    /**
+     * Y maximum. The Y of bottom right corner of the rectangle
+     */
     public int yMax;
-    /** Y minimum. The Y of up left corner of the rectangle */
+    /**
+     * Y minimum. The Y of up left corner of the rectangle
+     */
     public int yMin;
 
     /**
@@ -45,8 +55,7 @@ public class Clip
     /**
      * Create a new instance of Clip copy od an other one
      *
-     * @param clip
-     *           Clip to copy
+     * @param clip Clip to copy
      */
     public Clip(final Clip clip)
     {
@@ -59,14 +68,10 @@ public class Clip
     /**
      * Create a new instance of Clip
      *
-     * @param xMin
-     *           X minimum. The X of up left corner of the rectangle
-     * @param xMax
-     *           X maximum. The X of bottom right corner of the rectangle
-     * @param yMin
-     *           Y minimum. The Y of up left corner of the rectangle
-     * @param yMax
-     *           Y maximum. The Y of bottom right corner of the rectangle
+     * @param xMin X minimum. The X of up left corner of the rectangle
+     * @param xMax X maximum. The X of bottom right corner of the rectangle
+     * @param yMin Y minimum. The Y of up left corner of the rectangle
+     * @param yMax Y maximum. The Y of bottom right corner of the rectangle
      */
     public Clip(final int xMin, final int xMax, final int yMin, final int yMax)
     {
@@ -74,25 +79,6 @@ public class Clip
         this.xMax = xMax;
         this.yMin = yMin;
         this.yMax = yMax;
-    }
-
-    /**
-     * Create a clone of the clip <br>
-     * <br>
-     * <b>Parent documentation:</b><br>
-     * {@inheritDoc}
-     *
-     * @return Clip clone
-     * @throws CloneNotSupportedException
-     *            Not throw here
-     * @see Object#clone()
-     */
-    @Override
-    public Object clone() throws CloneNotSupportedException
-    {
-        final Clip clip = (Clip) super.clone();
-        clip.set(this);
-        return clip;
     }
 
     /**
@@ -106,13 +92,27 @@ public class Clip
     }
 
     /**
+     * Hash code of the clip <br>
+     * <br>
+     * <b>Parent documentation:</b><br>
+     * {@inheritDoc}
+     *
+     * @return Hash code of the clip
+     * @see Object#hashCode()
+     */
+    @Override
+    public int hashCode()
+    {
+        return HashCode.computeHashCode(this.xMin, this.xMax, this.yMin, this.yMax);
+    }
+
+    /**
      * Indicates if an object is a clip of same area <br>
      * <br>
      * <b>Parent documentation:</b><br>
      * {@inheritDoc}
      *
-     * @param object
-     *           Object to compare with
+     * @param object Object to compare with
      * @return {@code true} if an object is a clip of same area
      * @see Object#equals(Object)
      */
@@ -141,32 +141,21 @@ public class Clip
     }
 
     /**
-     * Hash code of the clip <br>
+     * Create a clone of the clip <br>
      * <br>
      * <b>Parent documentation:</b><br>
      * {@inheritDoc}
      *
-     * @return Hash code of the clip
-     * @see Object#hashCode()
+     * @return Clip clone
+     * @throws CloneNotSupportedException Not throw here
+     * @see Object#clone()
      */
     @Override
-    public int hashCode()
+    public Object clone() throws CloneNotSupportedException
     {
-        return HashCode.computeHashCode(this.xMin, this.xMax, this.yMin, this.yMax);
-    }
-
-    /**
-     * Modify the clip to be a copy of an other one
-     *
-     * @param clip
-     *           Clip to copy
-     */
-    public void set(final Clip clip)
-    {
-        this.xMin = clip.xMin;
-        this.xMax = clip.xMax;
-        this.yMin = clip.yMin;
-        this.yMax = clip.yMax;
+        final Clip clip = (Clip) super.clone();
+        clip.set(this);
+        return clip;
     }
 
     /**
@@ -182,5 +171,18 @@ public class Clip
     public String toString()
     {
         return UtilText.concatenate("Clip ", this.xMin, "<->", this.xMax, " | ", this.yMin, "<->", this.yMax);
+    }
+
+    /**
+     * Modify the clip to be a copy of an other one
+     *
+     * @param clip Clip to copy
+     */
+    public void set(final Clip clip)
+    {
+        this.xMin = clip.xMin;
+        this.xMax = clip.xMax;
+        this.yMin = clip.yMin;
+        this.yMax = clip.yMax;
     }
 }

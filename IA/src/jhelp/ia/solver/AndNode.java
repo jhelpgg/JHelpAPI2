@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.ia.solver;
 
 import com.sun.istack.internal.NotNull;
@@ -20,15 +32,7 @@ public abstract class AndNode<T> extends SolverNode<T>
         this.children = new ArrayList<>();
     }
 
-    public void add(@NotNull SolverNode<T> solverNode)
-    {
-        Objects.requireNonNull(solverNode, "solverNode MUST NOT be null!");
-
-        synchronized (this.children)
-        {
-            this.children.add(solverNode);
-        }
-    }
+    protected abstract T combine(List<T> intermediates);
 
     @Override
     protected SolverNode<T> solveInternal()
@@ -89,7 +93,15 @@ public abstract class AndNode<T> extends SolverNode<T>
         return Solution.noSolution();
     }
 
-    protected abstract T combine(List<T> intermediates);
+    public void add(@NotNull SolverNode<T> solverNode)
+    {
+        Objects.requireNonNull(solverNode, "solverNode MUST NOT be null!");
+
+        synchronized (this.children)
+        {
+            this.children.add(solverNode);
+        }
+    }
 
     public boolean empty()
     {

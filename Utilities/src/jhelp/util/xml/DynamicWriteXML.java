@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.xml;
 
 import java.io.BufferedWriter;
@@ -24,6 +36,10 @@ public final class DynamicWriteXML
      */
     private static final String COMMENT_START              = "<!-- ";
     /**
+     * Sttus indicates a comment is written and can't append parameter any more
+     */
+    private static final int    STATUS_COMMENT_WRITTEN     = 5;
+    /**
      * Status indicate that a markup have to be open
      */
     private static final int    STATUS_HAVE_TO_OPEN_MARKUP = 1;
@@ -43,10 +59,6 @@ public final class DynamicWriteXML
      * Status indicates that a text just written
      */
     private static final int    STATUS_TEXT_WRITTEN        = 4;
-    /**
-     * Sttus indicates a comment is written and can't append parameter any more
-     */
-    private static final int    STATUS_COMMENT_WRITTEN     = 5;
     /**
      * Tabulation characters
      */
@@ -68,10 +80,6 @@ public final class DynamicWriteXML
      */
     private final Stack<String>  markups;
     /**
-     * Indicates if the text is on same line as the markup that contains it
-     */
-    private final boolean        textSameLine;
-    /**
      * Current status
      */
     private       int            status;
@@ -79,6 +87,10 @@ public final class DynamicWriteXML
      * Current number of tabulation
      */
     private       int            tab;
+    /**
+     * Indicates if the text is on same line as the markup that contains it
+     */
+    private final boolean        textSameLine;
 
     /**
      * Create a new instance of DynamicWriteXML not compact and text in separate line
@@ -149,7 +161,7 @@ public final class DynamicWriteXML
             this.tab = 0;
         }
 
-        this.markups = new Stack<String>();
+        this.markups = new Stack<>();
         this.status = DynamicWriteXML.STATUS_HAVE_TO_OPEN_MARKUP;
         this.textSameLine = textSameLine;
         this.closeWriterAtEnd = closeWriterAtEnd;

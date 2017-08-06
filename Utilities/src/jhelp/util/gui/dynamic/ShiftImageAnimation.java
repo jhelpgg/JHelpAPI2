@@ -1,14 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any
- * damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.gui.dynamic;
 
 import jhelp.util.gui.JHelpImage;
@@ -21,32 +22,42 @@ import jhelp.util.gui.JHelpImage;
 public class ShiftImageAnimation
         implements DynamicAnimation
 {
-    /** Image to shift */
+    /**
+     * Image to shift
+     */
     private final JHelpImage image;
-    /** Number of frame for doing the shift */
+    /**
+     * Number of frame for doing the shift
+     */
     private final float      numberFrame;
-    /** Shift X to do */
+    /**
+     * Shift X to do
+     */
     private final int        shiftX;
-    /** Shift Y to do */
-    private final int        shiftY;
-    /** Shift X already done */
+    /**
+     * Shift X already done
+     */
     private       int        shiftXDone;
-    /** Shift Y already done */
+    /**
+     * Shift Y to do
+     */
+    private final int        shiftY;
+    /**
+     * Shift Y already done
+     */
     private       int        shiftYDone;
-    /** Frame absolute where start the animation */
+    /**
+     * Frame absolute where start the animation
+     */
     private       float      startAbsoluteFrame;
 
     /**
      * Create a new instance of ShiftImageAnimation
      *
-     * @param image
-     *           Image to shift
-     * @param shiftX
-     *           Shift X
-     * @param shiftY
-     *           Shift Y
-     * @param numberFrame
-     *           Number of frame for do animation
+     * @param image       Image to shift
+     * @param shiftX      Shift X
+     * @param shiftY      Shift Y
+     * @param numberFrame Number of frame for do animation
      */
     public ShiftImageAnimation(final JHelpImage image, final int shiftX, final int shiftY, final float numberFrame)
     {
@@ -67,10 +78,8 @@ public class ShiftImageAnimation
      * <b>Parent documentation:</b><br>
      * {@inheritDoc}
      *
-     * @param absoluteFrame
-     *           Current absolute frame
-     * @param image
-     *           Image parent
+     * @param absoluteFrame Current absolute frame
+     * @param image         Image parent
      * @return {@code true} if animation have to continue. {@code false} if animation is finished
      * @see DynamicAnimation#animate(float, jhelp.util.gui.JHelpImage)
      */
@@ -102,8 +111,7 @@ public class ShiftImageAnimation
      * <b>Parent documentation:</b><br>
      * {@inheritDoc}
      *
-     * @param image
-     *           Image parent
+     * @param image Image parent
      * @see DynamicAnimation#endAnimation(jhelp.util.gui.JHelpImage)
      */
     @Override
@@ -117,10 +125,8 @@ public class ShiftImageAnimation
      * <b>Parent documentation:</b><br>
      * {@inheritDoc}
      *
-     * @param startAbslouteFrame
-     *           Start absolute frame
-     * @param image
-     *           Image parent
+     * @param startAbslouteFrame Start absolute frame
+     * @param image              Image parent
      * @see DynamicAnimation#startAnimation(float, jhelp.util.gui.JHelpImage)
      */
     @Override

@@ -1,14 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any
- * damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.text;
 
 import java.awt.Dimension;
@@ -39,6 +40,16 @@ import jhelp.util.util.Utilities;
 public final class UtilText
 {
     /**
+     * Pattern for class reference
+     */
+    private static final Pattern IMAGE_TAG_CLASS_REFERENCE    = Pattern.compile(
+            "(<\\s*img\\s+src=\\\")class:([a-zA-Z0-9.]+)([^\"]*)");
+    /**
+     * Pattern for external reference
+     */
+    private static final Pattern IMAGE_TAG_EXTERNAL_REFERENCE = Pattern.compile(
+            "(<\\s*img\\s+src=\\\")external:([^\"]*)");
+    /**
      * Default escape characters : \ (see {@link StringExtractor})
      */
     public static final  String  DEFAULT_ESCAPE_CHARACTERS    = "\\";
@@ -55,22 +66,44 @@ public final class UtilText
      * UTF-8 char set
      */
     public static final  Charset UTF8                         = Charset.forName("UTF-8");
-    /**
-     * Pattern for class reference
-     */
-    private static final Pattern IMAGE_TAG_CLASS_REFERENCE    = Pattern.compile(
-            "(<\\s*img\\s+src=\\\")class:([a-zA-Z0-9.]+)([^\"]*)");
-    /**
-     * Pattern for external reference
-     */
-    private static final Pattern IMAGE_TAG_EXTERNAL_REFERENCE = Pattern.compile(
-            "(<\\s*img\\s+src=\\\")external:([^\"]*)");
 
     /**
-     * To avoid instance
+     * Add \ before each " we can chose do treat the ' as normal character or add \ before it also
+     *
+     * @param string      String to replace
+     * @param simpleQuote Indicates if we also add \ before '
+     * @return Result string
      */
-    private UtilText()
+    public static String addAntiSlash(final String string, final boolean simpleQuote)
     {
+        final int           length       = string.length();
+        final StringBuilder stringBuffer = new StringBuilder(length);
+
+        for (final char car : string.toCharArray())
+        {
+            switch (car)
+            {
+                case '\'':
+                    if (!simpleQuote)
+                    {
+                        stringBuffer.append(car);
+                        break;
+                    }
+                    // No break
+                    //$FALL-THROUGH$
+                case '\\':
+                case '"':
+                    stringBuffer.append('\\');
+                    // No break, we want also add the character itself, like other
+                    // ones
+                    //$FALL-THROUGH$
+                default:
+                    stringBuffer.append(car);
+                    break;
+            }
+        }
+
+        return stringBuffer.toString();
     }
 
     /**
@@ -224,45 +257,6 @@ public final class UtilText
         stringBuffer.append(']');
     }
 
-    /**
-     * Add \ before each " we can chose do treat the ' as normal character or add \ before it also
-     *
-     * @param string      String to replace
-     * @param simpleQuote Indicates if we also add \ before '
-     * @return Result string
-     */
-    public static String addAntiSlash(final String string, final boolean simpleQuote)
-    {
-        final int           length       = string.length();
-        final StringBuilder stringBuffer = new StringBuilder(length);
-
-        for (final char car : string.toCharArray())
-        {
-            switch (car)
-            {
-                case '\'':
-                    if (!simpleQuote)
-                    {
-                        stringBuffer.append(car);
-                        break;
-                    }
-                    // No break
-                    //$FALL-THROUGH$
-                case '\\':
-                case '"':
-                    stringBuffer.append('\\');
-                    // No break, we want also add the character itself, like other
-                    // ones
-                    //$FALL-THROUGH$
-                default:
-                    stringBuffer.append(car);
-                    break;
-            }
-        }
-
-        return stringBuffer.toString();
-    }
-
     @SuppressWarnings("ConstantConditions")
     public static String[] capture(final String pattern, final String text)
     {
@@ -381,9 +375,7 @@ public final class UtilText
 
         if ((waiting) && (waitFor == (char) 0))
         {
-            waiting = false;
-
-            result[indexResult++] = text.substring(start, indexText);
+            result[indexResult] = text.substring(start, indexText);
             indexPattern++;
         }
 
@@ -444,8 +436,8 @@ public final class UtilText
             text1 = UtilText.upperCaseWithoutAccent(text1);
             text2 = UtilText.upperCaseWithoutAccent(text2);
         }
-        final Hashtable<String, Integer> wordList1       = new Hashtable<String, Integer>();
-        final Hashtable<String, Integer> wordList2       = new Hashtable<String, Integer>();
+        final Hashtable<String, Integer> wordList1       = new Hashtable<>();
+        final Hashtable<String, Integer> wordList2       = new Hashtable<>();
         StringTokenizer                  stringTokenizer = new StringTokenizer(text1, wordDelimiters, false);
         int                              index           = 0;
         while (stringTokenizer.hasMoreTokens())
@@ -468,8 +460,7 @@ public final class UtilText
         while (keys.hasMoreElements())
         {
             key = keys.nextElement();
-            index1 = wordList1.get(key)
-                              .intValue();
+            index1 = wordList1.get(key);
             integer = wordList2.get(key);
             if (integer == null)
             {
@@ -478,7 +469,8 @@ public final class UtilText
             else
             {
                 atLeast = true;
-                index2 = integer.intValue();
+                index2 = integer;
+
                 if (index1 != index2)
                 {
                     distance++;
@@ -496,9 +488,9 @@ public final class UtilText
         while (keys.hasMoreElements())
         {
             key = keys.nextElement();
-            index2 = wordList2.get(key)
-                              .intValue();
+            index2 = wordList2.get(key);
             integer = wordList1.get(key);
+
             if (integer == null)
             {
                 distance += 10;
@@ -520,29 +512,6 @@ public final class UtilText
         }
 
         return distance;
-    }
-
-    /**
-     * Compute the upper case version of string, and remove all accent.
-     *
-     * @param text Text to upper case
-     * @return Upper case result
-     */
-    public static String upperCaseWithoutAccent(final String text)
-    {
-        return UtilText.removeAccent(text.toUpperCase());
-    }
-
-    /**
-     * Remove all accent inside given String
-     *
-     * @param string String to transform
-     * @return String without accent
-     */
-    public static String removeAccent(final String string)
-    {
-        return Normalizer.normalize(string, Normalizer.Form.NFD)
-                         .replaceAll("[^\\p{ASCII}]", " ");
     }
 
     /**
@@ -833,76 +802,6 @@ public final class UtilText
     }
 
     /**
-     * Return a list of indexes pairs. Each pair contains a start index and a end index. Each couple delimit where a
-     * real is
-     * inside a string.
-     *
-     * @param string String where search all reals inside
-     * @return List of couple information to know where find the reals inside the given string
-     */
-    @SuppressWarnings("ConstantConditions")
-    private static List<Pair<Integer, Integer>> extractRealsPair(final String string)
-    {
-        final char[]                       chars     = string.toCharArray();
-        final int                          length    = chars.length;
-        boolean                            valid     = false;
-        boolean                            havePoint = false;
-        int                                start     = -1;
-        char                               car;
-        final List<Pair<Integer, Integer>> pairs     = new ArrayList<>();
-
-        for (int i = 0; i < length; i++)
-        {
-            car = chars[i];
-
-            if (((car == '-') && (start < 0)) ||
-                ((car == '.') && ((!havePoint) || (start == (i - 1)))) ||
-                ((car >= '0') && (car <= '9')))
-            {
-                if (start < 0)
-                {
-                    start = i;
-                }
-
-                if (car == '.')
-                {
-                    if ((havePoint) && (start == (i - 1)))
-                    {
-                        start = i;
-                    }
-
-                    havePoint = true;
-                }
-
-                if ((car >= '0') && (car <= '9'))
-                {
-                    valid = true;
-                }
-            }
-            else if ((start >= 0) && (start < i) && (valid))
-            {
-                pairs.add(new Pair<>(start, i));
-
-                start = -1;
-                valid = false;
-                havePoint = false;
-
-                if ((car == '.') && (chars[i - 1] == '.'))
-                {
-                    i--;
-                }
-            }
-        }
-
-        if ((start >= 0) && (valid))
-        {
-            pairs.add(new Pair<>(start, length));
-        }
-
-        return pairs;
-    }
-
-    /**
      * Extract all float inside a string
      *
      * @param string String where extract the floats
@@ -1034,6 +933,76 @@ public final class UtilText
     }
 
     /**
+     * Return a list of indexes pairs. Each pair contains a start index and a end index. Each couple delimit where a
+     * real is
+     * inside a string.
+     *
+     * @param string String where search all reals inside
+     * @return List of couple information to know where find the reals inside the given string
+     */
+    @SuppressWarnings("ConstantConditions")
+    private static List<Pair<Integer, Integer>> extractRealsPair(final String string)
+    {
+        final char[]                       chars     = string.toCharArray();
+        final int                          length    = chars.length;
+        boolean                            valid     = false;
+        boolean                            havePoint = false;
+        int                                start     = -1;
+        char                               car;
+        final List<Pair<Integer, Integer>> pairs     = new ArrayList<>();
+
+        for (int i = 0; i < length; i++)
+        {
+            car = chars[i];
+
+            if (((car == '-') && (start < 0)) ||
+                ((car == '.') && ((!havePoint) || (start == (i - 1)))) ||
+                ((car >= '0') && (car <= '9')))
+            {
+                if (start < 0)
+                {
+                    start = i;
+                }
+
+                if (car == '.')
+                {
+                    if ((havePoint) && (start == (i - 1)))
+                    {
+                        start = i;
+                    }
+
+                    havePoint = true;
+                }
+
+                if ((car >= '0') && (car <= '9'))
+                {
+                    valid = true;
+                }
+            }
+            else if ((start >= 0) && (start < i) && (valid))
+            {
+                pairs.add(new Pair<>(start, i));
+
+                start = -1;
+                valid = false;
+                havePoint = false;
+
+                if ((car == '.') && (chars[i - 1] == '.'))
+                {
+                    i--;
+                }
+            }
+        }
+
+        if ((start >= 0) && (valid))
+        {
+            pairs.add(new Pair<>(start, length));
+        }
+
+        return pairs;
+    }
+
+    /**
      * Index of a string in string array
      *
      * @param tableau Array where search
@@ -1053,6 +1022,52 @@ public final class UtilText
                 return i;
             }
         }
+        return -1;
+    }
+
+    /**
+     * Compute the first index in the char sequence of one of given characters
+     *
+     * @param charSequence Char sequence where search one character
+     * @param characters   Characters search
+     * @return Index of the first character found in char sequence that inside in the given list. -1 if the char sequence
+     * doesn't
+     * contains any of given characters
+     */
+    public static int indexOf(final CharSequence charSequence, final char... characters)
+    {
+        return UtilText.indexOf(charSequence, 0, characters);
+    }
+
+    /**
+     * Compute the first index >= at the given offset in the char sequence of one of given characters
+     *
+     * @param charSequence Char sequence where search one character
+     * @param offset       The offset where start the search
+     * @param characters   Characters search
+     * @return Index of the first character >= of given offset found in char sequence that inside in the given list. -1
+     * if the
+     * char sequence doesn't contains any of given characters after the given offset
+     */
+    public static int indexOf(final CharSequence charSequence, final int offset, final char... characters)
+    {
+        final int start  = Math.max(0, offset);
+        final int length = charSequence.length();
+        char      character;
+
+        for (int index = start; index < length; index++)
+        {
+            character = charSequence.charAt(index);
+
+            for (final char car : characters)
+            {
+                if (car == character)
+                {
+                    return index;
+                }
+            }
+        }
+
         return -1;
     }
 
@@ -1439,52 +1454,6 @@ public final class UtilText
     }
 
     /**
-     * Compute the first index in the char sequence of one of given characters
-     *
-     * @param charSequence Char sequence where search one character
-     * @param characters   Characters search
-     * @return Index of the first character found in char sequence that inside in the given list. -1 if the char sequence
-     * doesn't
-     * contains any of given characters
-     */
-    public static int indexOf(final CharSequence charSequence, final char... characters)
-    {
-        return UtilText.indexOf(charSequence, 0, characters);
-    }
-
-    /**
-     * Compute the first index >= at the given offset in the char sequence of one of given characters
-     *
-     * @param charSequence Char sequence where search one character
-     * @param offset       The offset where start the search
-     * @param characters   Characters search
-     * @return Index of the first character >= of given offset found in char sequence that inside in the given list. -1
-     * if the
-     * char sequence doesn't contains any of given characters after the given offset
-     */
-    public static int indexOf(final CharSequence charSequence, final int offset, final char... characters)
-    {
-        final int start  = Math.max(0, offset);
-        final int length = charSequence.length();
-        char      character;
-
-        for (int index = start; index < length; index++)
-        {
-            character = charSequence.charAt(index);
-
-            for (final char car : characters)
-            {
-                if (car == character)
-                {
-                    return index;
-                }
-            }
-        }
-
-        return -1;
-    }
-
-    /**
      * Read a UTF-8 string from a part of byte array
      *
      * @param array  Array to read
@@ -1495,6 +1464,30 @@ public final class UtilText
     public static String readUTF8(final byte[] array, final int offset, final int length)
     {
         return new String(array, offset, length, UtilText.UTF8);
+    }
+
+    /**
+     * Remove all accent inside given String
+     *
+     * @param string String to transform
+     * @return String without accent
+     */
+    public static String removeAccent(final String string)
+    {
+        return Normalizer.normalize(string, Normalizer.Form.NFD)
+                         .replaceAll("[^\\p{ASCII}]", " ");
+    }
+
+    /**
+     * Remove accent of given character
+     *
+     * @param character Character to transform
+     * @return Character without accent
+     */
+    public static char removeAccent(final char character)
+    {
+        return UtilText.removeAccent(String.valueOf(character))
+                       .charAt(0);
     }
 
     /**
@@ -1737,7 +1730,6 @@ public final class UtilText
             {
                 stringBuffer.append(originalString.substring(start, indexOpenHole));
 
-                indexReplacement = -1;
                 several = originalString.substring(indexOpenHole + 1, indexCloseHole);
                 try
                 {
@@ -1998,6 +1990,17 @@ public final class UtilText
     }
 
     /**
+     * Compute the upper case version of string, and remove all accent.
+     *
+     * @param text Text to upper case
+     * @return Upper case result
+     */
+    public static String upperCaseWithoutAccent(final String text)
+    {
+        return UtilText.removeAccent(text.toUpperCase());
+    }
+
+    /**
      * Compute the upper case version of character, and remove all accent.
      *
      * @param character Character to upper case
@@ -2009,14 +2012,9 @@ public final class UtilText
     }
 
     /**
-     * Remove accent of given character
-     *
-     * @param character Character to transform
-     * @return Character without accent
+     * To avoid instance
      */
-    public static char removeAccent(final char character)
+    private UtilText()
     {
-        return UtilText.removeAccent(String.valueOf(character))
-                       .charAt(0);
     }
 }

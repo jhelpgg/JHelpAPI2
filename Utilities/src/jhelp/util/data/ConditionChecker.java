@@ -1,18 +1,60 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.data;
 
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
+import jhelp.util.thread.ConsumerTask;
 import jhelp.util.thread.Task;
 import jhelp.util.thread.TaskException;
-import jhelp.util.thread.ConsumerTask;
 
 /**
  * Call a {@link Task} when an {@link Observable} fulfill a {@link Condition}
  */
 public final class ConditionChecker<T, R> implements Observer<T>
 {
+    /**
+     * Call a {@link Task} when an {@link Observable} full fill a {@link Condition}.<br>
+     * The task is called each time condition full fill
+     *
+     * @param observable {@link Observable} checked
+     * @param condition  {@link Condition} to validate
+     * @param task       {@link Task} task to do
+     * @param <T>        Type of value follow
+     */
+    public static <T> void eachTime(
+            @NotNull Observable<T> observable, @NotNull Condition<T> condition, @NotNull ConsumerTask<T> task)
+    {
+        ConditionChecker.when(observable, condition, task, 0, Combiner.TRUE());
+    }
+
+    /**
+     * Call a {@link Task} when an {@link Observable} full fill a {@link Condition}.<br>
+     * The task is called only one time
+     *
+     * @param observable {@link Observable} checked
+     * @param condition  {@link Condition} to validate
+     * @param task       {@link Task} task to do
+     * @param <T>        Type of value follow
+     */
+    public static <T> void when(
+            @NotNull Observable<T> observable, @NotNull Condition<T> condition, @NotNull ConsumerTask<T> task)
+    {
+        ConditionChecker.when(observable, condition, task, 0, null);
+    }
+
     /**
      * Call a {@link Task} when an {@link Observable} full fill a {@link Condition}.<br>
      * The given "repeat" decide, when the task just played, if have to play it again. If the returned boolean is {@code true},
@@ -35,36 +77,6 @@ public final class ConditionChecker<T, R> implements Observer<T>
         Objects.requireNonNull(condition, "condition");
         Objects.requireNonNull(task, "task");
         observable.startObserve(new ConditionChecker<>(observable, condition, task, id, repeat));
-    }
-
-    /**
-     * Call a {@link Task} when an {@link Observable} full fill a {@link Condition}.<br>
-     * The task is called only one time
-     *
-     * @param observable {@link Observable} checked
-     * @param condition  {@link Condition} to validate
-     * @param task       {@link Task} task to do
-     * @param <T>        Type of value follow
-     */
-    public static <T> void when(
-            @NotNull Observable<T> observable, @NotNull Condition<T> condition, @NotNull ConsumerTask<T> task)
-    {
-        ConditionChecker.when(observable, condition, task, 0, null);
-    }
-
-    /**
-     * Call a {@link Task} when an {@link Observable} full fill a {@link Condition}.<br>
-     * The task is called each time condition full fill
-     *
-     * @param observable {@link Observable} checked
-     * @param condition  {@link Condition} to validate
-     * @param task       {@link Task} task to do
-     * @param <T>        Type of value follow
-     */
-    public static <T> void eachTime(
-            @NotNull Observable<T> observable, @NotNull Condition<T> condition, @NotNull ConsumerTask<T> task)
-    {
-        ConditionChecker.when(observable, condition, task, 0, Combiner.TRUE());
     }
 
     /**
@@ -97,31 +109,30 @@ public final class ConditionChecker<T, R> implements Observer<T>
     {
         ConditionChecker.when(observable, Condition.IS_TRUE, task, 0, null);
     }
-
     /**
-     * Observable to follow
+     * Indicates if condition checker still alive
      */
-    private final Observable<T> observable;
+    private final AtomicBoolean alive = new AtomicBoolean(true);
     /**
      * Condition to validate
      */
-    private final Condition<T> condition;
-    /**
-     * Task to play
-     */
-    private final Task<T, R> task;
+    private final Condition<T>                  condition;
     /**
      * Condition checker ID
      */
-    private final int id;
+    private final int                           id;
+    /**
+     * Observable to follow
+     */
+    private final Observable<T>                 observable;
     /**
      * Decide if repeat or not
      */
     private final Combiner<R, Integer, Boolean> repeat;
     /**
-     * Indicates if condition checker still alive
+     * Task to play
      */
-    private final AtomicBoolean alive = new AtomicBoolean(true);
+    private final Task<T, R>                    task;
 
     /**
      * Create a condition checker

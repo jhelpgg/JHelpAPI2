@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.thread;
 
 import com.sun.istack.internal.NotNull;
@@ -34,13 +46,18 @@ public abstract class MessageHandler<M>
     protected abstract void handleMessage(@NotNull M message);
 
     /**
-     * Post a message to be played as soon as possible
+     * Cancel a message.<br>
+     * Each waiting message equals to given one are removed from the waiting queue.<br>
+     * If message already treated or is currently treat the method does nothing for it.
      *
-     * @param message Message to play
+     * @param message Message to cancel
      */
-    public final void post(@NotNull M message)
+    public final void cancel(@NotNull M message)
     {
-        this.post(message, 1L);
+        synchronized (this.handlingTask.working)
+        {
+            this.handlingTask.queueMessages.removeIf(messageInformation -> messageInformation.hasEmbedMessage(message));
+        }
     }
 
     /**
@@ -73,17 +90,12 @@ public abstract class MessageHandler<M>
     }
 
     /**
-     * Cancel a message.<br>
-     * Each waiting message equals to given one are removed from the waiting queue.<br>
-     * If message already treated or is currently treat the method does nothing for it.
+     * Post a message to be played as soon as possible
      *
-     * @param message Message to cancel
+     * @param message Message to play
      */
-    public final void cancel(@NotNull M message)
+    public final void post(@NotNull M message)
     {
-        synchronized (this.handlingTask.working)
-        {
-            this.handlingTask.queueMessages.removeIf(messageInformation -> messageInformation.hasEmbedMessage(message));
-        }
+        this.post(message, 1L);
     }
 }

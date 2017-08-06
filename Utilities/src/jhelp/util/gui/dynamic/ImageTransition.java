@@ -1,14 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any
- * damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.gui.dynamic;
 
 import jhelp.util.gui.JHelpImage;
@@ -23,13 +24,39 @@ public class ImageTransition
         implements DynamicAnimation
 {
     /**
+     * Interpolate a color part
+     *
+     * @param partFrom Part start
+     * @param partTo   Part end
+     * @param percent  Percent
+     * @param anti     Anti-percent
+     * @return Interpolated part
+     */
+    private static int interpolate(final int partFrom, final int partTo, final int percent, final int anti)
+    {
+        return Math2.limit0_255(((partFrom * anti) + (partTo * percent)) >> 8);
+    }
+
+    /**
+     * Indicates if animation is playing
+     */
+    private       boolean    animating;
+    /**
      * Start image
      */
     private final JHelpImage from;
     /**
+     * Indicates the way of transition
+     */
+    private       boolean    increment;
+    /**
      * Intermediate image to show the animation
      */
     private final JHelpImage intermediate;
+    /**
+     * Number loop left before animation end
+     */
+    private       int        loopLeft;
     /**
      * Number of loop to do
      */
@@ -43,25 +70,13 @@ public class ImageTransition
      */
     private final boolean    pingPong;
     /**
-     * End image
-     */
-    private final JHelpImage to;
-    /**
-     * Indicates if animation is playing
-     */
-    private       boolean    animating;
-    /**
-     * Indicates the way of transition
-     */
-    private       boolean    increment;
-    /**
-     * Number loop left before animation end
-     */
-    private       int        loopLeft;
-    /**
      * Start absolute frame
      */
     private       float      startAbsoluteFrame;
+    /**
+     * End image
+     */
+    private final JHelpImage to;
 
     /**
      * Create a new instance of ImageTransition
@@ -196,20 +211,6 @@ public class ImageTransition
         }
 
         return true;
-    }
-
-    /**
-     * Interpolate a color part
-     *
-     * @param partFrom Part start
-     * @param partTo   Part end
-     * @param percent  Percent
-     * @param anti     Anti-percent
-     * @return Interpolated part
-     */
-    private static int interpolate(final int partFrom, final int partTo, final int percent, final int anti)
-    {
-        return Math2.limit0_255(((partFrom * anti) + (partTo * percent)) >> 8);
     }
 
     /**

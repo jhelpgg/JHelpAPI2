@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.grammar;
 
 import com.sun.istack.internal.NotNull;
@@ -23,6 +35,11 @@ public class RegularExpression extends RuleDescription
         this.regularExpression = Pattern.compile(regularExpression);
     }
 
+    public String getPattern()
+    {
+        return this.regularExpression.pattern();
+    }
+
     public @NotNull List<MatchResult> matching(@NotNull String string)
     {
         Objects.requireNonNull(string, "string MUST NOT be null!");
@@ -35,11 +52,6 @@ public class RegularExpression extends RuleDescription
         }
 
         return Collections.unmodifiableList(matches);
-    }
-
-    public String getPattern()
-    {
-        return this.regularExpression.pattern();
     }
 
     @Override

@@ -1,14 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any
- * damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.gui;
 
 import java.awt.Shape;
@@ -20,18 +21,23 @@ import java.awt.Shape;
  */
 public class JHelpDrawable
 {
-    /** Color */
+    /**
+     * Color
+     */
     private final int        color;
-    /** Image texture */
+    /**
+     * Image texture
+     */
     private final JHelpImage image;
-    /** Paint */
+    /**
+     * Paint
+     */
     private final JHelpPaint paint;
 
     /**
      * Create a new instance of JHelpDrawable based on one color
      *
-     * @param color
-     *           Color
+     * @param color Color
      */
     public JHelpDrawable(final int color)
     {
@@ -43,8 +49,7 @@ public class JHelpDrawable
     /**
      * Create a new instance of JHelpDrawable based on one texture image
      *
-     * @param image
-     *           Texture image
+     * @param image Texture image
      */
     public JHelpDrawable(final JHelpImage image)
     {
@@ -61,8 +66,7 @@ public class JHelpDrawable
     /**
      * Create a new instance of JHelpDrawable Based on one paint
      *
-     * @param paint
-     *           Paint
+     * @param paint Paint
      */
     public JHelpDrawable(final JHelpPaint paint)
     {
@@ -79,16 +83,11 @@ public class JHelpDrawable
     /**
      * Draw a filled ellipse inside an image
      *
-     * @param x
-     *           X up-left corner of ellipse bounding box
-     * @param y
-     *           Y up-left corner of ellipse bounding box
-     * @param width
-     *           Ellipse width
-     * @param height
-     *           Ellipse height
-     * @param image
-     *           Image where draw
+     * @param x      X up-left corner of ellipse bounding box
+     * @param y      Y up-left corner of ellipse bounding box
+     * @param width  Ellipse width
+     * @param height Ellipse height
+     * @param image  Image where draw
      */
     public void fillEllipse(final int x, final int y, final int width, final int height, final JHelpImage image)
     {
@@ -121,21 +120,16 @@ public class JHelpDrawable
     /**
      * Draw a filled polygon inside given image
      *
-     * @param xs
-     *           Polygon point X's coordinate
-     * @param offsetX
-     *           Offset where start read X's coordinate in <b>xs</b> array
-     * @param ys
-     *           Polygon point Y's coordinate
-     * @param offsetY
-     *           Offset where start read Y's coordinate in <b>ys</b> array
-     * @param length
-     *           Number polygon points
-     * @param image
-     *           Image where draw
+     * @param xs      Polygon point X's coordinate
+     * @param offsetX Offset where start read X's coordinate in <b>xs</b> array
+     * @param ys      Polygon point Y's coordinate
+     * @param offsetY Offset where start read Y's coordinate in <b>ys</b> array
+     * @param length  Number polygon points
+     * @param image   Image where draw
      */
-    public void fillPolygon(final int[] xs, final int offsetX, final int[] ys, final int offsetY, final int length,
-                            final JHelpImage image)
+    public void fillPolygon(
+            final int[] xs, final int offsetX, final int[] ys, final int offsetY, final int length,
+            final JHelpImage image)
     {
         final boolean draw = image.isDrawMode();
 
@@ -166,16 +160,11 @@ public class JHelpDrawable
     /**
      * Draw a filled rectangle inside given image
      *
-     * @param x
-     *           X up-left corner
-     * @param y
-     *           Y up-left corner
-     * @param width
-     *           Rectangle width
-     * @param height
-     *           Rectangle height
-     * @param image
-     *           Image where draw
+     * @param x      X up-left corner
+     * @param y      Y up-left corner
+     * @param width  Rectangle width
+     * @param height Rectangle height
+     * @param image  Image where draw
      */
     public void fillRectangle(final int x, final int y, final int width, final int height, final JHelpImage image)
     {
@@ -208,23 +197,17 @@ public class JHelpDrawable
     /**
      * Draw a filled round rectangle inside given image
      *
-     * @param x
-     *           X up-left corner
-     * @param y
-     *           Y up-left corner
-     * @param width
-     *           Rectangle width
-     * @param height
-     *           Rectangle height
-     * @param arcWidth
-     *           Arc size in width
-     * @param arcHeight
-     *           Arc size in height
-     * @param image
-     *           Image where draw
+     * @param x         X up-left corner
+     * @param y         Y up-left corner
+     * @param width     Rectangle width
+     * @param height    Rectangle height
+     * @param arcWidth  Arc size in width
+     * @param arcHeight Arc size in height
+     * @param image     Image where draw
      */
-    public void fillRoundRectangle(final int x, final int y, final int width, final int height, final int arcWidth,
-                                   final int arcHeight, final JHelpImage image)
+    public void fillRoundRectangle(
+            final int x, final int y, final int width, final int height, final int arcWidth,
+            final int arcHeight, final JHelpImage image)
     {
         final boolean draw = image.isDrawMode();
 
@@ -255,10 +238,8 @@ public class JHelpDrawable
     /**
      * Draw a filled shape inside given image
      *
-     * @param shape
-     *           Shape to draw
-     * @param image
-     *           Image where draw
+     * @param shape Shape to draw
+     * @param image Image where draw
      */
     public void fillShape(final Shape shape, final JHelpImage image)
     {

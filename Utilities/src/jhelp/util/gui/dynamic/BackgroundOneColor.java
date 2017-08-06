@@ -1,13 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.gui.dynamic;
 
 import jhelp.util.gui.JHelpImage;
@@ -20,14 +22,15 @@ import jhelp.util.gui.JHelpImage;
 public final class BackgroundOneColor
         extends Background
 {
-    /** Color for background */
+    /**
+     * Color for background
+     */
     private int color;
 
     /**
      * Create a new instance of BackgroundOneColor
      *
-     * @param color
-     *           Color for background
+     * @param color Color for background
      */
     public BackgroundOneColor(final int color)
     {
@@ -40,10 +43,8 @@ public final class BackgroundOneColor
      * <b>Parent documentation:</b><br>
      * {@inheritDoc}
      *
-     * @param absoluteFrame
-     *           Absolute frame
-     * @param image
-     *           Image where draw background
+     * @param absoluteFrame Absolute frame
+     * @param image         Image where draw background
      * @see Background#drawBackground(float, jhelp.util.gui.JHelpImage)
      */
     @Override
@@ -65,8 +66,7 @@ public final class BackgroundOneColor
     /**
      * Change background color
      *
-     * @param color
-     *           Background color
+     * @param color Background color
      */
     public void setColor(final int color)
     {

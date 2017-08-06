@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.io;
 
 import java.io.ByteArrayOutputStream;
@@ -27,36 +39,6 @@ public class StringOutputStream
     }
 
     /**
-     * Close the stream <br>
-     * <br>
-     * <b>Parent documentation:</b><br>
-     * {@inheritDoc}
-     *
-     * @throws IOException On closing issue
-     * @see OutputStream#close()
-     */
-    @Override
-    public void close() throws IOException
-    {
-        this.byteArrayOutputStream.close();
-    }
-
-    /**
-     * Flush the last bytes <br>
-     * <br>
-     * <b>Parent documentation:</b><br>
-     * {@inheritDoc}
-     *
-     * @throws IOException On flushing issue
-     * @see OutputStream#flush()
-     */
-    @Override
-    public void flush() throws IOException
-    {
-        this.byteArrayOutputStream.flush();
-    }
-
-    /**
      * The written read string
      *
      * @return The written read string
@@ -65,6 +47,22 @@ public class StringOutputStream
     {
         final byte[] array = this.byteArrayOutputStream.toByteArray();
         return UtilText.readUTF8(array, 0, array.length);
+    }
+
+    /**
+     * Write one byte <br>
+     * <br>
+     * <b>Parent documentation:</b><br>
+     * {@inheritDoc}
+     *
+     * @param b Byte to write
+     * @throws IOException On writing issue
+     * @see OutputStream#write(int)
+     */
+    @Override
+    public void write(final int b) throws IOException
+    {
+        this.byteArrayOutputStream.write(b);
     }
 
     /**
@@ -103,18 +101,32 @@ public class StringOutputStream
     }
 
     /**
-     * Write one byte <br>
+     * Flush the last bytes <br>
      * <br>
      * <b>Parent documentation:</b><br>
      * {@inheritDoc}
      *
-     * @param b Byte to write
-     * @throws IOException On writing issue
-     * @see OutputStream#write(int)
+     * @throws IOException On flushing issue
+     * @see OutputStream#flush()
      */
     @Override
-    public void write(final int b) throws IOException
+    public void flush() throws IOException
     {
-        this.byteArrayOutputStream.write(b);
+        this.byteArrayOutputStream.flush();
+    }
+
+    /**
+     * Close the stream <br>
+     * <br>
+     * <b>Parent documentation:</b><br>
+     * {@inheritDoc}
+     *
+     * @throws IOException On closing issue
+     * @see OutputStream#close()
+     */
+    @Override
+    public void close() throws IOException
+    {
+        this.byteArrayOutputStream.close();
     }
 }

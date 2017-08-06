@@ -1,14 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any
- * damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.image.pcx;
 
 import java.awt.Dimension;
@@ -63,6 +64,98 @@ public class PCX
      * PCX version Paintbrush/Windows
      */
     public static final byte VERSION_PAINTBRUSH_WINDOWS         = (byte) 4;
+
+    /**
+     * Compute size of an PCX image.<br>
+     * If the given file is not a PCX image file, {@code null} is return
+     *
+     * @param file Image PCX file
+     * @return PCX image size OR {@code null} if given file not a valid PCX image file
+     */
+    public static Dimension computePcxSize(final File file)
+    {
+        if ((file == null) || (!file.exists()) || (file.isDirectory()) || (!file.canRead()))
+        {
+            return null;
+        }
+
+        Pointer<Dimension> pointer = new Pointer<>();
+        UtilIO.treatInputStream(() -> new FileInputStream(file),
+                                inputStream ->
+                                {
+                                    final PCX pcx = new PCX();
+                                    pcx.readHeader(inputStream);
+                                    pointer.data(new Dimension(pcx.width, pcx.height));
+                                });
+        return pointer.data();
+    }
+
+    /**
+     * Indicates if a file is a PCX image file
+     *
+     * @param file Tested file
+     * @return {@code true} if the file is a PCX image file
+     */
+    public static boolean isPCX(final File file)
+    {
+        return PCX.computePcxSize(file) != null;
+    }
+
+    /**
+     * Convert manufacturer code to its name
+     *
+     * @param manufacturer Manufacturer code
+     * @return Manufacturer name
+     */
+    public static String manufacturerToString(final byte manufacturer)
+    {
+        switch (manufacturer)
+        {
+            case PCX.MANUFACTURER_ZSOFT:
+                return "ZSoft";
+            default:
+                return "Manufacturer_" + (manufacturer & 0xFF);
+        }
+    }
+
+    /**
+     * Convert a version code to its name
+     *
+     * @param version Version code
+     * @return Version name
+     */
+    public static String versionToString(final byte version)
+    {
+        switch (version)
+        {
+            case PCX.VERSION_PAINTBRUSH_V_2_5:
+            case PCX.VERSION_PAINTBRUSH_V_2_5_UNOFFICAL:
+                return "Paintbrush v2.5";
+            case PCX.VERSION_PAINTBRUSH_V_2_8_W:
+                return "Paintbrush v2.8 w palette information";
+            case PCX.VERSION_PAINTBRUSH_V_2_8_WO:
+                return "Paintbrush v2.8 w/o palette information";
+            case PCX.VERSION_PAINTBRUSH_WINDOWS:
+                return "Paintbrush/Windows";
+            case PCX.VERSION_PAINTBRUSH_V_3_0:
+                return "Paintbrush v3.0+";
+            default:
+                return "More than Paintbrush v3.0+ (" + (version & 0xFF) + ")";
+        }
+    }
+
+    /**
+     * Read one word from an array
+     *
+     * @param array  Array where read
+     * @param offset Offset where start read the word
+     * @return Read word
+     */
+    private static int word(final byte[] array, final int offset)
+    {
+        return (array[offset] & 0xFF) | ((array[offset + 1] & 0xFF) << 8);
+    }
+
     /**
      * Indicates if a 256 palette is defined
      */
@@ -148,287 +241,6 @@ public class PCX
         this.readHeader(inputStream);
         this.readImageData(inputStream);
         this.read256Palette(inputStream);
-    }
-
-    /**
-     * Read the 256 color palette
-     *
-     * @param inputStream Stream to read
-     * @throws IOException On reading issue
-     */
-    private void read256Palette(final InputStream inputStream) throws IOException
-    {
-        int read = inputStream.read();
-        this.has256Palette = read == 0x0C;
-
-        if (this.has256Palette)
-        {
-            final byte[] data = new byte[768];
-            read = UtilIO.readStream(inputStream, data);
-
-            if (read < 768)
-            {
-                throw new IOException("Not enough data for the 256 palette");
-            }
-
-            int index;
-            this.palette256 = new int[256];
-
-            for (index = 0, read = 0; index < 256; index++, read += 3)
-            {
-                this.palette256[index] = 0xFF000000 | ((data[read] & 0xFF) << 16) | ((data[read + 1] & 0xFF) << 8) |
-                                         (data[read + 2] & 0xFF);
-            }
-        }
-        else if ((this.numberBytePerPixel == 8) && (this.numberOfColorPlane == 1))
-        {
-            // In that case we have to use 256 gray shade, to treat it has normal 256 palette, we generate a gray shade one
-            this.has256Palette = true;
-            this.palette256 = new int[256];
-
-            for (int index = 0; index < 256; index++)
-            {
-                this.palette256[index] = 0xFF000000 | (index << 16) | (index << 8) | index;
-            }
-        }
-    }
-
-    /**
-     * Read image data and uncompress them
-     *
-     * @param inputStream Stream to read
-     * @throws IOException On reading issue
-     */
-    private void readImageData(final InputStream inputStream) throws IOException
-    {
-        final int total = this.height * this.scanLineSize;
-        this.uncompressed = new int[total];
-        int index = 0;
-        int read, count, i;
-
-        while (index < total)
-        {
-            read = inputStream.read();
-
-            if (read < 0)
-            {
-                throw new EOFException("Unexpected end of stream !");
-            }
-
-            if (read < 0xC0)
-            {
-                // If 2 first bits aren't 1 together, then it is an isolated value
-                this.uncompressed[index++] = read;
-            }
-            else
-            {
-                // If 2 first bits are 1, then the byte represents the number of time to repeat the following byte
-                // Have to remove 2 first bits to have the repetition number
-                count = read & 0x3F;
-                read = inputStream.read();
-
-                if (read < 0)
-                {
-                    throw new EOFException("Unexpected end of stream !");
-                }
-
-                for (i = 0; i < count; i++)
-                {
-                    this.uncompressed[index++] = read;
-                }
-            }
-        }
-    }
-
-    /**
-     * Indicates if a file is a PCX image file
-     *
-     * @param file Tested file
-     * @return {@code true} if the file is a PCX image file
-     */
-    public static boolean isPCX(final File file)
-    {
-        return PCX.computePcxSize(file) != null;
-    }
-
-    /**
-     * Compute size of an PCX image.<br>
-     * If the given file is not a PCX image file, {@code null} is return
-     *
-     * @param file Image PCX file
-     * @return PCX image size OR {@code null} if given file not a valid PCX image file
-     */
-    public static Dimension computePcxSize(final File file)
-    {
-        if ((file == null) || (!file.exists()) || (file.isDirectory()) || (!file.canRead()))
-        {
-            return null;
-        }
-
-        Pointer<Dimension> pointer = new Pointer<>();
-        UtilIO.treatInputStream(() -> new FileInputStream(file),
-                                inputStream ->
-                                {
-                                    final PCX pcx = new PCX();
-                                    pcx.readHeader(inputStream);
-                                    pointer.data(new Dimension(pcx.width, pcx.height));
-                                });
-        return pointer.data();
-    }
-
-    /**
-     * Read PCX header
-     *
-     * @param inputStream Stream to read
-     * @throws IOException On reading issue
-     */
-    private void readHeader(final InputStream inputStream) throws IOException
-    {
-        // Header has 128 bytes fixed size
-        final byte[] header = new byte[128];
-        int          read   = UtilIO.readStream(inputStream, header);
-
-        if (read < 128)
-        {
-            throw new IOException("Not enough data for read the header");
-        }
-
-        this.manufacturer = header[0x00];
-        this.version = header[0x01];
-        final byte encoding = header[0x02];
-
-        if (encoding != (byte) 1)
-        {
-            throw new IOException("Unknown encoding=" + encoding + ", only supported is 1 (RLE)");
-        }
-
-        this.numberBytePerPixel = header[0x03] & 0xFF;
-        final int left   = PCX.word(header, 0x04);
-        final int up     = PCX.word(header, 0x06);
-        final int right  = PCX.word(header, 0x08);
-        final int bottom = PCX.word(header, 0x0A);
-
-        if ((left > right) || (up > bottom))
-        {
-            throw new IOException("Invalid PCX size !");
-        }
-
-        this.horizontalDPI = PCX.word(header, 0x0C);
-        this.verticalDPI = PCX.word(header, 0x0E);
-
-        int index;
-        this.palette16 = new int[16];
-
-        for (read = 0x10, index = 0; index < 16; read += 3, index++)
-        {
-            this.palette16[index] = 0xFF000000 | ((header[read] & 0xFF) << 16) | ((header[read + 1] & 0xFF) << 8) |
-                                    (header[read + 2] & 0xFF);
-        }
-
-        this.numberOfColorPlane = header[0x41] & 0xFF;
-        this.numberBitsPerScanline = PCX.word(header, 0x42);
-        // UNUSED : int paletteInformation = PCX.word(header, 0x44);
-        this.screenWidth = PCX.word(header, 0x46);
-        this.screenHeight = PCX.word(header, 0x48);
-
-        if ((this.numberOfColorPlane < 1) || (this.numberOfColorPlane > 4) || (this.numberBytePerPixel < 1) ||
-            (this.numberBytePerPixel > 8))
-        {
-            throw new IOException("Invalid PCX header !");
-        }
-
-        this.width = (right - left) + 1;
-        this.height = (bottom - up) + 1;
-        this.scanLineSize = this.numberOfColorPlane * this.numberBitsPerScanline;
-    }
-
-    /**
-     * Read one word from an array
-     *
-     * @param array  Array where read
-     * @param offset Offset where start read the word
-     * @return Read word
-     */
-    private static int word(final byte[] array, final int offset)
-    {
-        return (array[offset] & 0xFF) | ((array[offset + 1] & 0xFF) << 8);
-    }
-
-    /**
-     * Create a new image from PCX information
-     *
-     * @return Created image
-     * @throws IllegalStateException If how create image for this specific PCX information is unknown
-     */
-    public JHelpImage createImage()
-    {
-        final int[] pixels = new int[this.width * this.height];
-
-        switch (this.numberBytePerPixel)
-        {
-            case 1:
-                switch (this.numberOfColorPlane)
-                {
-                    case 1:
-                        this.fillPixels_1_BytePerPixel_1_ColorPlane(pixels);
-                        break;
-                    case 3:
-                        this.fillPixels_1_BytePerPixel_3_ColorPlane(pixels);
-                        break;
-                    case 4:
-                        this.fillPixels_1_BytePerPixel_4_ColorPlane(pixels);
-                        break;
-                    default:
-                        throw new IllegalStateException(
-                                "Unknown how to convert numberBytePerPixel=" + this.numberBytePerPixel + " " +
-                                "numberOfColorPlane="
-                                + this.numberOfColorPlane);
-                }
-                break;
-            case 4:
-                switch (this.numberOfColorPlane)
-                {
-                    case 1:
-                        this.fillPixels_4_BytePerPixel_1_ColorPlane(pixels);
-                        break;
-                    case 4:
-                        this.fillPixels_4_BytePerPixel_4_ColorPlane(pixels);
-                        break;
-                    default:
-                        throw new IllegalStateException(
-                                "Unknown how to convert numberBytePerPixel=" + this.numberBytePerPixel + " " +
-                                "numberOfColorPlane="
-                                + this.numberOfColorPlane);
-
-                }
-                break;
-            case 8:
-                switch (this.numberOfColorPlane)
-                {
-                    case 1:
-                        this.fillPixels_8_BytePerPixel_1_ColorPlane(pixels);
-                        break;
-                    case 3:
-                        this.fillPixels_8_BytePerPixel_3_ColorPlane(pixels);
-                        break;
-                    case 4:
-                        this.fillPixels_8_BytePerPixel_4_ColorPlane(pixels);
-                        break;
-                    default:
-                        throw new IllegalStateException(
-                                "Unknown how to convert numberBytePerPixel=" + this.numberBytePerPixel +
-                                " numberOfColorPlane="
-                                + this.numberOfColorPlane);
-
-                }
-                break;
-            default:
-                throw new IllegalStateException(
-                        "Unknown how to convert numberBytePerPixel=" + this.numberBytePerPixel + " numberOfColorPlane="
-                        + this.numberOfColorPlane);
-        }
-
-        return new JHelpImage(this.width, this.height, pixels);
     }
 
     /**
@@ -1008,6 +820,239 @@ public class PCX
     }
 
     /**
+     * Read the 256 color palette
+     *
+     * @param inputStream Stream to read
+     * @throws IOException On reading issue
+     */
+    private void read256Palette(final InputStream inputStream) throws IOException
+    {
+        int read = inputStream.read();
+        this.has256Palette = read == 0x0C;
+
+        if (this.has256Palette)
+        {
+            final byte[] data = new byte[768];
+            read = UtilIO.readStream(inputStream, data);
+
+            if (read < 768)
+            {
+                throw new IOException("Not enough data for the 256 palette");
+            }
+
+            int index;
+            this.palette256 = new int[256];
+
+            for (index = 0, read = 0; index < 256; index++, read += 3)
+            {
+                this.palette256[index] = 0xFF000000 | ((data[read] & 0xFF) << 16) | ((data[read + 1] & 0xFF) << 8) |
+                                         (data[read + 2] & 0xFF);
+            }
+        }
+        else if ((this.numberBytePerPixel == 8) && (this.numberOfColorPlane == 1))
+        {
+            // In that case we have to use 256 gray shade, to treat it has normal 256 palette, we generate a gray shade one
+            this.has256Palette = true;
+            this.palette256 = new int[256];
+
+            for (int index = 0; index < 256; index++)
+            {
+                this.palette256[index] = 0xFF000000 | (index << 16) | (index << 8) | index;
+            }
+        }
+    }
+
+    /**
+     * Read PCX header
+     *
+     * @param inputStream Stream to read
+     * @throws IOException On reading issue
+     */
+    private void readHeader(final InputStream inputStream) throws IOException
+    {
+        // Header has 128 bytes fixed size
+        final byte[] header = new byte[128];
+        int          read   = UtilIO.readStream(inputStream, header);
+
+        if (read < 128)
+        {
+            throw new IOException("Not enough data for read the header");
+        }
+
+        this.manufacturer = header[0x00];
+        this.version = header[0x01];
+        final byte encoding = header[0x02];
+
+        if (encoding != (byte) 1)
+        {
+            throw new IOException("Unknown encoding=" + encoding + ", only supported is 1 (RLE)");
+        }
+
+        this.numberBytePerPixel = header[0x03] & 0xFF;
+        final int left   = PCX.word(header, 0x04);
+        final int up     = PCX.word(header, 0x06);
+        final int right  = PCX.word(header, 0x08);
+        final int bottom = PCX.word(header, 0x0A);
+
+        if ((left > right) || (up > bottom))
+        {
+            throw new IOException("Invalid PCX size !");
+        }
+
+        this.horizontalDPI = PCX.word(header, 0x0C);
+        this.verticalDPI = PCX.word(header, 0x0E);
+
+        int index;
+        this.palette16 = new int[16];
+
+        for (read = 0x10, index = 0; index < 16; read += 3, index++)
+        {
+            this.palette16[index] = 0xFF000000 | ((header[read] & 0xFF) << 16) | ((header[read + 1] & 0xFF) << 8) |
+                                    (header[read + 2] & 0xFF);
+        }
+
+        this.numberOfColorPlane = header[0x41] & 0xFF;
+        this.numberBitsPerScanline = PCX.word(header, 0x42);
+        // UNUSED : int paletteInformation = PCX.word(header, 0x44);
+        this.screenWidth = PCX.word(header, 0x46);
+        this.screenHeight = PCX.word(header, 0x48);
+
+        if ((this.numberOfColorPlane < 1) || (this.numberOfColorPlane > 4) || (this.numberBytePerPixel < 1) ||
+            (this.numberBytePerPixel > 8))
+        {
+            throw new IOException("Invalid PCX header !");
+        }
+
+        this.width = (right - left) + 1;
+        this.height = (bottom - up) + 1;
+        this.scanLineSize = this.numberOfColorPlane * this.numberBitsPerScanline;
+    }
+
+    /**
+     * Read image data and uncompress them
+     *
+     * @param inputStream Stream to read
+     * @throws IOException On reading issue
+     */
+    private void readImageData(final InputStream inputStream) throws IOException
+    {
+        final int total = this.height * this.scanLineSize;
+        this.uncompressed = new int[total];
+        int index = 0;
+        int read, count, i;
+
+        while (index < total)
+        {
+            read = inputStream.read();
+
+            if (read < 0)
+            {
+                throw new EOFException("Unexpected end of stream !");
+            }
+
+            if (read < 0xC0)
+            {
+                // If 2 first bits aren't 1 together, then it is an isolated value
+                this.uncompressed[index++] = read;
+            }
+            else
+            {
+                // If 2 first bits are 1, then the byte represents the number of time to repeat the following byte
+                // Have to remove 2 first bits to have the repetition number
+                count = read & 0x3F;
+                read = inputStream.read();
+
+                if (read < 0)
+                {
+                    throw new EOFException("Unexpected end of stream !");
+                }
+
+                for (i = 0; i < count; i++)
+                {
+                    this.uncompressed[index++] = read;
+                }
+            }
+        }
+    }
+
+    /**
+     * Create a new image from PCX information
+     *
+     * @return Created image
+     * @throws IllegalStateException If how create image for this specific PCX information is unknown
+     */
+    public JHelpImage createImage()
+    {
+        final int[] pixels = new int[this.width * this.height];
+
+        switch (this.numberBytePerPixel)
+        {
+            case 1:
+                switch (this.numberOfColorPlane)
+                {
+                    case 1:
+                        this.fillPixels_1_BytePerPixel_1_ColorPlane(pixels);
+                        break;
+                    case 3:
+                        this.fillPixels_1_BytePerPixel_3_ColorPlane(pixels);
+                        break;
+                    case 4:
+                        this.fillPixels_1_BytePerPixel_4_ColorPlane(pixels);
+                        break;
+                    default:
+                        throw new IllegalStateException(
+                                "Unknown how to convert numberBytePerPixel=" + this.numberBytePerPixel + " " +
+                                "numberOfColorPlane="
+                                + this.numberOfColorPlane);
+                }
+                break;
+            case 4:
+                switch (this.numberOfColorPlane)
+                {
+                    case 1:
+                        this.fillPixels_4_BytePerPixel_1_ColorPlane(pixels);
+                        break;
+                    case 4:
+                        this.fillPixels_4_BytePerPixel_4_ColorPlane(pixels);
+                        break;
+                    default:
+                        throw new IllegalStateException(
+                                "Unknown how to convert numberBytePerPixel=" + this.numberBytePerPixel + " " +
+                                "numberOfColorPlane="
+                                + this.numberOfColorPlane);
+
+                }
+                break;
+            case 8:
+                switch (this.numberOfColorPlane)
+                {
+                    case 1:
+                        this.fillPixels_8_BytePerPixel_1_ColorPlane(pixels);
+                        break;
+                    case 3:
+                        this.fillPixels_8_BytePerPixel_3_ColorPlane(pixels);
+                        break;
+                    case 4:
+                        this.fillPixels_8_BytePerPixel_4_ColorPlane(pixels);
+                        break;
+                    default:
+                        throw new IllegalStateException(
+                                "Unknown how to convert numberBytePerPixel=" + this.numberBytePerPixel +
+                                " numberOfColorPlane="
+                                + this.numberOfColorPlane);
+
+                }
+                break;
+            default:
+                throw new IllegalStateException(
+                        "Unknown how to convert numberBytePerPixel=" + this.numberBytePerPixel + " numberOfColorPlane="
+                        + this.numberOfColorPlane);
+        }
+
+        return new JHelpImage(this.width, this.height, pixels);
+    }
+
+    /**
      * Image height
      *
      * @return Image height
@@ -1108,48 +1153,5 @@ public class PCX
                                     (this.has256Palette
                                      ? ", 256 colors palette present"
                                      : ""));
-    }
-
-    /**
-     * Convert manufacturer code to its name
-     *
-     * @param manufacturer Manufacturer code
-     * @return Manufacturer name
-     */
-    public static String manufacturerToString(final byte manufacturer)
-    {
-        switch (manufacturer)
-        {
-            case PCX.MANUFACTURER_ZSOFT:
-                return "ZSoft";
-            default:
-                return "Manufacturer_" + (manufacturer & 0xFF);
-        }
-    }
-
-    /**
-     * Convert a version code to its name
-     *
-     * @param version Version code
-     * @return Version name
-     */
-    public static String versionToString(final byte version)
-    {
-        switch (version)
-        {
-            case PCX.VERSION_PAINTBRUSH_V_2_5:
-            case PCX.VERSION_PAINTBRUSH_V_2_5_UNOFFICAL:
-                return "Paintbrush v2.5";
-            case PCX.VERSION_PAINTBRUSH_V_2_8_W:
-                return "Paintbrush v2.8 w palette information";
-            case PCX.VERSION_PAINTBRUSH_V_2_8_WO:
-                return "Paintbrush v2.8 w/o palette information";
-            case PCX.VERSION_PAINTBRUSH_WINDOWS:
-                return "Paintbrush/Windows";
-            case PCX.VERSION_PAINTBRUSH_V_3_0:
-                return "Paintbrush v3.0+";
-            default:
-                return "More than Paintbrush v3.0+ (" + (version & 0xFF) + ")";
-        }
     }
 }

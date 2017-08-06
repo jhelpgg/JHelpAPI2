@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.ia.astar;
 
 import com.sun.istack.internal.NotNull;
@@ -72,9 +84,16 @@ class AStartNodeComparator<T> implements Comparator<AStarNode<T>>
             value2 = this.quantifier.value(node2);
         }
 
-        if(value2==value1)
+        if (value2 == value1)
         {
-            if(Math.random()>=0.5) return 1; else return -1;
+            if (Math.random() >= 0.5)
+            {
+                return 1;
+            }
+            else
+            {
+                return -1;
+            }
         }
 
         return value2 - value1;

@@ -1,14 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any
- * damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.gui;
 
 import java.awt.Color;
@@ -26,6 +27,76 @@ import jhelp.util.list.Pair;
 public class UtilImage
 {
     /**
+     * Triangle way
+     *
+     * @author JHelp
+     */
+    public enum WayTriangle
+    {
+        /**
+         * Triangle for down
+         */
+        DOWN,
+        /**
+         * Triangle for left
+         */
+        LEFT,
+        /**
+         * Triangle for right
+         */
+        RIGHT,
+        /**
+         * Triangle for up
+         */
+        UP
+    }
+
+    public static JHelpImage computeInterpolationImage(
+            Interpolation interpolation,
+            int width, int height,
+            int background,
+            int axesColor, int axesThin,
+            int curveColor, int curveThin)
+    {
+        width = Math.max(64, width);
+        height = Math.max(64, height);
+        axesThin = Math.max(1, axesThin);
+        curveThin = Math.max(1, curveThin);
+
+        JHelpImage image = new JHelpImage(width, height, background);
+        image.startDrawMode();
+
+        int zeroLine = (3 * height) >> 2;
+        image.drawThickLine(0, zeroLine, width, zeroLine, axesThin, axesColor);
+        int oneLine    = height >> 2;
+        int numberDash = width >> 3;
+        int dash       = numberDash >> 1;
+
+        for (int x = 0, count = 0; count < numberDash; count++, x += numberDash)
+        {
+            image.drawThickLine(x, oneLine, x + dash, oneLine, axesThin, axesColor);
+        }
+
+        float y1 = 0;
+        float x2, y2;
+
+        for (int xx = 0; xx < width; xx++)
+        {
+            x2 = (float) xx / (float) width;
+            y2 = interpolation.interpolation(x2);
+
+            image.drawThickLine(xx - 1, Math.round(y1 * (oneLine - zeroLine) + zeroLine),
+                                xx, Math.round(y2 * (oneLine - zeroLine) + zeroLine),
+                                curveThin, curveColor);
+
+            y1 = y2;
+        }
+
+        image.endDrawMode();
+        return image;
+    }
+
+    /**
      * Create image with text
      *
      * @param text       Text to draw
@@ -290,41 +361,6 @@ public class UtilImage
 
         image.endDrawMode();
         return image;
-    }
-
-    /**
-     * Draw a triangle for go in a given way
-     *
-     * @param x           X position
-     * @param y           Y position
-     * @param size        Triangle size
-     * @param image       Image where draw
-     * @param wayTriangle Triangle way
-     */
-    public static void drawIncrustedTriangle(
-            final int x, final int y, final int size, final JHelpImage image, final
-    WayTriangle wayTriangle)
-    {
-        if (wayTriangle == null)
-        {
-            throw new NullPointerException("wayTriangle MUST NOT be null");
-        }
-
-        switch (wayTriangle)
-        {
-            case DOWN:
-                UtilImage.drawIncrustedDownTriangle(x, y, size, image);
-                break;
-            case LEFT:
-                UtilImage.drawIncrustedLeftTriangle(x, y, size, image);
-                break;
-            case RIGHT:
-                UtilImage.drawIncrustedRightTriangle(x, y, size, image);
-                break;
-            case UP:
-                UtilImage.drawIncrustedUpTriangle(x, y, size, image);
-                break;
-        }
     }
 
     /**
@@ -412,6 +448,41 @@ public class UtilImage
     }
 
     /**
+     * Draw a triangle for go in a given way
+     *
+     * @param x           X position
+     * @param y           Y position
+     * @param size        Triangle size
+     * @param image       Image where draw
+     * @param wayTriangle Triangle way
+     */
+    public static void drawIncrustedTriangle(
+            final int x, final int y, final int size, final JHelpImage image, final
+    WayTriangle wayTriangle)
+    {
+        if (wayTriangle == null)
+        {
+            throw new NullPointerException("wayTriangle MUST NOT be null");
+        }
+
+        switch (wayTriangle)
+        {
+            case DOWN:
+                UtilImage.drawIncrustedDownTriangle(x, y, size, image);
+                break;
+            case LEFT:
+                UtilImage.drawIncrustedLeftTriangle(x, y, size, image);
+                break;
+            case RIGHT:
+                UtilImage.drawIncrustedRightTriangle(x, y, size, image);
+                break;
+            case UP:
+                UtilImage.drawIncrustedUpTriangle(x, y, size, image);
+                break;
+        }
+    }
+
+    /**
      * Draw a triangle for go up
      *
      * @param x     X position
@@ -436,42 +507,6 @@ public class UtilImage
         if (!drawMode)
         {
             image.endDrawMode();
-        }
-    }
-
-    /**
-     * Fill a triangle on image
-     *
-     * @param x           Upper left corner X
-     * @param y           Upper left corner Y
-     * @param size        Triangle size
-     * @param image       Image where draw
-     * @param wayTriangle Way of triangle
-     * @param color       Color use for fill
-     */
-    public static void fillTriangle(
-            final int x, final int y, final int size, final JHelpImage image, final WayTriangle
-            wayTriangle, final int color)
-    {
-        if (wayTriangle == null)
-        {
-            throw new NullPointerException("wayTriangle MUST NOT be null");
-        }
-
-        switch (wayTriangle)
-        {
-            case DOWN:
-                UtilImage.fillDownTriangle(x, y, size, image, color);
-                break;
-            case LEFT:
-                UtilImage.fillLeftTriangle(x, y, size, image, color);
-                break;
-            case RIGHT:
-                UtilImage.fillRightTriangle(x, y, size, image, color);
-                break;
-            case UP:
-                UtilImage.fillUpTriangle(x, y, size, image, color);
-                break;
         }
     }
 
@@ -584,6 +619,42 @@ public class UtilImage
     }
 
     /**
+     * Fill a triangle on image
+     *
+     * @param x           Upper left corner X
+     * @param y           Upper left corner Y
+     * @param size        Triangle size
+     * @param image       Image where draw
+     * @param wayTriangle Way of triangle
+     * @param color       Color use for fill
+     */
+    public static void fillTriangle(
+            final int x, final int y, final int size, final JHelpImage image, final WayTriangle
+            wayTriangle, final int color)
+    {
+        if (wayTriangle == null)
+        {
+            throw new NullPointerException("wayTriangle MUST NOT be null");
+        }
+
+        switch (wayTriangle)
+        {
+            case DOWN:
+                UtilImage.fillDownTriangle(x, y, size, image, color);
+                break;
+            case LEFT:
+                UtilImage.fillLeftTriangle(x, y, size, image, color);
+                break;
+            case RIGHT:
+                UtilImage.fillRightTriangle(x, y, size, image, color);
+                break;
+            case UP:
+                UtilImage.fillUpTriangle(x, y, size, image, color);
+                break;
+        }
+    }
+
+    /**
      * Fill a triangle on image that show the up
      *
      * @param x     Upper left corner X
@@ -627,75 +698,5 @@ public class UtilImage
     public static Color invertColor(final Color color)
     {
         return new Color(255 - color.getRed(), 255 - color.getGreen(), 255 - color.getBlue(), color.getAlpha());
-    }
-
-    public static JHelpImage computeInterpolationImage(
-            Interpolation interpolation,
-            int width, int height,
-            int background,
-            int axesColor, int axesThin,
-            int curveColor, int curveThin)
-    {
-        width = Math.max(64, width);
-        height = Math.max(64, height);
-        axesThin = Math.max(1, axesThin);
-        curveThin = Math.max(1, curveThin);
-
-        JHelpImage image = new JHelpImage(width, height, background);
-        image.startDrawMode();
-
-        int zeroLine = (3 * height) >> 2;
-        image.drawThickLine(0, zeroLine, width, zeroLine, axesThin, axesColor);
-        int oneLine    = height >> 2;
-        int numberDash = width >> 3;
-        int dash       = numberDash >> 1;
-
-        for (int x = 0, count = 0; count < numberDash; count++, x += numberDash)
-        {
-            image.drawThickLine(x, oneLine, x + dash, oneLine, axesThin, axesColor);
-        }
-
-        float y1           = 0;
-        float x2, y2;
-
-        for (int xx = 0; xx < width; xx++)
-        {
-            x2 = (float) xx / (float) width;
-            y2 = interpolation.interpolation(x2);
-
-            image.drawThickLine(xx - 1, Math.round(y1 * (oneLine - zeroLine) + zeroLine),
-                                xx, Math.round(y2 * (oneLine - zeroLine) + zeroLine),
-                                curveThin, curveColor);
-
-            y1 = y2;
-        }
-
-        image.endDrawMode();
-        return image;
-    }
-
-    /**
-     * Triangle way
-     *
-     * @author JHelp
-     */
-    public enum WayTriangle
-    {
-        /**
-         * Triangle for down
-         */
-        DOWN,
-        /**
-         * Triangle for left
-         */
-        LEFT,
-        /**
-         * Triangle for right
-         */
-        RIGHT,
-        /**
-         * Triangle for up
-         */
-        UP
     }
 }

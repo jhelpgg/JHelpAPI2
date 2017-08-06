@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.data;
 
 import com.sun.istack.internal.NotNull;
@@ -14,6 +26,10 @@ public class ObservableBinary<T1, T2, T3> extends Observable<T3>
      */
     private final AtomicBoolean changeIsValid = new AtomicBoolean(false);
     /**
+     * Describe how combine the two values to make this value
+     */
+    private final Combiner<T1, T2, T3> combiner;
+    /**
      * First observable
      */
     private final Observable<T1>       observable1;
@@ -21,10 +37,6 @@ public class ObservableBinary<T1, T2, T3> extends Observable<T3>
      * Second observable
      */
     private final Observable<T2>       observable2;
-    /**
-     * Describe how combine the two values to make this value
-     */
-    private final Combiner<T1, T2, T3> combiner;
 
     /**
      * Create the observable
@@ -46,18 +58,6 @@ public class ObservableBinary<T1, T2, T3> extends Observable<T3>
     }
 
     /**
-     * Indicates if a value is valid
-     *
-     * @param value Value to test
-     * @return {@code true} if value is valid
-     */
-    @Override
-    protected final boolean valueIsValid(@NotNull final T3 value)
-    {
-        return this.changeIsValid.get();
-    }
-
-    /**
      * Called when one of watched observable changed
      *
      * @param observable Changed observable
@@ -72,5 +72,17 @@ public class ObservableBinary<T1, T2, T3> extends Observable<T3>
             this.value(this.combiner.combine(this.observable1.value(), this.observable2.value()));
             this.changeIsValid.set(false);
         }
+    }
+
+    /**
+     * Indicates if a value is valid
+     *
+     * @param value Value to test
+     * @return {@code true} if value is valid
+     */
+    @Override
+    protected final boolean valueIsValid(@NotNull final T3 value)
+    {
+        return this.changeIsValid.get();
     }
 }

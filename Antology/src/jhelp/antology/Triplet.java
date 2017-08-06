@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.antology;
 
 import java.util.Objects;
@@ -16,10 +28,9 @@ public final class Triplet implements Comparable<Triplet>
         final Node information = Node.parse(byteArray);
         return new Triplet(subject, predicate, information);
     }
-
-    private final Node subject;
-    private final Node predicate;
     private final Node information;
+    private final Node predicate;
+    private final Node subject;
 
     public Triplet(final Node subject, final Node predicate, final Node information)
     {
@@ -89,28 +100,6 @@ public final class Triplet implements Comparable<Triplet>
         return this.information.compareTo(triplet.information);
     }
 
-    public Node subject()
-    {
-        return this.subject;
-    }
-
-    public Node predicate()
-    {
-        return this.predicate;
-    }
-
-    public Node information()
-    {
-        return this.information;
-    }
-
-    public void serialize(ByteArray byteArray)
-    {
-        this.subject.serialize(byteArray);
-        this.predicate.serialize(byteArray);
-        this.information.serialize(byteArray);
-    }
-
     @Override
     public boolean equals(final Object object)
     {
@@ -139,5 +128,27 @@ public final class Triplet implements Comparable<Triplet>
     public String toString()
     {
         return UtilText.concatenate(this.subject, " ==(", this.predicate, ")=> ", this.information);
+    }
+
+    public Node information()
+    {
+        return this.information;
+    }
+
+    public Node predicate()
+    {
+        return this.predicate;
+    }
+
+    public void serialize(ByteArray byteArray)
+    {
+        this.subject.serialize(byteArray);
+        this.predicate.serialize(byteArray);
+        this.information.serialize(byteArray);
+    }
+
+    public Node subject()
+    {
+        return this.subject;
     }
 }

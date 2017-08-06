@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.ia.solver;
 
 import java.awt.Point;
@@ -26,17 +38,6 @@ public class Path
         World.WORLD.print(this);
     }
 
-    public Point currentPosition()
-    {
-        return new Point(this.path.get(this.path.size() - 1));
-    }
-
-    @Override
-    public String toString()
-    {
-        return this.path.toString();
-    }
-
     public Path append(int x, int y)
     {
         return new Path(this, x, y);
@@ -55,6 +56,11 @@ public class Path
         return false;
     }
 
+    public Point currentPosition()
+    {
+        return new Point(this.path.get(this.path.size() - 1));
+    }
+
     public int indexOf(int x, int y)
     {
         int index = -1;
@@ -70,5 +76,11 @@ public class Path
         }
 
         return -1;
+    }
+
+    @Override
+    public String toString()
+    {
+        return this.path.toString();
     }
 }

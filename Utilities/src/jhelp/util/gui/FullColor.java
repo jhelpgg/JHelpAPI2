@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.gui;
 
 import jhelp.util.list.Pair;
@@ -16,75 +28,6 @@ import jhelp.util.resources.Resources;
         })
 public class FullColor
 {
-    /**
-     * Pairs of name/darkness for given HSV
-     */
-    private static final Pair<String, String> COLORS_HSV[][][];
-    /**
-     * Resources where find color names
-     */
-    private static final Resources            RESOURCES;
-    /**
-     * Key text for black
-     */
-    public static final  String               BLACK;
-    /**
-     * Key text for blue
-     */
-    public static final  String               BLUE;
-    /**
-     * Key text for brown
-     */
-    public static final  String               BROWN;
-    /**
-     * Key text for cyan
-     */
-    public static final  String               CYAN;
-    /**
-     * Key text for dark
-     */
-    public static final  String               DARK;
-    /**
-     * Key text for green
-     */
-    public static final  String               GREEN;
-    /**
-     * Key text for grey
-     */
-    public static final  String               GREY;
-    /**
-     * Key text for light
-     */
-    public static final  String               LIGHT;
-    /**
-     * Key text for magenta
-     */
-    public static final  String               MAGENTA;
-    /**
-     * Key text for orange
-     */
-    public static final  String               ORANGE;
-    /**
-     * Key text for pink
-     */
-    public static final  String               PINK;
-    /**
-     * Key text for red
-     */
-    public static final  String               RED;
-    /**
-     * Resources text where found value of key text depends on current language
-     */
-    public static final  ResourceText         RESOURCE_TEXT;
-    /**
-     * Key text for white
-     */
-    public static final  String               WHITE;
-    /**
-     * Key text for yellow
-     */
-    public static final  String               YELLOW;
-
     static
     {
         BLACK = "black";
@@ -612,6 +555,75 @@ public class FullColor
         FullColor.COLORS_HSV[11][4][1] = new Pair(FullColor.MAGENTA, null);
         FullColor.COLORS_HSV[11][4][0] = new Pair(FullColor.BLACK, null);
     }
+
+    /**
+     * Pairs of name/darkness for given HSV
+     */
+    private static final Pair<String, String> COLORS_HSV[][][];
+    /**
+     * Resources where find color names
+     */
+    private static final Resources            RESOURCES;
+    /**
+     * Key text for black
+     */
+    public static final  String               BLACK;
+    /**
+     * Key text for blue
+     */
+    public static final  String               BLUE;
+    /**
+     * Key text for brown
+     */
+    public static final  String               BROWN;
+    /**
+     * Key text for cyan
+     */
+    public static final  String               CYAN;
+    /**
+     * Key text for dark
+     */
+    public static final  String               DARK;
+    /**
+     * Key text for green
+     */
+    public static final  String               GREEN;
+    /**
+     * Key text for grey
+     */
+    public static final  String               GREY;
+    /**
+     * Key text for light
+     */
+    public static final  String               LIGHT;
+    /**
+     * Key text for magenta
+     */
+    public static final  String               MAGENTA;
+    /**
+     * Key text for orange
+     */
+    public static final  String               ORANGE;
+    /**
+     * Key text for pink
+     */
+    public static final  String               PINK;
+    /**
+     * Key text for red
+     */
+    public static final  String               RED;
+    /**
+     * Resources text where found value of key text depends on current language
+     */
+    public static final  ResourceText         RESOURCE_TEXT;
+    /**
+     * Key text for white
+     */
+    public static final  String               WHITE;
+    /**
+     * Key text for yellow
+     */
+    public static final  String               YELLOW;
 
     /**
      * Compute hue (H in HSV/HSL) for given ARGB

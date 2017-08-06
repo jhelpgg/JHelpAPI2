@@ -1,13 +1,25 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.list;
 
 import java.lang.reflect.Array;
 import java.util.Comparator;
 import java.util.Iterator;
+import jhelp.util.thread.ConsumerTask;
 import jhelp.util.thread.Filter;
 import jhelp.util.thread.Future;
 import jhelp.util.thread.FutureStatus;
 import jhelp.util.thread.Task;
-import jhelp.util.thread.ConsumerTask;
 
 /**
  * Array of sorted element.<br>
@@ -133,228 +145,37 @@ public final class SortedArray<TYPE> implements SizedIterable<TYPE>, ParallelLis
     }
 
     /**
-     * Clear the array.<br>
-     * It will be empty after that
+     * Check if an index is out of the array
+     *
+     * @param index Index to set
+     * @throws IllegalArgumentException If the index is out of bounds
      */
-    public void clear()
+    private void checkIndex(final int index)
     {
-        for (int i = this.array.length - 1; i >= 0; i--)
+        if ((index < 0) || (index >= this.size))
         {
-            this.array[i] = null;
+            throw new IllegalArgumentException("index must be in [0, " + this.size + "[ not " + index);
         }
-
-        this.size = 0;
     }
 
     /**
-     * Indicates if an element is inside the array
+     * Expand the array (if need) to have more space
      *
-     * @param element Tested element
-     * @return {@code true} if an element is inside the array
-     * @throws NullPointerException if the element is {@code null}
-     */
-    public boolean contains(final TYPE element)
-    {
-        if (element == null)
-        {
-            throw new NullPointerException("element MUST NOT be null");
-        }
-
-        return this.indexOf(element) >= 0;
-    }
-
-    /**
-     * Execute a task in parallel on each element (filtered gby given filter) of the list.<br>
-     * Tasks are launch, and method return immediately<br>
-     * Note:
-     * <ul>
-     * <li> Their no guarantee about the order of elements' list meet by the task. If order mandatory use {@link #consumeAsync(ConsumerTask, Filter)}</li>
-     * <li> Since order is not important, thread management is simplified, so it is faster than {@link #consumeAsync(ConsumerTask, Filter)} </li>
-     * </ul>
-     *
-     * @param task   Task to play
-     * @param filter Filter to select elements. If {@code null}, all elements are taken
-     * @return The list itself, convenient for chaining
-     */
-    @Override
-    public SortedArray<TYPE> forEach(final ConsumerTask<TYPE> task, final Filter<TYPE> filter)
-    {
-        ForEach.forEach(this, task, filter);
-        return this;
-    }
-
-    /**
-     * Execute a task in parallel on each element (filtered gby given filter) of the list.<br>
-     * The method will wait all parallel task finished before return<br>
-     * Note:
-     * <ul>
-     * <li> Their no guarantee about the order of elements' list meet by the task. If order mandatory use {@link #consumeAsync(ConsumerTask, Filter)} and {@link Future#waitFinish()}</li>
-     * <li> Since order is not important, thread management is simplified, so it is faster than {@link #consumeAsync(ConsumerTask, Filter)} and {@link Future#waitFinish()} </li>
-     * </ul>
-     *
-     * @param task   Task to play
-     * @param filter Filter to select elements. If {@code null}, all elements are taken
-     * @return The list itself, convenient for chaining
-     */
-    @Override
-    public SortedArray<TYPE> sync(final ConsumerTask<TYPE> task, final Filter<TYPE> filter)
-    {
-        ForEach.sync(this, task, filter);
-        return this;
-    }
-
-    /**
-     * Execute a task in parallel on each element (filtered gby given filter) of the list.<br>
-     * Tasks are launch, and method return immediately<br>
-     * Note:
-     * <ul>
-     * <li> Their no guarantee about the order of elements' list meet by the task. If order mandatory use {@link #consumeAsync(ConsumerTask, Filter)}</li>
-     * <li> Since order is not important, thread management is simplified, so it is faster than {@link #consumeAsync(ConsumerTask, Filter)} </li>
-     * </ul>
-     *
-     * @param task   Task to play
-     * @param filter Filter to select elements. If {@code null}, all elements are taken
-     * @return Future to track/link to the end of all parallel tasks
-     */
-    @Override
-    public Future<Void> async(final ConsumerTask<TYPE> task, final Filter<TYPE> filter)
-    {
-        return ForEach.async(this, task, filter);
-    }
-
-    /**
-     * Create list composed of filtered elements of the list
-     *
-     * @param filter Filter to select elements
-     * @return List of filtered elements
-     */
-    @Override
-    public SortedArray<TYPE> filter(final Filter<TYPE> filter)
-    {
-        final SortedArray<TYPE> sortedArray = new SortedArray<TYPE>(this.typeClass, this.comparator, this.unique);
-        this.consume(sortedArray::add, filter);
-        return sortedArray;
-    }
-
-    /**
-     * Obtain an element from the list that match the given filter.<br>
-     * The result can be any element in list that match.<br>
-     * If no element found, the result future will be on error.<br>
-     * The search is do in separate thread
-     *
-     * @param filter Filter to use for search
-     * @return Future link to the search. It will contains the found element or be on error if no elements match
-     */
-    @Override
-    public Future<TYPE> any(final Filter<TYPE> filter)
-    {
-        return Future.firstMatch(this, filter);
-    }
-
-    /**
-     * Execute task for each element (that respects the given filter) of the list and collect the result in other list
-     *
-     * @param task   Task to do
-     * @param filter Filter to select elements. If {@code null}, all elements are taken
-     * @param <R>    Result list element type
-     * @return List with transformed elements
-     */
-    @Override
-    public <R> ParallelList<R, ?> map(final Task<TYPE, R> task, final Filter<TYPE> filter)
-    {
-        final ArrayObject<R> arrayObject = new ArrayObject<>();
-
-        for (TYPE element : this)
-        {
-            if (filter == null || filter.isFiltered(element))
-            {
-                arrayObject.add(task.playTask(element));
-            }
-        }
-
-        return arrayObject;
-    }
-
-    /**
-     * Execute task for each element (that respects the given filter) of the list
-     *
-     * @param task   Task to do
-     * @param filter Filter to select elements. If {@code null}, all elements are taken
-     * @return This list itself, convenient for chaining
-     */
-    @Override
-    public SortedArray<TYPE> consume(final ConsumerTask<TYPE> task, final Filter<TYPE> filter)
-    {
-        for (TYPE element : this)
-        {
-            if (filter == null || filter.isFiltered(element))
-            {
-                task.consume(element);
-            }
-        }
-
-        return this;
-    }
-
-    /**
-     * Execute task for each element (that respects the given filter) of the list and collect the result in other list
-     *
-     * @param task   Task to do
-     * @param filter Filter to select elements. If {@code null}, all elements are taken
-     * @param <R>    Result list element type
-     * @return List with transformed elements
-     */
-    @Override
-    public <R> ParallelList<R, ?> flatMap(
-            final Task<TYPE, ParallelList<R, ?>> task, final Filter<TYPE> filter)
-    {
-        final ArrayObject<R>   arrayObject = new ArrayObject<>();
-        final Task<R, Boolean> add         = arrayObject::add;
-
-        for (TYPE element : this)
-        {
-            if (filter == null || filter.isFiltered(element))
-            {
-                task.playTask(element).map(add);
-            }
-        }
-
-        return arrayObject;
-    }
-
-    /**
-     * Get an element index or -1 if not present
-     *
-     * @param element Element tested
-     * @return Element index or -1 if not present
-     * @throws NullPointerException if element is {@code null}
+     * @param more Number space more need
      */
     @SuppressWarnings("unchecked")
-    public int indexOf(final TYPE element)
+    private void expand(final int more)
     {
-        if (element == null)
+        if ((this.size + more) >= this.array.length)
         {
-            throw new NullPointerException("element MUST NOT be null");
+            int newSize = this.size + more;
+            newSize += (newSize / 10) + 1;
+
+            final TYPE[] temp = (TYPE[]) Array.newInstance(this.typeClass, Math.max(128, newSize));
+            System.arraycopy(this.array, 0, temp, 0, this.size);
+
+            this.array = temp;
         }
-
-        int index = this.insertIn(element);
-
-        if (index < 0)
-        {
-            index = -index - 1;
-        }
-
-        if (index >= this.size)
-        {
-            return -1;
-        }
-
-        if (this.comparator.compare(element, this.array[index]) == 0)
-        {
-            return index;
-        }
-
-        return -1;
     }
 
     /**
@@ -443,6 +264,246 @@ public final class SortedArray<TYPE> implements SizedIterable<TYPE>, ParallelLis
     }
 
     /**
+     * Add an element
+     *
+     * @param element element to add
+     * @return {@code true} if element added. {@code false} if unique mode and already present, so not added
+     * @throws NullPointerException if the element is {@code null}
+     */
+    public boolean add(final TYPE element)
+    {
+        if (element == null)
+        {
+            throw new NullPointerException("element MUST NOT be null");
+        }
+
+        this.expand(1);
+
+        final int index = this.insertIn(element);
+
+        if (index >= 0)
+        {
+            if (index < this.size)
+            {
+                System.arraycopy(this.array, index, this.array, index + 1, this.size - index);
+            }
+
+            this.array[index] = element;
+
+            this.size++;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Obtain an element from the list that match the given filter.<br>
+     * The result can be any element in list that match.<br>
+     * If no element found, the result future will be on error.<br>
+     * The search is do in separate thread
+     *
+     * @param filter Filter to use for search
+     * @return Future link to the search. It will contains the found element or be on error if no elements match
+     */
+    @Override
+    public Future<TYPE> any(final Filter<TYPE> filter)
+    {
+        return Future.firstMatch(this, filter);
+    }
+
+    /**
+     * Execute a task in parallel on each element (filtered gby given filter) of the list.<br>
+     * Tasks are launch, and method return immediately<br>
+     * Note:
+     * <ul>
+     * <li> Their no guarantee about the order of elements' list meet by the task. If order mandatory use {@link #consumeAsync(ConsumerTask, Filter)}</li>
+     * <li> Since order is not important, thread management is simplified, so it is faster than {@link #consumeAsync(ConsumerTask, Filter)} </li>
+     * </ul>
+     *
+     * @param task   Task to play
+     * @param filter Filter to select elements. If {@code null}, all elements are taken
+     * @return Future to track/link to the end of all parallel tasks
+     */
+    @Override
+    public Future<Void> async(final ConsumerTask<TYPE> task, final Filter<TYPE> filter)
+    {
+        return ForEach.async(this, task, filter);
+    }
+
+    /**
+     * Execute task for each element (that respects the given filter) of the list
+     *
+     * @param task   Task to do
+     * @param filter Filter to select elements. If {@code null}, all elements are taken
+     * @return This list itself, convenient for chaining
+     */
+    @Override
+    public SortedArray<TYPE> consume(final ConsumerTask<TYPE> task, final Filter<TYPE> filter)
+    {
+        for (TYPE element : this)
+        {
+            if (filter == null || filter.isFiltered(element))
+            {
+                task.consume(element);
+            }
+        }
+
+        return this;
+    }
+
+    /**
+     * Create list composed of filtered elements of the list
+     *
+     * @param filter Filter to select elements
+     * @return List of filtered elements
+     */
+    @Override
+    public SortedArray<TYPE> filter(final Filter<TYPE> filter)
+    {
+        final SortedArray<TYPE> sortedArray = new SortedArray<TYPE>(this.typeClass, this.comparator, this.unique);
+        this.consume(sortedArray::add, filter);
+        return sortedArray;
+    }
+
+    /**
+     * Execute task for each element (that respects the given filter) of the list and collect the result in other list
+     *
+     * @param task   Task to do
+     * @param filter Filter to select elements. If {@code null}, all elements are taken
+     * @param <R>    Result list element type
+     * @return List with transformed elements
+     */
+    @Override
+    public <R> ParallelList<R, ?> flatMap(
+            final Task<TYPE, ParallelList<R, ?>> task, final Filter<TYPE> filter)
+    {
+        final ArrayObject<R>   arrayObject = new ArrayObject<>();
+        final Task<R, Boolean> add         = arrayObject::add;
+
+        for (TYPE element : this)
+        {
+            if (filter == null || filter.isFiltered(element))
+            {
+                task.playTask(element).map(add);
+            }
+        }
+
+        return arrayObject;
+    }
+
+    /**
+     * Execute a task in parallel on each element (filtered gby given filter) of the list.<br>
+     * Tasks are launch, and method return immediately<br>
+     * Note:
+     * <ul>
+     * <li> Their no guarantee about the order of elements' list meet by the task. If order mandatory use {@link #consumeAsync(ConsumerTask, Filter)}</li>
+     * <li> Since order is not important, thread management is simplified, so it is faster than {@link #consumeAsync(ConsumerTask, Filter)} </li>
+     * </ul>
+     *
+     * @param task   Task to play
+     * @param filter Filter to select elements. If {@code null}, all elements are taken
+     * @return The list itself, convenient for chaining
+     */
+    @Override
+    public SortedArray<TYPE> forEach(final ConsumerTask<TYPE> task, final Filter<TYPE> filter)
+    {
+        ForEach.forEach(this, task, filter);
+        return this;
+    }
+
+    /**
+     * Execute task for each element (that respects the given filter) of the list and collect the result in other list
+     *
+     * @param task   Task to do
+     * @param filter Filter to select elements. If {@code null}, all elements are taken
+     * @param <R>    Result list element type
+     * @return List with transformed elements
+     */
+    @Override
+    public <R> ParallelList<R, ?> map(final Task<TYPE, R> task, final Filter<TYPE> filter)
+    {
+        final ArrayObject<R> arrayObject = new ArrayObject<>();
+
+        for (TYPE element : this)
+        {
+            if (filter == null || filter.isFiltered(element))
+            {
+                arrayObject.add(task.playTask(element));
+            }
+        }
+
+        return arrayObject;
+    }
+
+    /**
+     * Execute a task in parallel on each element (filtered gby given filter) of the list.<br>
+     * The method will wait all parallel task finished before return<br>
+     * Note:
+     * <ul>
+     * <li> Their no guarantee about the order of elements' list meet by the task. If order mandatory use {@link #consumeAsync(ConsumerTask, Filter)} and {@link Future#waitFinish()}</li>
+     * <li> Since order is not important, thread management is simplified, so it is faster than {@link #consumeAsync(ConsumerTask, Filter)} and {@link Future#waitFinish()} </li>
+     * </ul>
+     *
+     * @param task   Task to play
+     * @param filter Filter to select elements. If {@code null}, all elements are taken
+     * @return The list itself, convenient for chaining
+     */
+    @Override
+    public SortedArray<TYPE> sync(final ConsumerTask<TYPE> task, final Filter<TYPE> filter)
+    {
+        ForEach.sync(this, task, filter);
+        return this;
+    }
+
+    /**
+     * Clear the array.<br>
+     * It will be empty after that
+     */
+    public void clear()
+    {
+        for (int i = this.array.length - 1; i >= 0; i--)
+        {
+            this.array[i] = null;
+        }
+
+        this.size = 0;
+    }
+
+    public Comparator<TYPE> comparator()
+    {
+        return this.comparator;
+    }
+
+    /**
+     * Indicates if an element is inside the array
+     *
+     * @param element Tested element
+     * @return {@code true} if an element is inside the array
+     * @throws NullPointerException if the element is {@code null}
+     */
+    public boolean contains(final TYPE element)
+    {
+        if (element == null)
+        {
+            throw new NullPointerException("element MUST NOT be null");
+        }
+
+        return this.indexOf(element) >= 0;
+    }
+
+    /**
+     * Indicates if array is empty
+     *
+     * @return {@code true} if array is empty
+     */
+    public boolean empty()
+    {
+        return this.size == 0;
+    }
+
+    /**
      * Give an element of the array
      *
      * @param index Element index
@@ -457,27 +518,38 @@ public final class SortedArray<TYPE> implements SizedIterable<TYPE>, ParallelLis
     }
 
     /**
-     * Check if an index is out of the array
+     * Get an element index or -1 if not present
      *
-     * @param index Index to set
-     * @throws IllegalArgumentException If the index is out of bounds
+     * @param element Element tested
+     * @return Element index or -1 if not present
+     * @throws NullPointerException if element is {@code null}
      */
-    private void checkIndex(final int index)
+    @SuppressWarnings("unchecked")
+    public int indexOf(final TYPE element)
     {
-        if ((index < 0) || (index >= this.size))
+        if (element == null)
         {
-            throw new IllegalArgumentException("index must be in [0, " + this.size + "[ not " + index);
+            throw new NullPointerException("element MUST NOT be null");
         }
-    }
 
-    /**
-     * Actual array size
-     *
-     * @return Actual array size
-     */
-    public int size()
-    {
-        return this.size;
+        int index = this.insertIn(element);
+
+        if (index < 0)
+        {
+            index = -index - 1;
+        }
+
+        if (index >= this.size)
+        {
+            return -1;
+        }
+
+        if (this.comparator.compare(element, this.array[index]) == 0)
+        {
+            return index;
+        }
+
+        return -1;
     }
 
     /**
@@ -525,26 +597,6 @@ public final class SortedArray<TYPE> implements SizedIterable<TYPE>, ParallelLis
     }
 
     /**
-     * Indicates if array is empty
-     *
-     * @return {@code true} if array is empty
-     */
-    public boolean empty()
-    {
-        return this.size == 0;
-    }
-
-    /**
-     * Indicates if array is in unique mode
-     *
-     * @return {@code true} if array is in unique mode
-     */
-    public boolean unique()
-    {
-        return this.unique;
-    }
-
-    /**
      * Compute iterator over the list <br>
      * <br>
      * <b>Parent documentation:</b><br>
@@ -556,22 +608,7 @@ public final class SortedArray<TYPE> implements SizedIterable<TYPE>, ParallelLis
     @Override
     public Iterator<TYPE> iterator()
     {
-        return new EnumerationIterator<TYPE>(this.toArray());
-    }
-
-    /**
-     * Transform the array to a an array with size the same as this array, with same element in same order
-     *
-     * @return Extracted array
-     */
-    @SuppressWarnings("unchecked")
-    public TYPE[] toArray()
-    {
-        final TYPE[] array = (TYPE[]) Array.newInstance(this.typeClass, this.size);
-
-        System.arraycopy(this.array, 0, array, 0, this.size);
-
-        return array;
+        return new EnumerationIterator<>(this.toArray());
     }
 
     /**
@@ -692,58 +729,28 @@ public final class SortedArray<TYPE> implements SizedIterable<TYPE>, ParallelLis
     }
 
     /**
-     * Add an element
+     * Actual array size
      *
-     * @param element element to add
-     * @return {@code true} if element added. {@code false} if unique mode and already present, so not added
-     * @throws NullPointerException if the element is {@code null}
+     * @return Actual array size
      */
-    public boolean add(final TYPE element)
+    public int size()
     {
-        if (element == null)
-        {
-            throw new NullPointerException("element MUST NOT be null");
-        }
-
-        this.expand(1);
-
-        final int index = this.insertIn(element);
-
-        if (index >= 0)
-        {
-            if (index < this.size)
-            {
-                System.arraycopy(this.array, index, this.array, index + 1, this.size - index);
-            }
-
-            this.array[index] = element;
-
-            this.size++;
-
-            return true;
-        }
-
-        return false;
+        return this.size;
     }
 
     /**
-     * Expand the array (if need) to have more space
+     * Transform the array to a an array with size the same as this array, with same element in same order
      *
-     * @param more Number space more need
+     * @return Extracted array
      */
     @SuppressWarnings("unchecked")
-    private void expand(final int more)
+    public TYPE[] toArray()
     {
-        if ((this.size + more) >= this.array.length)
-        {
-            int newSize = this.size + more;
-            newSize += (newSize / 10) + 1;
+        final TYPE[] array = (TYPE[]) Array.newInstance(this.typeClass, this.size);
 
-            final TYPE[] temp = (TYPE[]) Array.newInstance(this.typeClass, Math.max(128, newSize));
-            System.arraycopy(this.array, 0, temp, 0, this.size);
+        System.arraycopy(this.array, 0, array, 0, this.size);
 
-            this.array = temp;
-        }
+        return array;
     }
 
     /**
@@ -810,8 +817,13 @@ public final class SortedArray<TYPE> implements SizedIterable<TYPE>, ParallelLis
         return this.typeClass;
     }
 
-    public Comparator<TYPE> comparator()
+    /**
+     * Indicates if array is in unique mode
+     *
+     * @return {@code true} if array is in unique mode
+     */
+    public boolean unique()
     {
-        return this.comparator;
+        return this.unique;
     }
 }

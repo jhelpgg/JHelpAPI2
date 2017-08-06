@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.list;
 
 import java.util.ArrayList;
@@ -15,21 +27,114 @@ import java.util.Stack;
 public class Tree<INFORMATION>
 {
     /**
-     * Carried information
+     * Method of search inside the solver.<br>
+     * In search explanation, we explain how the order of exploring the following solver :
+     * <p>
+     * <pre>
+     *      A
+     *      |
+     *   -------
+     *   |     |
+     *   B     C
+     *   |     |
+     *  ---   ---
+     *  | |   | |
+     *  D E   F G
+     * </pre>
+     * <p>
+     * See {@link Tree#searchBranch(TestFoundListener, SearchMode, boolean)}
+     *
+     * @author JHelp
      */
-    final         INFORMATION                  information;
+    public enum SearchMode
+    {
+        /**
+         * Search order : A B D E C F G
+         */
+        LEFT_TO_RIGHT_DEPTH,
+        /**
+         * Search order : A B C D E F G
+         */
+        LEFT_TO_RIGHT_HIGH,
+        /**
+         * Search order : A C G F B E D
+         */
+        RIGHT_TO_LEFT_DEPTH,
+        /**
+         * Search order : A C B G F E D
+         */
+        RIGHT_TO_LEFT_HIGH
+    }
+
+    /**
+     * Comparator used to compare 2 branches on using there carry information
+     *
+     * @param <INFO> Information type
+     * @author JHelp
+     */
+    static class ComparatorTree<INFO>
+            implements Comparator<Tree<INFO>>
+    {
+        /**
+         * Comparator used to compare 2 information
+         */
+        Comparator<INFO> comparator;
+
+        /**
+         * Create a new instance of ComparatorTree
+         */
+        ComparatorTree()
+        {
+        }
+
+        /**
+         * Compare 2 branches.<br>
+         * It returns a value :
+         * <table>
+         * <tr>
+         * <th>&lt;0</th>
+         * <td>:</td>
+         * <td>If first branch if before second branch</td>
+         * </tr>
+         * <tr>
+         * <th>0</th>
+         * <td>:</td>
+         * <td>If the 2 branches are the same</td>
+         * </tr>
+         * <tr>
+         * <th>&gt;0</th>
+         * <td>:</td>
+         * <td>If first branch if after second branch</td>
+         * </tr>
+         * </table>
+         *
+         * @param tree1 First branch
+         * @param tree2 Second branch
+         * @return Comparison value
+         */
+        @Override
+        public int compare(final Tree<INFO> tree1, final Tree<INFO> tree2)
+        {
+            return this.comparator.compare(tree1.information, tree2.information);
+        }
+    }
+
     /**
      * Tree branches
      */
-    private final ArrayList<Tree<INFORMATION>> branches;
+    private final ArrayObject<Tree<INFORMATION>> branches;
     /**
      * Comparator used to compare 2 branches
      */
-    private final ComparatorTree<INFORMATION>  comparatorTree;
+    private final ComparatorTree<INFORMATION>    comparatorTree;
     /**
      * Trunk that contains this solver
      */
-    private final Tree<INFORMATION>            trunk;
+    private final Tree<INFORMATION>              trunk;
+    /**
+     * Carried information
+     */
+    final         INFORMATION                    information;
 
     /**
      * Create a new instance of Tree
@@ -56,8 +161,8 @@ public class Tree<INFORMATION>
 
         this.trunk = trunk;
         this.information = information;
-        this.branches = new ArrayList<Tree<INFORMATION>>();
-        this.comparatorTree = new ComparatorTree<INFORMATION>();
+        this.branches = new ArrayObject<>();
+        this.comparatorTree = new ComparatorTree<>();
     }
 
     /**
@@ -80,6 +185,130 @@ public class Tree<INFORMATION>
     }
 
     /**
+     * Search a branch in left to right depth rule. See {@link SearchMode}, the order here is :
+     * {@link SearchMode#LEFT_TO_RIGHT_DEPTH}
+     *
+     * @param testFoundListener Tester of information search
+     * @return Founded branch or {@code null} if not found
+     */
+    private Tree<INFORMATION> searchLeftToRightDepth(final TestFoundListener<INFORMATION> testFoundListener)
+    {
+        final Stack<Tree<INFORMATION>> stack = new Stack<>();
+        stack.push(this);
+        Tree<INFORMATION> tree;
+
+        while (!stack.isEmpty())
+        {
+            tree = stack.pop();
+
+            if (testFoundListener.isElementSearched(tree.information))
+            {
+                return tree;
+            }
+
+            for (final Tree<INFORMATION> branch : tree.branches)
+            {
+                stack.push(branch);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Search a branch in left to right high rule. See {@link SearchMode}, the order here is :
+     * {@link SearchMode#LEFT_TO_RIGHT_HIGH}
+     *
+     * @param testFoundListener Tester of information search
+     * @return Founded branch or {@code null} if not found
+     */
+    private Tree<INFORMATION> searchLeftToRightHigh(final TestFoundListener<INFORMATION> testFoundListener)
+    {
+        final Queue<Tree<INFORMATION>> queue = new Queue<>();
+        queue.inQueue(this);
+        Tree<INFORMATION> tree;
+
+        while (!queue.empty())
+        {
+            tree = queue.outQueue();
+
+            if (testFoundListener.isElementSearched(tree.information))
+            {
+                return tree;
+            }
+
+            for (final Tree<INFORMATION> branch : tree.branches)
+            {
+                queue.inQueue(branch);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Search a branch in right to left depth rule. See {@link SearchMode}, the order here is :
+     * {@link SearchMode#RIGHT_TO_LEFT_DEPTH}
+     *
+     * @param testFoundListener Tester of information search
+     * @return Founded branch or {@code null} if not found
+     */
+    private Tree<INFORMATION> searchRightToLeftDepth(final TestFoundListener<INFORMATION> testFoundListener)
+    {
+        final Stack<Tree<INFORMATION>> stack = new Stack<>();
+        stack.push(this);
+        Tree<INFORMATION> tree;
+
+        while (!stack.isEmpty())
+        {
+            tree = stack.pop();
+
+            if (testFoundListener.isElementSearched(tree.information))
+            {
+                return tree;
+            }
+
+            for (int index = tree.branches.size() - 1; index >= 0; index--)
+            {
+                stack.push(tree.branches.get(index));
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Search a branch in right to left high rule. See {@link SearchMode}, the order here is :
+     * {@link SearchMode#RIGHT_TO_LEFT_HIGH}
+     *
+     * @param testFoundListener Tester of information search
+     * @return Founded branch or {@code null} if not found
+     */
+    private Tree<INFORMATION> searchRightToLeftHigh(final TestFoundListener<INFORMATION> testFoundListener)
+    {
+        final Queue<Tree<INFORMATION>> queue = new Queue<>();
+        queue.inQueue(this);
+        Tree<INFORMATION> tree;
+
+        while (!queue.empty())
+        {
+            tree = queue.outQueue();
+
+            if (testFoundListener.isElementSearched(tree.information))
+            {
+                return tree;
+            }
+
+            for (int index = tree.branches.size() - 1; index >= 0; index--)
+            {
+                queue.inQueue(tree.branches.get(index));
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Add a branch to the solver
      *
      * @param information Information to put on the branch
@@ -92,7 +321,7 @@ public class Tree<INFORMATION>
             throw new NullPointerException("information MUST NOT be null");
         }
 
-        final Tree<INFORMATION> branch = new Tree<INFORMATION>(information);
+        final Tree<INFORMATION> branch = new Tree<>(information);
         this.branches.add(branch);
         return branch;
     }
@@ -112,7 +341,7 @@ public class Tree<INFORMATION>
             throw new NullPointerException("information MUST NOT be null");
         }
 
-        final Tree<INFORMATION> branch = new Tree<INFORMATION>(information);
+        final Tree<INFORMATION> branch = new Tree<>(information);
 
         Tree<INFORMATION> tree;
 
@@ -172,6 +401,11 @@ public class Tree<INFORMATION>
         return branch;
     }
 
+    public void clear()
+    {
+        this.branches.clear();
+    }
+
     /**
      * Compute the branch weight.<br>
      * More a solver have branch and its branch have branch ,and ... more the weight is high
@@ -223,7 +457,7 @@ public class Tree<INFORMATION>
      */
     public EnumerationIterator<Tree<INFORMATION>> getBranches()
     {
-        return new EnumerationIterator<Tree<INFORMATION>>(this.branches.iterator());
+        return new EnumerationIterator<>(this.branches.iterator());
     }
 
     /**
@@ -307,7 +541,7 @@ public class Tree<INFORMATION>
      */
     public List<Tree<INFORMATION>> listOfLeafs()
     {
-        final ArrayList<Tree<INFORMATION>> leafs = new ArrayList<Tree<INFORMATION>>();
+        final ArrayList<Tree<INFORMATION>> leafs = new ArrayList<>();
 
         this.collectLeafs(leafs);
 
@@ -333,11 +567,6 @@ public class Tree<INFORMATION>
     public Tree<INFORMATION> removeBranch(final int index)
     {
         return this.branches.remove(index);
-    }
-
-    public void clear()
-    {
-        this.branches.clear();
     }
 
     /**
@@ -368,12 +597,16 @@ public class Tree<INFORMATION>
         {
             case LEFT_TO_RIGHT_DEPTH:
                 branch = this.searchLeftToRightDepth(testFoundListener);
+                break;
             case LEFT_TO_RIGHT_HIGH:
                 branch = this.searchLeftToRightHigh(testFoundListener);
+                break;
             case RIGHT_TO_LEFT_DEPTH:
                 branch = this.searchRightToLeftDepth(testFoundListener);
+                break;
             case RIGHT_TO_LEFT_HIGH:
                 branch = this.searchRightToLeftHigh(testFoundListener);
+                break;
         }
 
         if ((remove) && (branch != null) && (branch.trunk != null))
@@ -382,130 +615,6 @@ public class Tree<INFORMATION>
         }
 
         return branch;
-    }
-
-    /**
-     * Search a branch in left to right depth rule. See {@link SearchMode}, the order here is :
-     * {@link SearchMode#LEFT_TO_RIGHT_DEPTH}
-     *
-     * @param testFoundListener Tester of information search
-     * @return Founded branch or {@code null} if not found
-     */
-    private Tree<INFORMATION> searchLeftToRightDepth(final TestFoundListener<INFORMATION> testFoundListener)
-    {
-        final Stack<Tree<INFORMATION>> stack = new Stack<Tree<INFORMATION>>();
-        stack.push(this);
-        Tree<INFORMATION> tree;
-
-        while (!stack.isEmpty())
-        {
-            tree = stack.pop();
-
-            if (testFoundListener.isElementSearched(tree.information))
-            {
-                return tree;
-            }
-
-            for (final Tree<INFORMATION> branch : tree.branches)
-            {
-                stack.push(branch);
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Search a branch in left to right high rule. See {@link SearchMode}, the order here is :
-     * {@link SearchMode#LEFT_TO_RIGHT_HIGH}
-     *
-     * @param testFoundListener Tester of information search
-     * @return Founded branch or {@code null} if not found
-     */
-    private Tree<INFORMATION> searchLeftToRightHigh(final TestFoundListener<INFORMATION> testFoundListener)
-    {
-        final Queue<Tree<INFORMATION>> queue = new Queue<Tree<INFORMATION>>();
-        queue.inQueue(this);
-        Tree<INFORMATION> tree;
-
-        while (!queue.empty())
-        {
-            tree = queue.outQueue();
-
-            if (testFoundListener.isElementSearched(tree.information))
-            {
-                return tree;
-            }
-
-            for (final Tree<INFORMATION> branch : tree.branches)
-            {
-                queue.inQueue(branch);
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Search a branch in right to left depth rule. See {@link SearchMode}, the order here is :
-     * {@link SearchMode#RIGHT_TO_LEFT_DEPTH}
-     *
-     * @param testFoundListener Tester of information search
-     * @return Founded branch or {@code null} if not found
-     */
-    private Tree<INFORMATION> searchRightToLeftDepth(final TestFoundListener<INFORMATION> testFoundListener)
-    {
-        final Stack<Tree<INFORMATION>> stack = new Stack<Tree<INFORMATION>>();
-        stack.push(this);
-        Tree<INFORMATION> tree;
-
-        while (!stack.isEmpty())
-        {
-            tree = stack.pop();
-
-            if (testFoundListener.isElementSearched(tree.information))
-            {
-                return tree;
-            }
-
-            for (int index = tree.branches.size() - 1; index >= 0; index--)
-            {
-                stack.push(tree.branches.get(index));
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Search a branch in right to left high rule. See {@link SearchMode}, the order here is :
-     * {@link SearchMode#RIGHT_TO_LEFT_HIGH}
-     *
-     * @param testFoundListener Tester of information search
-     * @return Founded branch or {@code null} if not found
-     */
-    private Tree<INFORMATION> searchRightToLeftHigh(final TestFoundListener<INFORMATION> testFoundListener)
-    {
-        final Queue<Tree<INFORMATION>> queue = new Queue<Tree<INFORMATION>>();
-        queue.inQueue(this);
-        Tree<INFORMATION> tree;
-
-        while (!queue.empty())
-        {
-            tree = queue.outQueue();
-
-            if (testFoundListener.isElementSearched(tree.information))
-            {
-                return tree;
-            }
-
-            for (int index = tree.branches.size() - 1; index >= 0; index--)
-            {
-                queue.inQueue(tree.branches.get(index));
-            }
-        }
-
-        return null;
     }
 
     /**
@@ -531,46 +640,6 @@ public class Tree<INFORMATION>
     }
 
     /**
-     * Method of search inside the solver.<br>
-     * In search explanation, we explain how the order of exploring the following solver :
-     * <p>
-     * <pre>
-     *      A
-     *      |
-     *   -------
-     *   |     |
-     *   B     C
-     *   |     |
-     *  ---   ---
-     *  | |   | |
-     *  D E   F G
-     * </pre>
-     * <p>
-     * See {@link Tree#searchBranch(TestFoundListener, SearchMode, boolean)}
-     *
-     * @author JHelp
-     */
-    public enum SearchMode
-    {
-        /**
-         * Search order : A B D E C F G
-         */
-        LEFT_TO_RIGHT_DEPTH,
-        /**
-         * Search order : A B C D E F G
-         */
-        LEFT_TO_RIGHT_HIGH,
-        /**
-         * Search order : A C G F B E D
-         */
-        RIGHT_TO_LEFT_DEPTH,
-        /**
-         * Search order : A C B G F E D
-         */
-        RIGHT_TO_LEFT_HIGH
-    }
-
-    /**
      * Listener called each tile we test an information to know if this information is the searched one. See
      * {@link Tree#searchBranch(TestFoundListener, SearchMode, boolean)}
      *
@@ -586,58 +655,5 @@ public class Tree<INFORMATION>
          * @return {@code true} if information is the searched one
          */
         boolean isElementSearched(INFO information);
-    }
-
-    /**
-     * Comparator used to compare 2 branches on using there carry information
-     *
-     * @param <INFO> Information type
-     * @author JHelp
-     */
-    static class ComparatorTree<INFO>
-            implements Comparator<Tree<INFO>>
-    {
-        /**
-         * Comparator used to compare 2 information
-         */
-        Comparator<INFO> comparator;
-
-        /**
-         * Create a new instance of ComparatorTree
-         */
-        ComparatorTree()
-        {
-        }
-
-        /**
-         * Compare 2 branches.<br>
-         * It returns a value :
-         * <table>
-         * <tr>
-         * <th>&lt;0</th>
-         * <td>:</td>
-         * <td>If first branch if before second branch</td>
-         * </tr>
-         * <tr>
-         * <th>0</th>
-         * <td>:</td>
-         * <td>If the 2 branches are the same</td>
-         * </tr>
-         * <tr>
-         * <th>&gt;0</th>
-         * <td>:</td>
-         * <td>If first branch if after second branch</td>
-         * </tr>
-         * </table>
-         *
-         * @param tree1 First branch
-         * @param tree2 Second branch
-         * @return Comparison value
-         */
-        @Override
-        public int compare(final Tree<INFO> tree1, final Tree<INFO> tree2)
-        {
-            return this.comparator.compare(tree1.information, tree2.information);
-        }
     }
 }

@@ -1,14 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any
- * damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.gui;
 
 import jhelp.util.list.Couple;
@@ -23,6 +24,106 @@ import jhelp.util.text.UtilText;
 public class JHelpGradientHorizontal
         implements JHelpPaint
 {
+    /**
+     * Represents a step
+     *
+     * @author JHelp
+     */
+    public class Percent
+            implements Comparable<Percent>
+    {
+        /**
+         * Step color
+         */
+        final int color;
+        /**
+         * Step percent
+         */
+        final int percent;
+
+        /**
+         * Create a new instance of Percent
+         *
+         * @param percent Percent
+         * @param color   Color
+         */
+        Percent(final int percent, final int color)
+        {
+            this.percent = percent;
+            this.color = color;
+        }
+
+        /**
+         * Compare the step with an other one.<br>
+         * It returns:
+         * <table>
+         * <tr>
+         * <th>&lt 0</th>
+         * <td>:</td>
+         * <td>If this step is before the given one</td>
+         * </tr>
+         * <tr>
+         * <th>0</th>
+         * <td>:</td>
+         * <td>If this step is equals to the given one</td>
+         * </tr>
+         * <tr>
+         * <th>&gt; 0</th>
+         * <td>:</td>
+         * <td>If this step is after to the given one</td>
+         * </tr>
+         * </table>
+         * <br>
+         * <br>
+         * <b>Parent documentation:</b><br>
+         * {@inheritDoc}
+         *
+         * @param percent Step to compare with
+         * @return Comparison result
+         * @see Comparable#compareTo(Object)
+         */
+        @Override
+        public int compareTo(final Percent percent)
+        {
+            return this.percent - percent.percent;
+        }
+
+        /**
+         * Step color
+         *
+         * @return Step color
+         */
+        public int getColor()
+        {
+            return this.color;
+        }
+
+        /**
+         * Step percent
+         *
+         * @return Step percent
+         */
+        public int getPercent()
+        {
+            return this.percent;
+        }
+
+        /**
+         * String representation <br>
+         * <br>
+         * <b>Parent documentation:</b><br>
+         * {@inheritDoc}
+         *
+         * @return String representation
+         * @see Object#toString()
+         */
+        @Override
+        public String toString()
+        {
+            return UtilText.concatenate(this.percent, "% ", UtilText.colorText(this.color));
+        }
+    }
+
     /**
      * Gradient steps
      */
@@ -40,7 +141,7 @@ public class JHelpGradientHorizontal
      */
     public JHelpGradientHorizontal(final int colorStart, final int colorEnd)
     {
-        this.percents = new SortedArray<Percent>(Percent.class);
+        this.percents = new SortedArray<>(Percent.class);
 
         this.percents.add(new Percent(0, colorStart));
         this.percents.add(new Percent(100, colorEnd));
@@ -147,105 +248,5 @@ public class JHelpGradientHorizontal
     public Percent[] obtainPercents()
     {
         return this.percents.toArray();
-    }
-
-    /**
-     * Represents a step
-     *
-     * @author JHelp
-     */
-    public class Percent
-            implements Comparable<Percent>
-    {
-        /**
-         * Step color
-         */
-        final int color;
-        /**
-         * Step percent
-         */
-        final int percent;
-
-        /**
-         * Create a new instance of Percent
-         *
-         * @param percent Percent
-         * @param color   Color
-         */
-        Percent(final int percent, final int color)
-        {
-            this.percent = percent;
-            this.color = color;
-        }
-
-        /**
-         * Compare the step with an other one.<br>
-         * It returns:
-         * <table>
-         * <tr>
-         * <th>&lt 0</th>
-         * <td>:</td>
-         * <td>If this step is before the given one</td>
-         * </tr>
-         * <tr>
-         * <th>0</th>
-         * <td>:</td>
-         * <td>If this step is equals to the given one</td>
-         * </tr>
-         * <tr>
-         * <th>&gt; 0</th>
-         * <td>:</td>
-         * <td>If this step is after to the given one</td>
-         * </tr>
-         * </table>
-         * <br>
-         * <br>
-         * <b>Parent documentation:</b><br>
-         * {@inheritDoc}
-         *
-         * @param percent Step to compare with
-         * @return Comparison result
-         * @see Comparable#compareTo(Object)
-         */
-        @Override
-        public int compareTo(final Percent percent)
-        {
-            return this.percent - percent.percent;
-        }
-
-        /**
-         * Step color
-         *
-         * @return Step color
-         */
-        public int getColor()
-        {
-            return this.color;
-        }
-
-        /**
-         * Step percent
-         *
-         * @return Step percent
-         */
-        public int getPercent()
-        {
-            return this.percent;
-        }
-
-        /**
-         * String representation <br>
-         * <br>
-         * <b>Parent documentation:</b><br>
-         * {@inheritDoc}
-         *
-         * @return String representation
-         * @see Object#toString()
-         */
-        @Override
-        public String toString()
-        {
-            return UtilText.concatenate(this.percent, "% ", UtilText.colorText(this.color));
-        }
     }
 }

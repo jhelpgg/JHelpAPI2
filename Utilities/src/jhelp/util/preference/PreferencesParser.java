@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.preference;
 
 import java.io.File;
@@ -23,13 +35,13 @@ class PreferencesParser
         implements PreferencesFileConstants
 {
     /**
-     * Preference to fill
-     */
-    private final HashMap<String, Pair<PreferenceType, Object>> preferences;
-    /**
      * Indicates if we wait first main markup
      */
     private       boolean                                       mainMarkup;
+    /**
+     * Preference to fill
+     */
+    private final HashMap<String, Pair<PreferenceType, Object>> preferences;
 
     /**
      * Create a new instance of PreferencesParser and fill preferences from file
@@ -53,6 +65,26 @@ class PreferencesParser
         {
             Debug.exception(exception);
         }
+    }
+
+    /**
+     * Get a parameter value
+     *
+     * @param parameter  Parameter name
+     * @param attributes Attributes where extract the value
+     * @return Extracted value
+     * @throws SAXException If parameter ask doesn't exists
+     */
+    private String getParameter(final String parameter, final Attributes attributes) throws SAXException
+    {
+        final String value = attributes.getValue(parameter);
+
+        if (value == null)
+        {
+            throw new SAXException("Missing the parameter " + parameter + " !");
+        }
+
+        return value;
     }
 
     /**
@@ -102,28 +134,8 @@ class PreferencesParser
         final PreferenceType preferenceType = PreferenceType.valueOf(type);
 
         this.preferences.put(preferenceName,//
-                             new Pair<PreferenceType, Object>(preferenceType,
-                                                              Preferences.parse(preferenceValue, preferenceType)));
-    }
-
-    /**
-     * Get a parameter value
-     *
-     * @param parameter  Parameter name
-     * @param attributes Attributes where extract the value
-     * @return Extracted value
-     * @throws SAXException If parameter ask doesn't exists
-     */
-    private String getParameter(final String parameter, final Attributes attributes) throws SAXException
-    {
-        final String value = attributes.getValue(parameter);
-
-        if (value == null)
-        {
-            throw new SAXException("Missing the parameter " + parameter + " !");
-        }
-
-        return value;
+                             new Pair<>(preferenceType,
+                                        Preferences.parse(preferenceValue, preferenceType)));
     }
 
     /**

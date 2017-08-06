@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.data;
 
 import com.sun.istack.internal.NotNull;
@@ -15,26 +27,21 @@ import jhelp.util.thread.Filter;
 public interface Combiner<P1, P2, R>
 {
     /**
-     * Combiner returns always {@code true}
+     * Combiner that make <b>and</b> on two values
      */
-    Combiner<?, ?, Boolean> TRUE = (p1, p2) -> true;
-
-    /**
-     * Combiner returns always {@code true}
-     *
-     * @param <P1> First combiner parameter type
-     * @param <P2> Second combiner parameter type
-     * @return The combiner always {@code true}
-     */
-    static @NotNull <P1, P2> Combiner<P1, P2, Boolean> TRUE()
-    {
-        return (Combiner<P1, P2, Boolean>) Combiner.TRUE;
-    }
-
+    Combiner<Boolean, Boolean, Boolean> AND   = (p1, p2) -> p1 && p2;
     /**
      * Combiner returns always {@code false}
      */
-    Combiner<?, ?, Boolean> FALSE = (p1, p2) -> false;
+    Combiner<?, ?, Boolean>             FALSE = (p1, p2) -> false;
+    /**
+     * Combiner that make <b>or</b> on two values
+     */
+    Combiner<Boolean, Boolean, Boolean> OR    = (p1, p2) -> p1 || p2;
+    /**
+     * Combiner returns always {@code true}
+     */
+    Combiner<?, ?, Boolean>             TRUE  = (p1, p2) -> true;
 
     /**
      * Combiner returns always {@code false}
@@ -47,15 +54,6 @@ public interface Combiner<P1, P2, R>
     {
         return (Combiner<P1, P2, Boolean>) Combiner.FALSE;
     }
-
-    /**
-     * Combiner that make <b>and</b> on two values
-     */
-    Combiner<Boolean, Boolean, Boolean> AND = (p1, p2) -> p1 && p2;
-    /**
-     * Combiner that make <b>or</b> on two values
-     */
-    Combiner<Boolean, Boolean, Boolean> OR  = (p1, p2) -> p1 || p2;
 
     /**
      * Create a combiner that fill an optional with a value if a boolean is {@code true}
@@ -74,6 +72,18 @@ public interface Combiner<P1, P2, R>
 
             return Optional.empty();
         };
+    }
+
+    /**
+     * Combiner returns always {@code true}
+     *
+     * @param <P1> First combiner parameter type
+     * @param <P2> Second combiner parameter type
+     * @return The combiner always {@code true}
+     */
+    static @NotNull <P1, P2> Combiner<P1, P2, Boolean> TRUE()
+    {
+        return (Combiner<P1, P2, Boolean>) Combiner.TRUE;
     }
 
     /**

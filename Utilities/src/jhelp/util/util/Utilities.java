@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.util;
 
 import com.sun.istack.internal.NotNull;
@@ -8,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
+import jhelp.util.list.ArrayObject;
 
 /**
  * Divers utilities
@@ -20,13 +33,6 @@ public final class Utilities
      * Regular expression for detect separators in locale string
      */
     private static final Pattern PATTERN_LOCALE = Pattern.compile("[-_]");
-
-    /**
-     * To avoid instance
-     */
-    private Utilities()
-    {
-    }
 
     /**
      * Indicates if a character is inside an array
@@ -387,7 +393,26 @@ public final class Utilities
      * @param <T>   Elements type
      * @return List with elements in it
      */
-    public static @Nullable <T> List<T> toList(@Nullable T... array)
+    public static @SafeVarargs @Nullable <T> ArrayObject<T> toArrayObject(@Nullable T... array)
+    {
+        if (array == null)
+        {
+            return null;
+        }
+
+        ArrayObject<T> list = new ArrayObject<>();
+        Collections.addAll(list, array);
+        return list;
+    }
+
+    /**
+     * Create a list with given elements
+     *
+     * @param array Elements to put in the list
+     * @param <T>   Elements type
+     * @return List with elements in it
+     */
+    public static @SafeVarargs @Nullable <T> List<T> toList(@Nullable T... array)
     {
         if (array == null)
         {
@@ -397,5 +422,12 @@ public final class Utilities
         List<T> list = new ArrayList<>();
         Collections.addAll(list, array);
         return list;
+    }
+
+    /**
+     * To avoid instance
+     */
+    private Utilities()
+    {
     }
 }

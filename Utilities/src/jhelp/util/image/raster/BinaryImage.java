@@ -1,13 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.image.raster;
 
 import java.io.IOException;
@@ -23,24 +25,32 @@ import jhelp.util.io.UtilIO;
 public class BinaryImage
         implements RasterImage
 {
-    /** Background color (Color for 0) */
+    /**
+     * Background color (Color for 0)
+     */
     private       int    background;
-    /** Image data */
+    /**
+     * Image data
+     */
     private final byte[] data;
-    /** Foreground color (Color for 1) */
+    /**
+     * Foreground color (Color for 1)
+     */
     private       int    foreground;
-    /** Height */
+    /**
+     * Height
+     */
     private final int    height;
-    /** Width */
+    /**
+     * Width
+     */
     private final int    width;
 
     /**
      * Create a new instance of BinaryImage
      *
-     * @param width
-     *           Width
-     * @param height
-     *           Height
+     * @param width  Width
+     * @param height Height
      */
     public BinaryImage(final int width, final int height)
     {
@@ -80,26 +90,6 @@ public class BinaryImage
         {
             this.data[i] = (byte) 0;
         }
-    }
-
-    /**
-     * Background color / Color for 0
-     *
-     * @return Background color / Color for 0
-     */
-    public int getBackground()
-    {
-        return this.background;
-    }
-
-    /**
-     * Foreground color / Color for 1
-     *
-     * @return Foreground color / Color for 1
-     */
-    public int getForeground()
-    {
-        return this.foreground;
     }
 
     /**
@@ -144,12 +134,50 @@ public class BinaryImage
     }
 
     /**
+     * Background color / Color for 0
+     *
+     * @return Background color / Color for 0
+     */
+    public int getBackground()
+    {
+        return this.background;
+    }
+
+    /**
+     * Change "background" color (color for 0)
+     *
+     * @param background New "background" color (color for 0)
+     */
+    public void setBackground(final int background)
+    {
+        this.background = background;
+    }
+
+    /**
+     * Foreground color / Color for 1
+     *
+     * @return Foreground color / Color for 1
+     */
+    public int getForeground()
+    {
+        return this.foreground;
+    }
+
+    /**
+     * Change "foreground" color (color for 1)
+     *
+     * @param foreground New "foreground" color (color for 1)
+     */
+    public void setForeground(final int foreground)
+    {
+        this.foreground = foreground;
+    }
+
+    /**
      * Indicates if image pixel bit is active or not
      *
-     * @param x
-     *           X
-     * @param y
-     *           Y
+     * @param x X
+     * @param y Y
      * @return {@code true} if image pixel bit is active or not
      */
     public boolean isOn(final int x, final int y)
@@ -170,10 +198,8 @@ public class BinaryImage
     /**
      * Parse bitmap stream to image data
      *
-     * @param inputStream
-     *           Stream to parse
-     * @throws IOException
-     *            On reading issue
+     * @param inputStream Stream to parse
+     * @throws IOException On reading issue
      */
     public void parseBitmapStream(final InputStream inputStream) throws IOException
     {
@@ -218,36 +244,11 @@ public class BinaryImage
     }
 
     /**
-     * Change "background" color (color for 0)
-     *
-     * @param background
-     *           New "background" color (color for 0)
-     */
-    public void setBackground(final int background)
-    {
-        this.background = background;
-    }
-
-    /**
-     * Change "foreground" color (color for 1)
-     *
-     * @param foreground
-     *           New "foreground" color (color for 1)
-     */
-    public void setForeground(final int foreground)
-    {
-        this.foreground = foreground;
-    }
-
-    /**
      * Activate/deactivate one image pixel
      *
-     * @param x
-     *           X
-     * @param y
-     *           Y
-     * @param on
-     *           New active status
+     * @param x  X
+     * @param y  Y
+     * @param on New active status
      */
     public void setOn(final int x, final int y, final boolean on)
     {
@@ -275,10 +276,8 @@ public class BinaryImage
     /**
      * Change activation status of one pixel
      *
-     * @param x
-     *           X
-     * @param y
-     *           Y
+     * @param x X
+     * @param y Y
      */
     public void switchOnOff(final int x, final int y)
     {

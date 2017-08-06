@@ -1,10 +1,15 @@
-/**
- * Project : JHelpUtil<br>
- * Package : jhelp.util.time<br>
- * Class : LapsTime<br>
- * Date : 5 avr. 2009<br>
- * By JHelp
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
  */
+
 package jhelp.util.time;
 
 import jhelp.util.util.HashCode;
@@ -24,141 +29,6 @@ public final class LapsTime
      * Last measured time
      */
     private static long LAST_MEASURE;
-    /**
-     * Hour part
-     */
-    private        int  hour;
-    /**
-     * Microsecond part
-     */
-    private        int  microsecond;
-    /**
-     * Total of microseconds
-     */
-    private        long microseconds;
-    /**
-     * Millisecond part
-     */
-    private        int  millisecond;
-    /**
-     * minute
-     */
-    private        int  minute;
-    /**
-     * Second part
-     */
-    private        int  second;
-
-    /**
-     * Constructs LapsTime
-     */
-    public LapsTime()
-    {
-    }
-
-    /**
-     * Constructs LapsTime
-     *
-     * @param microsecond Microsecond part
-     */
-    public LapsTime(final int microsecond)
-    {
-        if (microsecond < 0)
-        {
-            throw new IllegalArgumentException("microsecond MUST NOT be <0");
-        }
-        this.microsecond = microsecond;
-        this.updateMicroSeconds();
-    }
-
-    /**
-     * Constructs LapsTime
-     *
-     * @param millisecond Millisecond part
-     * @param microsecond Microsecond part
-     */
-    public LapsTime(final int millisecond, final int microsecond)
-    {
-        this(microsecond);
-        if (millisecond < 0)
-        {
-            throw new IllegalArgumentException("millisecond MUST NOT be <0");
-        }
-        this.millisecond = millisecond;
-        this.updateMicroSeconds();
-    }
-
-    /**
-     * Constructs LapsTime
-     *
-     * @param second      Second part
-     * @param millisecond Millisecond part
-     * @param microsecond Microsecond part
-     */
-    public LapsTime(final int second, final int millisecond, final int microsecond)
-    {
-        this(millisecond, microsecond);
-        if (second < 0)
-        {
-            throw new IllegalArgumentException("second MUST NOT be <0");
-        }
-        this.second = second;
-        this.updateMicroSeconds();
-    }
-
-    /**
-     * Constructs LapsTime
-     *
-     * @param minute      Minute part
-     * @param second      Second part
-     * @param millisecond Millisecond part
-     * @param microsecond Microsecond part
-     */
-    public LapsTime(final int minute, final int second, final int millisecond, final int microsecond)
-    {
-        this(second, millisecond, microsecond);
-        if (minute < 0)
-        {
-            throw new IllegalArgumentException("minute MUST NOT be <0");
-        }
-        this.minute = minute;
-        this.updateMicroSeconds();
-    }
-
-    /**
-     * Constructs LapsTime
-     *
-     * @param hour        Hour part
-     * @param minute      Minute part
-     * @param second      Second part
-     * @param millisecond Millisecond part
-     * @param microsecond Microsecond part
-     */
-    public LapsTime(final int hour, final int minute, final int second, final int millisecond, final int microsecond)
-    {
-        this(minute, second, millisecond, microsecond);
-        if (hour < 0)
-        {
-            throw new IllegalArgumentException("hour MUST NOT be <0");
-        }
-        this.hour = hour;
-        this.updateMicroSeconds();
-    }
-
-    /**
-     * Constructs LapsTime
-     *
-     * @param microseconds Total of microsecond
-     */
-    public LapsTime(final long microseconds)
-    {
-        if (microseconds < 0)
-        {
-            throw new IllegalArgumentException("microseconds must be >=0, not " + microseconds);
-        }
-        this.microseconds = microseconds;
-        this.update();
-    }
 
     /**
      * Add two laps time.<br>
@@ -188,23 +58,6 @@ public final class LapsTime
         result.microseconds = lapsTime1.microseconds + lapsTime2.microseconds;
         result.update();
         return result;
-    }
-
-    /**
-     * Compute each part with total microseconds
-     */
-    private void update()
-    {
-        long microseconds = this.microseconds;
-        this.microsecond = (int) (microseconds % 1000L);
-        microseconds /= 1000L;
-        this.millisecond = (int) (microseconds % 1000L);
-        microseconds /= 1000L;
-        this.second = (int) (microseconds % 60L);
-        microseconds /= 60L;
-        this.minute = (int) (microseconds % 60L);
-        microseconds /= 60L;
-        this.hour = (int) microseconds;
     }
 
     /**
@@ -320,6 +173,171 @@ public final class LapsTime
     }
 
     /**
+     * Hour part
+     */
+    private int  hour;
+    /**
+     * Microsecond part
+     */
+    private int  microsecond;
+    /**
+     * Total of microseconds
+     */
+    private long microseconds;
+    /**
+     * Millisecond part
+     */
+    private int  millisecond;
+    /**
+     * minute
+     */
+    private int  minute;
+    /**
+     * Second part
+     */
+    private int  second;
+
+    /**
+     * Constructs LapsTime
+     */
+    public LapsTime()
+    {
+    }
+
+    /**
+     * Constructs LapsTime
+     *
+     * @param microsecond Microsecond part
+     */
+    public LapsTime(final int microsecond)
+    {
+        if (microsecond < 0)
+        {
+            throw new IllegalArgumentException("microsecond MUST NOT be <0");
+        }
+        this.microsecond = microsecond;
+        this.updateMicroSeconds();
+    }
+
+    /**
+     * Constructs LapsTime
+     *
+     * @param millisecond Millisecond part
+     * @param microsecond Microsecond part
+     */
+    public LapsTime(final int millisecond, final int microsecond)
+    {
+        this(microsecond);
+        if (millisecond < 0)
+        {
+            throw new IllegalArgumentException("millisecond MUST NOT be <0");
+        }
+        this.millisecond = millisecond;
+        this.updateMicroSeconds();
+    }
+
+    /**
+     * Constructs LapsTime
+     *
+     * @param second      Second part
+     * @param millisecond Millisecond part
+     * @param microsecond Microsecond part
+     */
+    public LapsTime(final int second, final int millisecond, final int microsecond)
+    {
+        this(millisecond, microsecond);
+        if (second < 0)
+        {
+            throw new IllegalArgumentException("second MUST NOT be <0");
+        }
+        this.second = second;
+        this.updateMicroSeconds();
+    }
+
+    /**
+     * Constructs LapsTime
+     *
+     * @param minute      Minute part
+     * @param second      Second part
+     * @param millisecond Millisecond part
+     * @param microsecond Microsecond part
+     */
+    public LapsTime(final int minute, final int second, final int millisecond, final int microsecond)
+    {
+        this(second, millisecond, microsecond);
+        if (minute < 0)
+        {
+            throw new IllegalArgumentException("minute MUST NOT be <0");
+        }
+        this.minute = minute;
+        this.updateMicroSeconds();
+    }
+
+    /**
+     * Constructs LapsTime
+     *
+     * @param hour        Hour part
+     * @param minute      Minute part
+     * @param second      Second part
+     * @param millisecond Millisecond part
+     * @param microsecond Microsecond part
+     */
+    public LapsTime(final int hour, final int minute, final int second, final int millisecond, final int microsecond)
+    {
+        this(minute, second, millisecond, microsecond);
+        if (hour < 0)
+        {
+            throw new IllegalArgumentException("hour MUST NOT be <0");
+        }
+        this.hour = hour;
+        this.updateMicroSeconds();
+    }
+
+    /**
+     * Constructs LapsTime
+     *
+     * @param microseconds Total of microsecond
+     */
+    public LapsTime(final long microseconds)
+    {
+        if (microseconds < 0)
+        {
+            throw new IllegalArgumentException("microseconds must be >=0, not " + microseconds);
+        }
+        this.microseconds = microseconds;
+        this.update();
+    }
+
+    /**
+     * Compute each part with total microseconds
+     */
+    private void update()
+    {
+        long microseconds = this.microseconds;
+        this.microsecond = (int) (microseconds % 1000L);
+        microseconds /= 1000L;
+        this.millisecond = (int) (microseconds % 1000L);
+        microseconds /= 1000L;
+        this.second = (int) (microseconds % 60L);
+        microseconds /= 60L;
+        this.minute = (int) (microseconds % 60L);
+        microseconds /= 60L;
+        this.hour = (int) microseconds;
+    }
+
+    /**
+     * Compute total microseconds with each parts
+     */
+    private void updateMicroSeconds()
+    {
+        this.microseconds = this.microsecond + (1000L * (this.millisecond + (1000L * (this.second + (60L * (this.minute
+                                                                                                            +
+                                                                                                            (60L *
+                                                                                                             this.hour)))))));
+        this.update();
+    }
+
+    /**
      * Add some hour to the time
      *
      * @param hour Numbre of hour to add
@@ -347,22 +365,6 @@ public final class LapsTime
     public void addMicroseconds(final long microseconds)
     {
         this.setMicroseconds(microseconds + this.microseconds);
-    }
-
-    /**
-     * Modify the time, precise the new time in micorseconds
-     *
-     * @param microseconds Neww time in microseconds
-     */
-    public void setMicroseconds(final long microseconds)
-    {
-        if (microseconds < 0)
-        {
-            throw new IllegalArgumentException("microsenconds MUST NOT be < 0");
-        }
-
-        this.microseconds = microseconds;
-        this.update();
     }
 
     /**
@@ -415,16 +417,8 @@ public final class LapsTime
     @Override
     public int compareTo(final LapsTime lapsTime)
     {
-        final long sub = lapsTime.microseconds - this.microseconds;
-        if (sub == 0L)
-        {
-            return 0;
-        }
-        if (sub > 0L)
-        {
-            return 1;
-        }
-        return -1;
+        return Long.compare(lapsTime.microseconds, this.microseconds);
+
     }
 
     /**
@@ -450,18 +444,6 @@ public final class LapsTime
         }
         this.hour = hour;
         this.updateMicroSeconds();
-    }
-
-    /**
-     * Compute total microseconds with each parts
-     */
-    private void updateMicroSeconds()
-    {
-        this.microseconds = this.microsecond + (1000L * (this.millisecond + (1000L * (this.second + (60L * (this.minute
-                                                                                                            +
-                                                                                                            (60L *
-                                                                                                             this.hour)))))));
-        this.update();
     }
 
     /**
@@ -678,6 +660,22 @@ public final class LapsTime
     {
         this.microseconds = 0;
         this.microsecond = this.millisecond = this.second = this.minute = this.hour = 0;
+    }
+
+    /**
+     * Modify the time, precise the new time in micorseconds
+     *
+     * @param microseconds Neww time in microseconds
+     */
+    public void setMicroseconds(final long microseconds)
+    {
+        if (microseconds < 0)
+        {
+            throw new IllegalArgumentException("microsenconds MUST NOT be < 0");
+        }
+
+        this.microseconds = microseconds;
+        this.update();
     }
 
     /**

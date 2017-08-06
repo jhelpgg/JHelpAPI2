@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.gui.dynamic;
 
 import jhelp.util.math.Math2;
@@ -62,7 +74,7 @@ public final class BouncingInterpolation implements Interpolation
         while (Math2.compare(percent, amplitude) >= 0 && !Math2.isNul(amplitude) && !Math2.isNul(minimum) &&
                !Math2.isNul(percent) && left > 0)
         {
-            minimum *=0.56789f;
+            minimum *= 0.56789f;
             percent -= amplitude;
             free -= amplitude;
             amplitude = free * 0.56789f;

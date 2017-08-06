@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.io;
 
 /**
@@ -9,26 +21,24 @@ package jhelp.util.io;
  * {@link UtilIO#readBinarizable(Class, java.io.InputStream)}, {@link UtilIO#readBinarizableNamed(java.io.InputStream)},
  * {@link UtilIO#writeBinarizable(Binarizable, java.io.OutputStream)} and
  * {@link UtilIO#writeBinarizableNamed(Binarizable, java.io.OutputStream)} for transfer binarizables
- * 
+ *
  * @author JHelp
  */
 public interface Binarizable
 {
-   /**
-    * Parse the array for fill binarizable information.<br>
-    * See {@link #serializeBinary(ByteArray)} for fill information
-    * 
-    * @param byteArray
-    *           Byte array to parse
-    */
-   void parseBinary(ByteArray byteArray);
+    /**
+     * Parse the array for fill binarizable information.<br>
+     * See {@link #serializeBinary(ByteArray)} for fill information
+     *
+     * @param byteArray Byte array to parse
+     */
+    void parseBinary(ByteArray byteArray);
 
-   /**
-    * Write the binarizable information inside a byte array.<br>
-    * See {@link #parseBinary(ByteArray)} for read information
-    * 
-    * @param byteArray
-    *           Byte array where write
-    */
-   void serializeBinary(ByteArray byteArray);
+    /**
+     * Write the binarizable information inside a byte array.<br>
+     * See {@link #parseBinary(ByteArray)} for read information
+     *
+     * @param byteArray Byte array where write
+     */
+    void serializeBinary(ByteArray byteArray);
 }

@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.list;
 
 import com.sun.istack.internal.Nullable;
@@ -32,14 +44,14 @@ public final class Pair<T1, T2>
     }
 
     /**
-     * String representation
+     * Hash code
      *
-     * @return String representation
+     * @return Hash code
      */
     @Override
-    public String toString()
+    public int hashCode()
     {
-        return this.first + ":" + this.second;
+        return this.first.hashCode() * 31 + this.second.hashCode();
     }
 
     /**
@@ -73,13 +85,13 @@ public final class Pair<T1, T2>
     }
 
     /**
-     * Hash code
+     * String representation
      *
-     * @return Hash code
+     * @return String representation
      */
     @Override
-    public int hashCode()
+    public String toString()
     {
-        return this.first.hashCode() * 31 + this.second.hashCode();
+        return this.first + ":" + this.second;
     }
 }

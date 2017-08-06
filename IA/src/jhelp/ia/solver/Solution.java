@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.ia.solver;
 
 /**
@@ -29,6 +41,11 @@ public class Solution<T> extends SolverNode<T>
         this.solution = solution;
     }
 
+    protected SolverNode<T> solveInternal()
+    {
+        return this;
+    }
+
     public boolean isNoSolution()
     {
         return this.solution == null;
@@ -37,10 +54,5 @@ public class Solution<T> extends SolverNode<T>
     public T solution()
     {
         return this.solution;
-    }
-
-    protected SolverNode<T> solveInternal()
-    {
-        return this;
     }
 }

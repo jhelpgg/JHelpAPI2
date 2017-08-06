@@ -1,12 +1,24 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.list;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import jhelp.util.thread.ConsumerTask;
 import jhelp.util.thread.Filter;
 import jhelp.util.thread.Future;
 import jhelp.util.thread.Task;
-import jhelp.util.thread.ConsumerTask;
 
 /**
  * Array of integer.<br>
@@ -84,25 +96,6 @@ public final class ArrayLong implements ParallelList<Long, ArrayLong>, SizedIter
     }
 
     /**
-     * Call by garbage collector when want free some memory <br>
-     * <br>
-     * <b>Parent documentation:</b><br>
-     * {@inheritDoc}
-     *
-     * @throws Throwable On issue
-     * @see Object#finalize()
-     */
-    @Override
-    protected void finalize() throws Throwable
-    {
-        this.array = null;
-
-        this.size = 0;
-
-        super.finalize();
-    }
-
-    /**
      * Add an integer is the array
      *
      * @param integer Integer to add
@@ -131,6 +124,164 @@ public final class ArrayLong implements ParallelList<Long, ArrayLong>, SizedIter
         }
 
         toAdd.sync(this::add);
+    }
+
+    /**
+     * Call by garbage collector when want free some memory <br>
+     * <br>
+     * <b>Parent documentation:</b><br>
+     * {@inheritDoc}
+     *
+     * @throws Throwable On issue
+     * @see Object#finalize()
+     */
+    @Override
+    protected void finalize() throws Throwable
+    {
+        this.array = null;
+
+        this.size = 0;
+
+        super.finalize();
+    }
+
+    /**
+     * Obtain an element from the list that match the given filter.<br>
+     * The result can be any element in list that match.<br>
+     * If no element found, the result future will be on error.<br>
+     * The search is do in separate thread
+     *
+     * @param filter Filter to use for search
+     * @return Future link to the search. It will contains the found element or be on error if no elements match
+     */
+    @Override
+    public Future<Long> any(final Filter<Long> filter)
+    {
+        return Future.firstMatch(this, filter);
+    }
+
+    /**
+     * Execute a task in parallel on each element (filtered gby given filter) of the list.<br>
+     * Tasks are launch, and method return immediately<br>
+     * Note:
+     * <ul>
+     * <li> Their no guarantee about the order of elements' list meet by the task. If order mandatory use {@link #consumeAsync(ConsumerTask, Filter)}</li>
+     * <li> Since order is not important, thread management is simplified, so it is faster than {@link #consumeAsync(ConsumerTask, Filter)} </li>
+     * </ul>
+     *
+     * @param task   Task to play
+     * @param filter Filter to select elements. If {@code null}, all elements are taken
+     * @return Future to track/link to the end of all parallel tasks
+     */
+    @Override
+    public Future<Void> async(final ConsumerTask<Long> task, final Filter<Long> filter)
+    {
+        return ForEach.async(this.toLongArray(), task, filter);
+    }
+
+    /**
+     * Execute task for each element (that respects the given filter) of the list
+     *
+     * @param task   Task to do
+     * @param filter Filter to select elements. If {@code null}, all elements are taken
+     * @return This list itself, convenient for chaining
+     */
+    @Override
+    public ArrayLong consume(final ConsumerTask<Long> task, final Filter<Long> filter)
+    {
+        for (Long element : this)
+        {
+            if (filter == null || filter.isFiltered(element))
+            {
+                task.consume(element);
+            }
+        }
+
+        return this;
+    }
+
+    /**
+     * Create list composed of filtered elements of the list
+     *
+     * @param filter Filter to select elements
+     * @return List of filtered elements
+     */
+    @Override
+    public ArrayLong filter(final Filter<Long> filter)
+    {
+        final ArrayLong arrayInt = new ArrayLong();
+        this.consume(arrayInt::add, filter);
+        return arrayInt;
+    }
+
+    /**
+     * Execute task for each element (that respects the given filter) of the list and collect the result in other list
+     *
+     * @param task   Task to do
+     * @param filter Filter to select elements. If {@code null}, all elements are taken
+     * @param <R>    Result list element type
+     * @return List with transformed elements
+     */
+    @Override
+    public <R> ParallelList<R, ?> flatMap(
+            final Task<Long, ParallelList<R, ?>> task, final Filter<Long> filter)
+    {
+        final ArrayObject<R>   arrayObject = new ArrayObject<>();
+        final Task<R, Boolean> add         = arrayObject::add;
+
+        for (Long element : this)
+        {
+            if (filter == null || filter.isFiltered(element))
+            {
+                task.playTask(element).map(add);
+            }
+        }
+
+        return arrayObject;
+    }
+
+    /**
+     * Execute a task in parallel on each element (filtered gby given filter) of the list.<br>
+     * Tasks are launch, and method return immediately<br>
+     * Note:
+     * <ul>
+     * <li> Their no guarantee about the order of elements' list meet by the task. If order mandatory use {@link #consumeAsync(ConsumerTask, Filter)}</li>
+     * <li> Since order is not important, thread management is simplified, so it is faster than {@link #consumeAsync(ConsumerTask, Filter)} </li>
+     * </ul>
+     *
+     * @param task   Task to play
+     * @param filter Filter to select elements. If {@code null}, all elements are taken
+     * @return The list itself, convenient for chaining
+     */
+    @Override
+    public ArrayLong forEach(final ConsumerTask<Long> task, final Filter<Long> filter)
+    {
+        ForEach.forEach(this.toLongArray(), task, filter);
+        return this;
+    }
+
+    /**
+     * Execute task for each element (that respects the given filter) of the list and collect the result in other list
+     *
+     * @param task   Task to do
+     * @param filter Filter to select elements. If {@code null}, all elements are taken
+     * @param <R>    Result list element type
+     * @return List with transformed elements
+     */
+    @Override
+    public <R> ParallelList<R, ?> map(final Task<Long, R> task, final Filter<Long> filter)
+    {
+        final ArrayObject<R> arrayObject = new ArrayObject<>();
+
+        for (Long element : this)
+        {
+            if (filter == null || filter.isFiltered(element))
+            {
+                arrayObject.add(task.playTask(element));
+            }
+        }
+
+        return arrayObject;
     }
 
     /**
@@ -193,133 +344,6 @@ public final class ArrayLong implements ParallelList<Long, ArrayLong>, SizedIter
         this.size = 0;
         this.array = null;
         this.sorted = true;
-    }
-
-    /**
-     * Returns an iterator over elements of type {@code T}.
-     *
-     * @return an Iterator.
-     */
-    @Override
-    public Iterator<Long> iterator()
-    {
-        return this.iteratorLong();
-    }
-
-    public EnumerationIteratorLong iteratorLong()
-    {
-        return new EnumerationIteratorLong(Arrays.copyOf(this.array, this.size));
-    }
-
-    /**
-     * Iterable size
-     *
-     * @return Iterable size
-     */
-    @Override
-    public int size()
-    {
-        return this.getSize();
-    }
-
-    public Long[] toLongArray()
-    {
-        Long[] array = new Long[this.size];
-
-        for (int index = this.size - 1; index >= 0; index--)
-        {
-            array[index] = this.array[index];
-        }
-
-        return array;
-    }
-
-    /**
-     * Execute a task in parallel on each element (filtered gby given filter) of the list.<br>
-     * Tasks are launch, and method return immediately<br>
-     * Note:
-     * <ul>
-     * <li> Their no guarantee about the order of elements' list meet by the task. If order mandatory use {@link #consumeAsync(ConsumerTask, Filter)}</li>
-     * <li> Since order is not important, thread management is simplified, so it is faster than {@link #consumeAsync(ConsumerTask, Filter)} </li>
-     * </ul>
-     *
-     * @param task   Task to play
-     * @param filter Filter to select elements. If {@code null}, all elements are taken
-     * @return The list itself, convenient for chaining
-     */
-    @Override
-    public ArrayLong forEach(final ConsumerTask<Long> task, final Filter<Long> filter)
-    {
-        ForEach.forEach(this.toLongArray(), task, filter);
-        return this;
-    }
-
-    /**
-     * Execute a task in parallel on each element (filtered gby given filter) of the list.<br>
-     * The method will wait all parallel task finished before return<br>
-     * Note:
-     * <ul>
-     * <li> Their no guarantee about the order of elements' list meet by the task. If order mandatory use {@link #consumeAsync(ConsumerTask, Filter)} and {@link Future#waitFinish()}</li>
-     * <li> Since order is not important, thread management is simplified, so it is faster than {@link #consumeAsync(ConsumerTask, Filter)} and {@link Future#waitFinish()} </li>
-     * </ul>
-     *
-     * @param task   Task to play
-     * @param filter Filter to select elements. If {@code null}, all elements are taken
-     * @return The list itself, convenient for chaining
-     */
-    @Override
-    public ArrayLong sync(final ConsumerTask<Long> task, final Filter<Long> filter)
-    {
-        ForEach.sync(this.toLongArray(), task, filter);
-        return this;
-    }
-
-    /**
-     * Execute a task in parallel on each element (filtered gby given filter) of the list.<br>
-     * Tasks are launch, and method return immediately<br>
-     * Note:
-     * <ul>
-     * <li> Their no guarantee about the order of elements' list meet by the task. If order mandatory use {@link #consumeAsync(ConsumerTask, Filter)}</li>
-     * <li> Since order is not important, thread management is simplified, so it is faster than {@link #consumeAsync(ConsumerTask, Filter)} </li>
-     * </ul>
-     *
-     * @param task   Task to play
-     * @param filter Filter to select elements. If {@code null}, all elements are taken
-     * @return Future to track/link to the end of all parallel tasks
-     */
-    @Override
-    public Future<Void> async(final ConsumerTask<Long> task, final Filter<Long> filter)
-    {
-        return ForEach.async(this.toLongArray(), task, filter);
-    }
-
-    /**
-     * Create list composed of filtered elements of the list
-     *
-     * @param filter Filter to select elements
-     * @return List of filtered elements
-     */
-    @Override
-    public ArrayLong filter(final Filter<Long> filter)
-    {
-        final ArrayLong arrayInt = new ArrayLong();
-        this.consume(arrayInt::add, filter);
-        return arrayInt;
-    }
-
-    /**
-     * Obtain an element from the list that match the given filter.<br>
-     * The result can be any element in list that match.<br>
-     * If no element found, the result future will be on error.<br>
-     * The search is do in separate thread
-     *
-     * @param filter Filter to use for search
-     * @return Future link to the search. It will contains the found element or be on error if no elements match
-     */
-    @Override
-    public Future<Long> any(final Filter<Long> filter)
-    {
-        return Future.firstMatch(this, filter);
     }
 
     /**
@@ -522,6 +546,37 @@ public final class ArrayLong implements ParallelList<Long, ArrayLong>, SizedIter
     }
 
     /**
+     * Execute a task in parallel on each element (filtered gby given filter) of the list.<br>
+     * The method will wait all parallel task finished before return<br>
+     * Note:
+     * <ul>
+     * <li> Their no guarantee about the order of elements' list meet by the task. If order mandatory use {@link #consumeAsync(ConsumerTask, Filter)} and {@link Future#waitFinish()}</li>
+     * <li> Since order is not important, thread management is simplified, so it is faster than {@link #consumeAsync(ConsumerTask, Filter)} and {@link Future#waitFinish()} </li>
+     * </ul>
+     *
+     * @param task   Task to play
+     * @param filter Filter to select elements. If {@code null}, all elements are taken
+     * @return The list itself, convenient for chaining
+     */
+    @Override
+    public ArrayLong sync(final ConsumerTask<Long> task, final Filter<Long> filter)
+    {
+        ForEach.sync(this.toLongArray(), task, filter);
+        return this;
+    }
+
+    /**
+     * Returns an iterator over elements of type {@code T}.
+     *
+     * @return an Iterator.
+     */
+    @Override
+    public Iterator<Long> iterator()
+    {
+        return this.iteratorLong();
+    }
+
+    /**
      * remove an integer
      *
      * @param index Index of integer to remove
@@ -553,6 +608,11 @@ public final class ArrayLong implements ParallelList<Long, ArrayLong>, SizedIter
 
         this.sorted = (this.sorted) && ((index == 0) || (integer >= this.array[index - 1]))
                       && ((index == (this.size - 1)) || (integer <= this.array[index + 1]));
+    }
+
+    public EnumerationIteratorLong iteratorLong()
+    {
+        return new EnumerationIteratorLong(Arrays.copyOf(this.array, this.size));
     }
 
     /**
@@ -615,6 +675,17 @@ public final class ArrayLong implements ParallelList<Long, ArrayLong>, SizedIter
     }
 
     /**
+     * Iterable size
+     *
+     * @return Iterable size
+     */
+    @Override
+    public int size()
+    {
+        return this.getSize();
+    }
+
+    /**
      * String representation <br>
      * <br>
      * <b>Parent documentation:</b><br>
@@ -643,73 +714,16 @@ public final class ArrayLong implements ParallelList<Long, ArrayLong>, SizedIter
 
         return stringBuilder.toString();
     }
-    /**
-     * Execute task for each element (that respects the given filter) of the list and collect the result in other list
-     *
-     * @param task   Task to do
-     * @param filter Filter to select elements. If {@code null}, all elements are taken
-     * @param <R>    Result list element type
-     * @return List with transformed elements
-     */
-    @Override
-    public <R> ParallelList<R, ?> map(final Task<Long, R> task, final Filter<Long> filter)
-    {
-        final ArrayObject<R> arrayObject = new ArrayObject<>();
 
-        for (Long element : this)
+    public Long[] toLongArray()
+    {
+        Long[] array = new Long[this.size];
+
+        for (int index = this.size - 1; index >= 0; index--)
         {
-            if (filter == null || filter.isFiltered(element))
-            {
-                arrayObject.add(task.playTask(element));
-            }
+            array[index] = this.array[index];
         }
 
-        return arrayObject;
-    }
-    /**
-     * Execute task for each element (that respects the given filter) of the list
-     *
-     * @param task   Task to do
-     * @param filter Filter to select elements. If {@code null}, all elements are taken
-     * @return This list itself, convenient for chaining
-     */
-    @Override
-    public ArrayLong consume(final ConsumerTask<Long> task, final Filter<Long> filter)
-    {
-        for (Long element : this)
-        {
-            if (filter == null || filter.isFiltered(element))
-            {
-                task.consume(element);
-            }
-        }
-
-        return this;
-    }
-
-    /**
-     * Execute task for each element (that respects the given filter) of the list and collect the result in other list
-     *
-     * @param task   Task to do
-     * @param filter Filter to select elements. If {@code null}, all elements are taken
-     * @param <R>    Result list element type
-     * @return List with transformed elements
-     */
-    @Override
-    public <R> ParallelList<R, ?> flatMap(
-            final Task<Long, ParallelList<R, ?>> task, final Filter<Long> filter)
-    {
-        final ArrayObject<R>   arrayObject = new ArrayObject<>();
-        final Task<R, Boolean> add         = arrayObject::add;
-
-        for (Long element : this)
-        {
-            if (filter == null || filter.isFiltered(element))
-            {
-                task.playTask(element).map(add);
-            }
-        }
-
-        return arrayObject;
+        return array;
     }
 }

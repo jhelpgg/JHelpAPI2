@@ -1,13 +1,13 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any
- * damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
 package jhelp.util.cache;
 
@@ -39,6 +39,32 @@ public final class Cache<T>
     public Cache()
     {
         this.cache = new HashMap<>();
+    }
+
+    /**
+     * Add element inside the cache
+     *
+     * @param key     Key associate
+     * @param element Describe how create element
+     */
+    public void add(@NotNull final String key, @NotNull final CacheElement<T> element)
+    {
+        if (key == null)
+        {
+            throw new NullPointerException("key MUST NOT be null");
+        }
+
+        if (element == null)
+        {
+            throw new NullPointerException("element MUST NOT be null");
+        }
+
+        final CacheElement<T> previous = this.cache.put(key, element);
+
+        if ((previous != null) && (!previous.equals(element)))
+        {
+            previous.clear();
+        }
     }
 
     /**
@@ -80,32 +106,6 @@ public final class Cache<T>
 
         this.add(key, cacheElement);
         return this.get(key);
-    }
-
-    /**
-     * Add element inside the cache
-     *
-     * @param key     Key associate
-     * @param element Describe how create element
-     */
-    public void add(@NotNull final String key, @NotNull final CacheElement<T> element)
-    {
-        if (key == null)
-        {
-            throw new NullPointerException("key MUST NOT be null");
-        }
-
-        if (element == null)
-        {
-            throw new NullPointerException("element MUST NOT be null");
-        }
-
-        final CacheElement<T> previous = this.cache.put(key, element);
-
-        if ((previous != null) && (!previous.equals(element)))
-        {
-            previous.clear();
-        }
     }
 
     /**

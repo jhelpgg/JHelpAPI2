@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.thread;
 
 import jhelp.util.debug.Debug;
@@ -11,14 +23,10 @@ import org.junit.Test;
  */
 public class TestReaderWriter
 {
-    private static final int           READER_TIME = 123;
-    private static final int           WRITER_TIME = 234;
-    private static final StringBuilder information = new StringBuilder();
-
     static class Reader implements ConsumerTask<String>
     {
-        private final String id;
         private final String expected;
+        private final String id;
 
         public Reader(final String id, String expected)
         {
@@ -73,6 +81,10 @@ public class TestReaderWriter
             return this.id;
         }
     }
+
+    private static final int           READER_TIME = 123;
+    private static final int           WRITER_TIME = 234;
+    private static final StringBuilder information = new StringBuilder();
 
     @Test
     public void testReaderWriter()

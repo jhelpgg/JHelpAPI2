@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.thread;
 
 import com.sun.istack.internal.NotNull;
@@ -9,17 +21,17 @@ import com.sun.istack.internal.Nullable;
 class TaskElement<P, R> implements Comparable<TaskElement<P, R>>
 {
     /**
-     * Time when play the task
+     * Task parameter
      */
-    final long       time;
+    final P          parameter;
     /**
      * Task to play
      */
     final Task<P, R> task;
     /**
-     * Task parameter
+     * Time when play the task
      */
-    final P          parameter;
+    final long       time;
 
     /**
      * Create the task element
@@ -33,6 +45,21 @@ class TaskElement<P, R> implements Comparable<TaskElement<P, R>>
         this.time = time;
         this.task = task;
         this.parameter = parameter;
+    }
+
+    /**
+     * Play embed task
+     */
+    void playTask()
+    {
+        try
+        {
+            this.task.taskResult(this.task.playTask(this.parameter));
+        }
+        catch (Throwable throwable)
+        {
+            this.task.taskError(new TaskException("Issue while execute a task", throwable));
+        }
     }
 
     /**
@@ -76,31 +103,6 @@ class TaskElement<P, R> implements Comparable<TaskElement<P, R>>
     @Override
     public int compareTo(final TaskElement<P, R> taskElement)
     {
-        if (this.time < taskElement.time)
-        {
-            return -1;
-        }
-
-        if (this.time > taskElement.time)
-        {
-            return 1;
-        }
-
-        return 0;
-    }
-
-    /**
-     * Play embed task
-     */
-    void playTask()
-    {
-        try
-        {
-            this.task.taskResult(this.task.playTask(this.parameter));
-        }
-        catch (Throwable throwable)
-        {
-            this.task.taskError(new TaskException("Issue while execute a task", throwable));
-        }
+        return Long.compare(this.time, taskElement.time);
     }
 }

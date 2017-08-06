@@ -1,4 +1,16 @@
 /*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
+/*
  * License :
  * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any damage it may cause.
  * You can use, modify, the code as your need for any usage.
@@ -43,19 +55,6 @@ import jhelp.util.util.HashCode;
 public class ArrayJSON
         implements Iterable<ValueJSON>
 {
-    /**
-     * List of values
-     */
-    private final List<ValueJSON> values;
-
-    /**
-     * Create a new instance of ArrayJSON
-     */
-    public ArrayJSON()
-    {
-        this.values = new ArrayList<ValueJSON>();
-    }
-
     /**
      * Parse array from stream
      *
@@ -123,6 +122,94 @@ public class ArrayJSON
         }
 
         return new Pair<ArrayJSON, Integer>(arrayJSON, last);
+    }
+
+    /**
+     * List of values
+     */
+    private final List<ValueJSON> values;
+
+    /**
+     * Create a new instance of ArrayJSON
+     */
+    public ArrayJSON()
+    {
+        this.values = new ArrayList<ValueJSON>();
+    }
+
+    /**
+     * Serialize inside a stream
+     *
+     * @param bufferedWriter Stream where write
+     * @param compact        Indicates if compact version
+     * @param headerSize     Header size
+     * @throws IOException On writing issue
+     */
+    void serialize(final BufferedWriter bufferedWriter, final boolean compact, int headerSize) throws IOException
+    {
+        String head = UtilText.repeat('\t', headerSize);
+
+        if (!compact)
+        {
+            bufferedWriter.write(head);
+        }
+
+        bufferedWriter.write("[");
+
+        if (!compact)
+        {
+            bufferedWriter.newLine();
+            headerSize++;
+            head = UtilText.repeat('\t', headerSize);
+        }
+
+        final int length = this.values.size();
+
+        if (length > 0)
+        {
+            ValueJSON valueJSON = this.values.get(0);
+            ValueType valueType = valueJSON.getType();
+
+            if ((!compact) && (valueType != ValueType.ARRAY) && (valueType != ValueType.OBJECT))
+            {
+                bufferedWriter.write(head);
+            }
+
+            valueJSON.serialize(bufferedWriter, compact, headerSize);
+
+            for (int i = 1; i < length; i++)
+            {
+                bufferedWriter.write(",");
+                valueJSON = this.values.get(i);
+                valueType = valueJSON.getType();
+
+                if (!compact)
+                {
+                    bufferedWriter.newLine();
+
+                    if ((valueType != ValueType.ARRAY) && (valueType != ValueType.OBJECT))
+                    {
+                        bufferedWriter.write(head);
+                    }
+                }
+
+                valueJSON.serialize(bufferedWriter, compact, headerSize);
+            }
+        }
+
+        if (!compact)
+        {
+            if (length > 0)
+            {
+                bufferedWriter.newLine();
+            }
+
+            headerSize--;
+            bufferedWriter.write(UtilText.repeat('\t', headerSize));
+        }
+
+        bufferedWriter.write("]");
+        bufferedWriter.flush();
     }
 
     /**
@@ -257,14 +344,21 @@ public class ArrayJSON
     }
 
     /**
-     * Obtain a JSON value
+     * Array JSON value
      *
      * @param index Value index
      * @return The value
      */
-    public ValueJSON getValue(final int index)
+    public ArrayJSON getArray(int index)
     {
-        return this.values.get(index);
+        ValueJSON valueJSON = this.values.get(index);
+
+        if (valueJSON.isNull())
+        {
+            return null;
+        }
+
+        return valueJSON.getArray();
     }
 
     /**
@@ -277,6 +371,30 @@ public class ArrayJSON
     {
         return this.values.get(index)
                           .getBoolean();
+    }
+
+    /**
+     * Double value
+     *
+     * @param index Value index
+     * @return The value
+     */
+    public double getDouble(int index)
+    {
+        return this.values.get(index)
+                          .getNumber();
+    }
+
+    /**
+     * Float value
+     *
+     * @param index Value index
+     * @return The value
+     */
+    public float getFloat(int index)
+    {
+        return (float) this.values.get(index)
+                                  .getNumber();
     }
 
     /**
@@ -304,27 +422,21 @@ public class ArrayJSON
     }
 
     /**
-     * Float value
+     * Object JSON value
      *
      * @param index Value index
      * @return The value
      */
-    public float getFloat(int index)
+    public ObjectJSON getObject(int index)
     {
-        return (float) this.values.get(index)
-                                  .getNumber();
-    }
+        ValueJSON valueJSON = this.values.get(index);
 
-    /**
-     * Double value
-     *
-     * @param index Value index
-     * @return The value
-     */
-    public double getDouble(int index)
-    {
-        return this.values.get(index)
-                          .getNumber();
+        if (valueJSON.isNull())
+        {
+            return null;
+        }
+
+        return valueJSON.getObject();
     }
 
     /**
@@ -346,51 +458,14 @@ public class ArrayJSON
     }
 
     /**
-     * Object JSON value
+     * Obtain a JSON value
      *
      * @param index Value index
      * @return The value
      */
-    public ObjectJSON getObject(int index)
+    public ValueJSON getValue(final int index)
     {
-        ValueJSON valueJSON = this.values.get(index);
-
-        if (valueJSON.isNull())
-        {
-            return null;
-        }
-
-        return valueJSON.getObject();
-    }
-
-    /**
-     * Array JSON value
-     *
-     * @param index Value index
-     * @return The value
-     */
-    public ArrayJSON getArray(int index)
-    {
-        ValueJSON valueJSON = this.values.get(index);
-
-        if (valueJSON.isNull())
-        {
-            return null;
-        }
-
-        return valueJSON.getArray();
-    }
-
-    /**
-     * Indicates if a element is {@code null}
-     *
-     * @param index Element idex
-     * @return {@code true} if element is {@code null}
-     */
-    public boolean isNull(int index)
-    {
-        return this.values.get(index)
-                          .isNull();
+        return this.values.get(index);
     }
 
     /**
@@ -520,6 +595,18 @@ public class ArrayJSON
     }
 
     /**
+     * Indicates if a element is {@code null}
+     *
+     * @param index Element idex
+     * @return {@code true} if element is {@code null}
+     */
+    public boolean isNull(int index)
+    {
+        return this.values.get(index)
+                          .isNull();
+    }
+
+    /**
      * Iterator on values <br>
      * <br>
      * <b>Parent documentation:</b><br>
@@ -586,80 +673,5 @@ public class ArrayJSON
     public void serialize(final BufferedWriter bufferedWriter, final boolean compact) throws IOException
     {
         this.serialize(bufferedWriter, compact, 0);
-    }
-
-    /**
-     * Serialize inside a stream
-     *
-     * @param bufferedWriter Stream where write
-     * @param compact        Indicates if compact version
-     * @param headerSize     Header size
-     * @throws IOException On writing issue
-     */
-    void serialize(final BufferedWriter bufferedWriter, final boolean compact, int headerSize) throws IOException
-    {
-        String head = UtilText.repeat('\t', headerSize);
-
-        if (!compact)
-        {
-            bufferedWriter.write(head);
-        }
-
-        bufferedWriter.write("[");
-
-        if (!compact)
-        {
-            bufferedWriter.newLine();
-            headerSize++;
-            head = UtilText.repeat('\t', headerSize);
-        }
-
-        final int length = this.values.size();
-
-        if (length > 0)
-        {
-            ValueJSON valueJSON = this.values.get(0);
-            ValueType valueType = valueJSON.getType();
-
-            if ((!compact) && (valueType != ValueType.ARRAY) && (valueType != ValueType.OBJECT))
-            {
-                bufferedWriter.write(head);
-            }
-
-            valueJSON.serialize(bufferedWriter, compact, headerSize);
-
-            for (int i = 1; i < length; i++)
-            {
-                bufferedWriter.write(",");
-                valueJSON = this.values.get(i);
-                valueType = valueJSON.getType();
-
-                if (!compact)
-                {
-                    bufferedWriter.newLine();
-
-                    if ((valueType != ValueType.ARRAY) && (valueType != ValueType.OBJECT))
-                    {
-                        bufferedWriter.write(head);
-                    }
-                }
-
-                valueJSON.serialize(bufferedWriter, compact, headerSize);
-            }
-        }
-
-        if (!compact)
-        {
-            if (length > 0)
-            {
-                bufferedWriter.newLine();
-            }
-
-            headerSize--;
-            bufferedWriter.write(UtilText.repeat('\t', headerSize));
-        }
-
-        bufferedWriter.write("]");
-        bufferedWriter.flush();
     }
 }

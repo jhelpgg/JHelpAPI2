@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.list;
 
 import com.sun.istack.internal.NotNull;
@@ -21,25 +33,25 @@ public final class EnumerationIteratorInt
                    Spliterator.OfInt
 {
     /**
+     * Embed array
+     */
+    private       int[]                array;
+    /**
      * Embed enumeration
      */
     private final Enumeration<Integer> enumeration;
+    /**
+     * Read index in array
+     */
+    private       int                  index;
     /**
      * Embed iterator
      */
     private final Iterator<Integer>    iterator;
     /**
-     * Embed array
-     */
-    private       int[]            array;
-    /**
-     * Read index in array
-     */
-    private       int                 index;
-    /**
      * Indicates if remove is allowed
      */
-    private final boolean             removeAllowed;
+    private final boolean              removeAllowed;
 
     /**
      * Create with an {@link Enumeration}
@@ -96,6 +108,81 @@ public final class EnumerationIteratorInt
     }
 
     /**
+     * Returns an estimate of the number of elements that would be
+     * encountered by a {@link #forEachRemaining} traversal, or returns {@link
+     * Long#MAX_VALUE} if infinite, unknown, or too expensive to compute.
+     * <p>
+     * <p>If this Spliterator is {@link #SIZED} and has not yet been partially
+     * traversed or split, or this Spliterator is {@link #SUBSIZED} and has
+     * not yet been partially traversed, this estimate must be an accurate
+     * count of elements that would be encountered by a complete traversal.
+     * Otherwise, this estimate may be arbitrarily inaccurate, but must decrease
+     * as specified across invocations of {@link #trySplit}.
+     *
+     * @return the estimated size, or {@code Long.MAX_VALUE} if infinite,
+     * unknown, or too expensive to compute.
+     * @apiNote Even an inexact estimate is often useful and inexpensive to compute.
+     * For example, a sub-spliterator of an approximately balanced binary tree
+     * may return a value that estimates the number of elements to be half of
+     * that of its parent; if the root Spliterator does not maintain an
+     * accurate count, it could estimate size to be the power of two
+     * corresponding to its maximum depth.
+     */
+    @Override
+    public long estimateSize()
+    {
+        if (this.iterator != null)
+        {
+            return Long.MAX_VALUE;
+        }
+
+        if (this.enumeration != null)
+        {
+            return Long.MAX_VALUE;
+        }
+
+        return this.array.length - this.index;
+    }
+
+    /**
+     * Returns a set of characteristics of this Spliterator and its
+     * elements. The result is represented as ORed values from {@link
+     * #ORDERED}, {@link #DISTINCT}, {@link #SORTED}, {@link #SIZED},
+     * {@link #NONNULL}, {@link #IMMUTABLE}, {@link #CONCURRENT},
+     * {@link #SUBSIZED}.  Repeated calls to {@code characteristics()} on
+     * a given spliterator, prior to or in-between calls to {@code trySplit},
+     * should always return the same result.
+     * <p>
+     * <p>If a Spliterator reports an inconsistent set of
+     * characteristics (either those returned from a single invocation
+     * or across multiple invocations), no guarantees can be made
+     * about any computation using this Spliterator.
+     *
+     * @return a representation of characteristics
+     * @apiNote The characteristics of a given spliterator before splitting
+     * may differ from the characteristics after splitting.  For specific
+     * examples see the characteristic values {@link #SIZED}, {@link #SUBSIZED}
+     * and {@link #CONCURRENT}.
+     */
+    @Override
+    public int characteristics()
+    {
+        int characteristics = Spliterator.ORDERED;
+
+        if (!this.removeAllowed)
+        {
+            characteristics |= Spliterator.IMMUTABLE;
+        }
+
+        if (this.iterator == null && this.enumeration == null)
+        {
+            characteristics |= Spliterator.SIZED;
+        }
+
+        return characteristics;
+    }
+
+    /**
      * Tests if this enumeration contains more elements.
      *
      * @return <code>true</code> if and only if this enumeration object
@@ -119,6 +206,23 @@ public final class EnumerationIteratorInt
     }
 
     /**
+     * {@inheritDoc}
+     *
+     * @param action
+     * @implSpec If the action is an instance of {@code IntConsumer} then it is
+     * cast to {@code IntConsumer} and passed to
+     * {@link #forEachRemaining}; otherwise the action is adapted to
+     * an instance of {@code IntConsumer}, by boxing the argument of
+     * {@code IntConsumer}, and then passed to
+     * {@link #forEachRemaining}.
+     */
+    @Override
+    public void forEachRemaining(final Consumer<? super Integer> action)
+    {
+        this.forEach(action);
+    }
+
+    /**
      * Returns {@code true} if the iteration has more elements.
      * (In other words, returns {@code true} if {@link #next} would
      * return an element rather than throwing an exception.)
@@ -129,38 +233,6 @@ public final class EnumerationIteratorInt
     public boolean hasNext()
     {
         return this.hasMoreElements();
-    }
-
-    /**
-     * Returns the next {@code int} element in the iteration.
-     *
-     * @return the next {@code int} element in the iteration
-     * @throws NoSuchElementException if the iteration has no more elements
-     */
-    @Override
-    public int nextInt()
-    {
-        return this.next();
-    }
-
-    /**
-     * Performs the given action for each remaining element until all elements
-     * have been processed or the action throws an exception.  Actions are
-     * performed in the order of iteration, if that order is specified.
-     * Exceptions thrown by the action are relayed to the caller.
-     *
-     * @param action The action to be performed for each element
-     * @throws NullPointerException if the specified action is null
-     * @implSpec <p>The default implementation behaves as if:
-     * <pre>{@code
-     *     while (hasNext())
-     *         action.accept(nextInt());
-     * }</pre>
-     */
-    @Override
-    public void forEachRemaining(final IntConsumer action)
-    {
-        ForEach.forEach((Iterable<Integer>) this, action::accept);
     }
 
     /**
@@ -190,23 +262,6 @@ public final class EnumerationIteratorInt
         int value = this.array[this.index];
         this.index++;
         return value;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @param action
-     * @implSpec If the action is an instance of {@code IntConsumer} then it is
-     * cast to {@code IntConsumer} and passed to
-     * {@link #forEachRemaining}; otherwise the action is adapted to
-     * an instance of {@code IntConsumer}, by boxing the argument of
-     * {@code IntConsumer}, and then passed to
-     * {@link #forEachRemaining}.
-     */
-    @Override
-    public void forEachRemaining(final Consumer<? super Integer> action)
-    {
-        this.forEach(action);
     }
 
     /**
@@ -308,6 +363,38 @@ public final class EnumerationIteratorInt
         return this;
     }
 
+    /**
+     * Returns the next {@code int} element in the iteration.
+     *
+     * @return the next {@code int} element in the iteration
+     * @throws NoSuchElementException if the iteration has no more elements
+     */
+    @Override
+    public int nextInt()
+    {
+        return this.next();
+    }
+
+    /**
+     * Performs the given action for each remaining element until all elements
+     * have been processed or the action throws an exception.  Actions are
+     * performed in the order of iteration, if that order is specified.
+     * Exceptions thrown by the action are relayed to the caller.
+     *
+     * @param action The action to be performed for each element
+     * @throws NullPointerException if the specified action is null
+     * @implSpec <p>The default implementation behaves as if:
+     * <pre>{@code
+     *     while (hasNext())
+     *         action.accept(nextInt());
+     * }</pre>
+     */
+    @Override
+    public void forEachRemaining(final IntConsumer action)
+    {
+        ForEach.forEach((Iterable<Integer>) this, action::accept);
+    }
+
     @Override
     public Spliterator.OfInt trySplit()
     {
@@ -339,81 +426,6 @@ public final class EnumerationIteratorInt
         this.index = 0;
 
         return new EnumerationIteratorInt(array);
-    }
-
-    /**
-     * Returns an estimate of the number of elements that would be
-     * encountered by a {@link #forEachRemaining} traversal, or returns {@link
-     * Long#MAX_VALUE} if infinite, unknown, or too expensive to compute.
-     * <p>
-     * <p>If this Spliterator is {@link #SIZED} and has not yet been partially
-     * traversed or split, or this Spliterator is {@link #SUBSIZED} and has
-     * not yet been partially traversed, this estimate must be an accurate
-     * count of elements that would be encountered by a complete traversal.
-     * Otherwise, this estimate may be arbitrarily inaccurate, but must decrease
-     * as specified across invocations of {@link #trySplit}.
-     *
-     * @return the estimated size, or {@code Long.MAX_VALUE} if infinite,
-     * unknown, or too expensive to compute.
-     * @apiNote Even an inexact estimate is often useful and inexpensive to compute.
-     * For example, a sub-spliterator of an approximately balanced binary tree
-     * may return a value that estimates the number of elements to be half of
-     * that of its parent; if the root Spliterator does not maintain an
-     * accurate count, it could estimate size to be the power of two
-     * corresponding to its maximum depth.
-     */
-    @Override
-    public long estimateSize()
-    {
-        if (this.iterator != null)
-        {
-            return Long.MAX_VALUE;
-        }
-
-        if (this.enumeration != null)
-        {
-            return Long.MAX_VALUE;
-        }
-
-        return this.array.length - this.index;
-    }
-
-    /**
-     * Returns a set of characteristics of this Spliterator and its
-     * elements. The result is represented as ORed values from {@link
-     * #ORDERED}, {@link #DISTINCT}, {@link #SORTED}, {@link #SIZED},
-     * {@link #NONNULL}, {@link #IMMUTABLE}, {@link #CONCURRENT},
-     * {@link #SUBSIZED}.  Repeated calls to {@code characteristics()} on
-     * a given spliterator, prior to or in-between calls to {@code trySplit},
-     * should always return the same result.
-     * <p>
-     * <p>If a Spliterator reports an inconsistent set of
-     * characteristics (either those returned from a single invocation
-     * or across multiple invocations), no guarantees can be made
-     * about any computation using this Spliterator.
-     *
-     * @return a representation of characteristics
-     * @apiNote The characteristics of a given spliterator before splitting
-     * may differ from the characteristics after splitting.  For specific
-     * examples see the characteristic values {@link #SIZED}, {@link #SUBSIZED}
-     * and {@link #CONCURRENT}.
-     */
-    @Override
-    public int characteristics()
-    {
-        int characteristics = Spliterator.ORDERED;
-
-        if (!this.removeAllowed)
-        {
-            characteristics |= Spliterator.IMMUTABLE;
-        }
-
-        if (this.iterator == null && this.enumeration == null)
-        {
-            characteristics |= Spliterator.SIZED;
-        }
-
-        return characteristics;
     }
 
     @Override

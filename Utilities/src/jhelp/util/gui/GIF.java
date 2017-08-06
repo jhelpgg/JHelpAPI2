@@ -1,13 +1,13 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any
- * damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
 package jhelp.util.gui;
 
@@ -19,7 +19,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
-
 import jhelp.util.image.gif.DataGIF;
 import jhelp.util.image.gif.DataGIFVisitor;
 import jhelp.util.io.IntegerArrayInputStream;
@@ -34,27 +33,160 @@ import jhelp.util.list.ArrayInt;
  */
 public class GIF
 {
-    /** Images delay */
+    /**
+     * Compute size of an GIF image.<br>
+     * If the given file is not a GIF image file, {@code null} is return
+     *
+     * @param file Image GIF file
+     * @return GIF image size OR {@code null} if given file not a valid GIF image file
+     */
+    public static Dimension computeGifSize(final File file)
+    {
+        return DataGIF.computeGifSize(file);
+    }
+
+    /**
+     * Indicates if a file is a GIF image file
+     *
+     * @param file Tested file
+     * @return {@code true} if the file is a GIF image file
+     */
+    public static boolean isGIF(final File file)
+    {
+        return DataGIF.isGIF(file);
+    }
+
+    /**
+     * Visitor for collect images inside GIF
+     *
+     * @author JHelp
+     */
+    class InternalVisitor
+            implements DataGIFVisitor
+    {
+        /**
+         * List of collecting images
+         */
+        private List<JHelpImage> list;
+        /**
+         * List of collecting delays
+         */
+        final   ArrayInt         delays;
+        /**
+         * Image height
+         */
+        int height;
+        /**
+         * Image width
+         */
+        int width;
+
+        /**
+         * Create a new instance of InternalVisitor
+         *
+         * @param delays Delays to fill
+         */
+        InternalVisitor(final ArrayInt delays)
+        {
+            this.delays = delays;
+        }
+
+        /**
+         * Transform collected list in array, and empty the list
+         *
+         * @return Array of images
+         */
+        JHelpImage[] getArray()
+        {
+            final JHelpImage[] array = this.list.toArray(new JHelpImage[this.list.size()]);
+            this.list.clear();
+            this.list = null;
+            return array;
+        }
+
+        /**
+         * Called when collection of images is finished <br>
+         * <br>
+         * <b>Parent documentation:</b><br>
+         * {@inheritDoc}
+         *
+         * @see jhelp.util.image.gif.DataGIFVisitor#endCollecting()
+         */
+        @Override
+        public void endCollecting()
+        {
+        }
+
+        /**
+         * Called when next image is computed <br>
+         * <br>
+         * <b>Parent documentation:</b><br>
+         * {@inheritDoc}
+         *
+         * @param duration Image duration in millisecond
+         * @param image    Image
+         * @see jhelp.util.image.gif.DataGIFVisitor#nextImage(long, jhelp.util.gui.JHelpImage)
+         */
+        @Override
+        public void nextImage(final long duration, final JHelpImage image)
+        {
+            this.delays.add((int) duration);
+            this.list.add(image);
+        }
+
+        /**
+         * Called when collect image start <br>
+         * <br>
+         * <b>Parent documentation:</b><br>
+         * {@inheritDoc}
+         *
+         * @param width  Image width
+         * @param height Image height
+         * @see jhelp.util.image.gif.DataGIFVisitor#startCollecting(int, int)
+         */
+        @Override
+        public void startCollecting(final int width, final int height)
+        {
+            this.width = width;
+            this.height = height;
+            this.list = new ArrayList<>();
+        }
+    }
+
+    /**
+     * Images delay
+     */
     private final ArrayInt     delays;
-    /** Image height */
+    /**
+     * Image height
+     */
     private final int          height;
-    /** Image width */
-    private final int width;
-    /** Images contains in the GIF */
+    /**
+     * Images contains in the GIF
+     */
     private       JHelpImage[] images;
-    /** Last seen index in automatic show */
+    /**
+     * Last seen index in automatic show
+     */
     private       int          previousIndex;
-    /** Start animation time */
+    /**
+     * Start animation time
+     */
     private       long         startTime;
-    /** Total animation time */
+    /**
+     * Total animation time
+     */
     private       int          totalTime;
+    /**
+     * Image width
+     */
+    private final int          width;
+
     /**
      * Constructs GIF
      *
-     * @param inputStream
-     *           Stream to read the GIF
-     * @throws IOException
-     *            On reading problem
+     * @param inputStream Stream to read the GIF
+     * @throws IOException On reading problem
      */
     public GIF(final InputStream inputStream)
             throws IOException
@@ -91,38 +223,11 @@ public class GIF
     }
 
     /**
-     * Compute size of an GIF image.<br>
-     * If the given file is not a GIF image file, {@code null} is return
-     *
-     * @param file
-     *           Image GIF file
-     * @return GIF image size OR {@code null} if given file not a valid GIF image file
-     */
-    public static Dimension computeGifSize(final File file)
-    {
-        return DataGIF.computeGifSize(file);
-    }
-
-    /**
-     * Indicates if a file is a GIF image file
-     *
-     * @param file
-     *           Tested file
-     * @return {@code true} if the file is a GIF image file
-     */
-    public static boolean isGIF(final File file)
-    {
-        return DataGIF.isGIF(file);
-    }
-
-    /**
      * Compute GIF MD5
      *
      * @return GIF MD5
-     * @throws NoSuchAlgorithmException
-     *            If MD5 unknown
-     * @throws IOException
-     *            On computing problem
+     * @throws NoSuchAlgorithmException If MD5 unknown
+     * @throws IOException              On computing problem
      */
     public String computeMD5() throws NoSuchAlgorithmException, IOException
     {
@@ -198,8 +303,7 @@ public class GIF
     /**
      * Obtin an image delay
      *
-     * @param index
-     *           Image index
+     * @param index Image index
      * @return Delay in millisecond
      */
     public int getDelay(final int index)
@@ -220,8 +324,7 @@ public class GIF
     /**
      * Get a image
      *
-     * @param index
-     *           Image index
+     * @param index Image index
      * @return Desired image
      */
     public JHelpImage getImage(final int index)
@@ -313,99 +416,5 @@ public class GIF
     public void startAnimation()
     {
         this.startTime = System.currentTimeMillis();
-    }
-
-    /**
-     * Visitor for collect images inside GIF
-     *
-     * @author JHelp
-     */
-    class InternalVisitor
-            implements DataGIFVisitor
-    {
-        /** List of collecting delays */
-        final   ArrayInt         delays;
-        /** Image height */
-        int height;
-        /** Image width */
-        int width;
-        /** List of collecting images */
-        private List<JHelpImage> list;
-
-        /**
-         * Create a new instance of InternalVisitor
-         *
-         * @param delays
-         *           Delays to fill
-         */
-        InternalVisitor(final ArrayInt delays)
-        {
-            this.delays = delays;
-        }
-
-        /**
-         * Transform collected list in array, and empty the list
-         *
-         * @return Array of images
-         */
-        JHelpImage[] getArray()
-        {
-            final JHelpImage[] array = this.list.toArray(new JHelpImage[this.list.size()]);
-            this.list.clear();
-            this.list = null;
-            return array;
-        }
-
-        /**
-         * Called when collection of images is finished <br>
-         * <br>
-         * <b>Parent documentation:</b><br>
-         * {@inheritDoc}
-         *
-         * @see jhelp.util.image.gif.DataGIFVisitor#endCollecting()
-         */
-        @Override
-        public void endCollecting()
-        {
-        }
-
-        /**
-         * Called when next image is computed <br>
-         * <br>
-         * <b>Parent documentation:</b><br>
-         * {@inheritDoc}
-         *
-         * @param duration
-         *           Image duration in millisecond
-         * @param image
-         *           Image
-         * @see jhelp.util.image.gif.DataGIFVisitor#nextImage(long, jhelp.util.gui.JHelpImage)
-         */
-        @Override
-        public void nextImage(final long duration, final JHelpImage image)
-        {
-            this.delays.add((int) duration);
-            this.list.add(image);
-        }
-
-        /**
-         * Called when collect image start <br>
-         * <br>
-         * <b>Parent documentation:</b><br>
-         * {@inheritDoc}
-         *
-         * @param width
-         *           Image width
-         * @param height
-         *           Image height
-         * @see jhelp.util.image.gif.DataGIFVisitor#startCollecting(int, int)
-         */
-        @Override
-        public void startCollecting(final int width, final int height)
-        {
-            this.width = width;
-            this.height = height;
-            this.list = new ArrayList<JHelpImage>();
-        }
     }
 }

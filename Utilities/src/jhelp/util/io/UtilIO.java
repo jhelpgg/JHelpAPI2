@@ -1,14 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any
- * damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.io;
 
 import java.awt.image.BufferedImage;
@@ -42,8 +43,8 @@ import jhelp.util.io.base64.Base64OutputStream;
 import jhelp.util.list.Pair;
 import jhelp.util.text.StringCutter;
 import jhelp.util.text.UtilText;
-import jhelp.util.thread.Pointer;
 import jhelp.util.thread.ConsumerTask;
+import jhelp.util.thread.Pointer;
 
 /**
  * Utilities for Input/Output streams
@@ -52,34 +53,6 @@ import jhelp.util.thread.ConsumerTask;
  */
 public final class UtilIO
 {
-    /**
-     * Path that represents the current directory
-     */
-    public static final String CURRENT_DIRECTORY  = ".";
-    /**
-     * One kilo-byte in bytes
-     */
-    public static final int    KILO_BYTES         = 1024;
-    /**
-     * Size of a file header
-     */
-    public static final int    HEADER_SIZE        = UtilIO.KILO_BYTES;
-    /**
-     * One mega-byte in bytes
-     */
-    public static final int    MEGA_BYTES         = 1024 * UtilIO.KILO_BYTES;
-    /**
-     * Buffer size
-     */
-    public static final int    BUFFER_SIZE        = 4 * UtilIO.MEGA_BYTES;
-    /**
-     * Path separator used in URL, ZIP, JAR
-     */
-    public static final char   PATH_SEPARATOR     = '/';
-    /**
-     * Path the represents the parent directory
-     */
-    public static final String PREVIOUS_DIRECTORY = "..";
     /**
      * "Home" directory
      */
@@ -92,13 +65,34 @@ public final class UtilIO
      * Temporary directory
      */
     private static File temporaryDirectory;
-
     /**
-     * To avoid instance
+     * Path that represents the current directory
      */
-    private UtilIO()
-    {
-    }
+    public static final String CURRENT_DIRECTORY = ".";
+    /**
+     * One kilo-byte in bytes
+     */
+    public static final int    KILO_BYTES        = 1024;
+    /**
+     * Size of a file header
+     */
+    public static final int    HEADER_SIZE       = UtilIO.KILO_BYTES;
+    /**
+     * One mega-byte in bytes
+     */
+    public static final int    MEGA_BYTES        = 1024 * UtilIO.KILO_BYTES;
+    /**
+     * Buffer size
+     */
+    public static final int    BUFFER_SIZE       = 4 * UtilIO.MEGA_BYTES;
+    /**
+     * Path separator used in URL, ZIP, JAR
+     */
+    public static final char   PATH_SEPARATOR     = '/';
+    /**
+     * Path the represents the parent directory
+     */
+    public static final String PREVIOUS_DIRECTORY = "..";
 
     /**
      * Create a double from a byte array.<br>
@@ -148,35 +142,6 @@ public final class UtilIO
         }
 
         return bigInteger;
-    }
-
-    private static byte[] computeMessageDigest(String algorithm, final InputStream inputStream)
-            throws NoSuchAlgorithmException, IOException
-    {
-        final Pointer<IOException> pointerException = new Pointer<>();
-        final MessageDigest        sha              = MessageDigest.getInstance(algorithm);
-
-        UtilIO.treatInputStream(() -> inputStream, inputStream1 ->
-        {
-            final byte[] temp = new byte[4096];
-
-            int read = inputStream1.read(temp);
-            while (read >= 0)
-            {
-                sha.update(temp, 0, read);
-
-                read = inputStream1.read(temp);
-            }
-        }, exception -> pointerException.data(exception));
-
-        IOException ioException = pointerException.data();
-
-        if (ioException != null)
-        {
-            throw ioException;
-        }
-
-        return sha.digest();
     }
 
     /**
@@ -294,35 +259,6 @@ public final class UtilIO
     }
 
     /**
-     * Indicates if a file is a virtual link.<br>
-     * A virtual link in Linux system is a way to have a reference to a file/directory as if it is in place, but the real
-     * file is
-     * other place. It is a way to share the same file by several directory
-     *
-     * @param file File to test
-     * @return {@code true} if it is a virtual link
-     */
-    public static boolean isVirtualLink(final File file)
-    {
-        if ((file == null) || (!file.exists()))
-        {
-            return false;
-        }
-
-        try
-        {
-            return !file.getCanonicalPath()
-                        .equals(file.getAbsolutePath());
-        }
-        catch (final IOException exception)
-        {
-            Debug.exception(exception, "Failed to determine virtual link : ", file.getAbsolutePath());
-
-            return false;
-        }
-    }
-
-    /**
      * Compute MD5 and SHA for a file, can be us as unique ID
      *
      * @param file File to read
@@ -409,6 +345,35 @@ public final class UtilIO
         temp = null;
 
         return stringBuffer.toString();
+    }
+
+    private static byte[] computeMessageDigest(String algorithm, final InputStream inputStream)
+            throws NoSuchAlgorithmException, IOException
+    {
+        final Pointer<IOException> pointerException = new Pointer<>();
+        final MessageDigest        sha              = MessageDigest.getInstance(algorithm);
+
+        UtilIO.treatInputStream(() -> inputStream, inputStream1 ->
+        {
+            final byte[] temp = new byte[4096];
+
+            int read = inputStream1.read(temp);
+            while (read >= 0)
+            {
+                sha.update(temp, 0, read);
+
+                read = inputStream1.read(temp);
+            }
+        }, pointerException::data);
+
+        IOException ioException = pointerException.data();
+
+        if (ioException != null)
+        {
+            throw ioException;
+        }
+
+        return sha.digest();
     }
 
     /**
@@ -548,10 +513,10 @@ public final class UtilIO
      */
     public static void copy(final File source, final File destination) throws IOException
     {
-        final Stack<Pair<File, File>> stack = new Stack<Pair<File, File>>();
+        final Stack<Pair<File, File>> stack = new Stack<>();
         Pair<File, File>              pair;
 
-        stack.push(new Pair<File, File>(source, destination));
+        stack.push(new Pair<>(source, destination));
 
         while (!stack.isEmpty())
         {
@@ -572,7 +537,7 @@ public final class UtilIO
                     {
                         for (final File file : content)
                         {
-                            stack.push(new Pair<File, File>(file, new File(pair.second, file.getName())));
+                            stack.push(new Pair<>(file, new File(pair.second, file.getName())));
                         }
                     }
                 }
@@ -760,6 +725,50 @@ public final class UtilIO
     }
 
     /**
+     * Write a base 64 String to stream as decoded binary.<br>
+     * Stream not close by the method
+     *
+     * @param base64       Base 64 string
+     * @param outputStream Stream where write
+     * @throws IOException On writing issue
+     */
+    public static void fromBase64(final String base64, final OutputStream outputStream) throws IOException
+    {
+        final StringInputStream stringInputStream = new StringInputStream(base64);
+        final Base64InputStream base64InputStream = new Base64InputStream(stringInputStream);
+        UtilIO.write(base64InputStream, outputStream);
+    }
+
+    /**
+     * Indicates if a file is a virtual link.<br>
+     * A virtual link in Linux system is a way to have a reference to a file/directory as if it is in place, but the real
+     * file is
+     * other place. It is a way to share the same file by several directory
+     *
+     * @param file File to test
+     * @return {@code true} if it is a virtual link
+     */
+    public static boolean isVirtualLink(final File file)
+    {
+        if ((file == null) || (!file.exists()))
+        {
+            return false;
+        }
+
+        try
+        {
+            return !file.getCanonicalPath()
+                        .equals(file.getAbsolutePath());
+        }
+        catch (final IOException exception)
+        {
+            Debug.exception(exception, "Failed to determine virtual link : ", file.getAbsolutePath());
+
+            return false;
+        }
+    }
+
+    /**
      * Create a byte array from long.<br>
      * Can be revert with {@link #byteArrayToLong(byte[])}
      *
@@ -780,42 +789,6 @@ public final class UtilIO
         array[7] = (byte) (l & 0xFF);
 
         return array;
-    }
-
-    /**
-     * Write a base 64 String to stream as decoded binary.<br>
-     * Stream not close by the method
-     *
-     * @param base64       Base 64 string
-     * @param outputStream Stream where write
-     * @throws IOException On writing issue
-     */
-    public static void fromBase64(final String base64, final OutputStream outputStream) throws IOException
-    {
-        final StringInputStream stringInputStream = new StringInputStream(base64);
-        final Base64InputStream base64InputStream = new Base64InputStream(stringInputStream);
-        UtilIO.write(base64InputStream, outputStream);
-    }
-
-    /**
-     * Write a stream inside on other one
-     *
-     * @param inputStream  Stream source
-     * @param outputStream Stream destination
-     * @throws IOException On copying issue
-     */
-    public static void write(final InputStream inputStream, final OutputStream outputStream) throws IOException
-    {
-        final byte[] buffer = new byte[UtilIO.BUFFER_SIZE];
-
-        int read = inputStream.read(buffer);
-
-        while (read >= 0)
-        {
-            outputStream.write(buffer, 0, read);
-
-            read = inputStream.read(buffer);
-        }
     }
 
     /**
@@ -872,57 +845,6 @@ public final class UtilIO
         }
 
         return file;
-    }
-
-    /**
-     * Obtain directory outside the code
-     *
-     * @return Directory outside the code
-     */
-    public static File obtainOutsideDirectory()
-    {
-        if (UtilIO.outsideDirectory == null)
-        {
-            String className = UtilIO.class.getName();
-
-            int index = className.lastIndexOf('.');
-            if (index >= 0)
-            {
-                className = className.substring(index + 1);
-            }
-
-            className += ".class";
-
-            final URL    url  = UtilIO.class.getResource(className);
-            final String path = url.getFile();
-
-            index = path.indexOf(".jar!");
-
-            int start = 0;
-            if (path.startsWith("file://"))
-            {
-                start = 7;
-            }
-            else if (path.startsWith("file:"))
-            {
-                start = 5;
-            }
-
-            if (index > 0)
-            {
-                UtilIO.outsideDirectory = new File(path.substring(start, path.lastIndexOf('/', index - 1)));
-            }
-            else
-            {
-                UtilIO.outsideDirectory = (new File(path)).getParentFile()
-                                                          .getParentFile()
-                                                          .getParentFile()
-                                                          .getParentFile()
-                                                          .getParentFile();
-            }
-        }
-
-        return UtilIO.outsideDirectory;
     }
 
     /**
@@ -1037,6 +959,57 @@ public final class UtilIO
     }
 
     /**
+     * Obtain directory outside the code
+     *
+     * @return Directory outside the code
+     */
+    public static File obtainOutsideDirectory()
+    {
+        if (UtilIO.outsideDirectory == null)
+        {
+            String className = UtilIO.class.getName();
+
+            int index = className.lastIndexOf('.');
+            if (index >= 0)
+            {
+                className = className.substring(index + 1);
+            }
+
+            className += ".class";
+
+            final URL    url  = UtilIO.class.getResource(className);
+            final String path = url.getFile();
+
+            index = path.indexOf(".jar!");
+
+            int start = 0;
+            if (path.startsWith("file://"))
+            {
+                start = 7;
+            }
+            else if (path.startsWith("file:"))
+            {
+                start = 5;
+            }
+
+            if (index > 0)
+            {
+                UtilIO.outsideDirectory = new File(path.substring(start, path.lastIndexOf('/', index - 1)));
+            }
+            else
+            {
+                UtilIO.outsideDirectory = (new File(path)).getParentFile()
+                                                          .getParentFile()
+                                                          .getParentFile()
+                                                          .getParentFile()
+                                                          .getParentFile();
+            }
+        }
+
+        return UtilIO.outsideDirectory;
+    }
+
+    /**
      * Temporary directory
      *
      * @return Temporary directory
@@ -1104,6 +1077,175 @@ public final class UtilIO
     }
 
     /**
+     * Read a {@link Binarizable} inside a stream.<br>
+     * The {@link Binarizable} should be previously written by {@link #writeBinarizable(Binarizable, OutputStream)}
+     *
+     * @param <B>         {@link Binarizable} type
+     * @param clas        Class of the {@link Binarizable}
+     * @param inputStream Stream to read
+     * @return The {@link Binarizable} read
+     * @throws IOException On read the stream or the data not represents the asked {@link Binarizable}
+     */
+    public static <B extends Binarizable> B readBinarizable(final Class<B> clas, final InputStream inputStream) throws
+                                                                                                                IOException
+    {
+        try
+        {
+            final ByteArray byteArray = new ByteArray();
+
+            UtilIO.write(inputStream, byteArray.getOutputStream());
+
+            return byteArray.readBinarizable(clas);
+        }
+        catch (final Exception exception)
+        {
+            throw new IOException("Failed to read the Binarizable " + clas.getName() + " in the given stream !",
+                                  exception);
+        }
+    }
+
+    /**
+     * Read a {@link Binarizable} inside a stream.<br>
+     * The {@link Binarizable} should be previously written by {@link #writeBinarizableNamed(Binarizable, OutputStream)}
+     *
+     * @param <B>         {@link Binarizable} type
+     * @param inputStream Stream to read
+     * @return The {@link Binarizable} read
+     * @throws IOException On read the stream or the data not represents the asked {@link Binarizable}
+     */
+    public static <B extends Binarizable> B readBinarizableNamed(final InputStream inputStream) throws IOException
+    {
+        try
+        {
+            final String name = UtilIO.readString(inputStream);
+
+            if (name == null)
+            {
+                return null;
+            }
+
+            @SuppressWarnings("unchecked") final Class<B> clas = (Class<B>) Class.forName(name);
+
+            return UtilIO.readBinarizable(clas, inputStream);
+        }
+        catch (final Exception exception)
+        {
+            throw new IOException("Failed to read the Binarizable in the given stream !", exception);
+        }
+    }
+
+    /**
+     * Read a byte array from stream
+     *
+     * @param inputStream Stream to read
+     * @return Read array
+     * @throws IOException On reading issue
+     */
+    public static byte[] readByteArray(final InputStream inputStream) throws IOException
+    {
+        final int length = UtilIO.readInteger(inputStream);
+
+        if (length < 0)
+        {
+            return null;
+        }
+
+        final byte[] array = new byte[length];
+
+        final int read = UtilIO.readStream(inputStream, array, 0, length);
+
+        return Arrays.copyOfRange(array, 0, read);
+    }
+
+    /**
+     * Read double from stream
+     *
+     * @param inputStream Stream to read
+     * @return Read double
+     * @throws IOException On reading problem
+     */
+    public static double readDouble(final InputStream inputStream) throws IOException
+    {
+        return Double.longBitsToDouble(UtilIO.readLong(inputStream));
+    }
+
+    /**
+     * Read a file header (First bytes of a file)
+     *
+     * @param file File to read header
+     * @return Header read
+     * @throws IOException On reading issue
+     */
+    public static byte[] readFileHeader(final File file) throws IOException
+    {
+        final int       size            = (int) Math.min(UtilIO.HEADER_SIZE, file.length());
+        final byte[]    header          = new byte[size];
+        FileInputStream fileInputStream = null;
+
+        try
+        {
+            fileInputStream = new FileInputStream(file);
+            UtilIO.readStream(fileInputStream, header);
+        }
+        catch (final Exception exception)
+        {
+            throw new IOException("Failed to get header of " + file.getAbsolutePath(), exception);
+        }
+        finally
+        {
+            if (fileInputStream != null)
+            {
+                try
+                {
+                    fileInputStream.close();
+                }
+                catch (final Exception ignored)
+                {
+                }
+            }
+        }
+
+        return header;
+    }
+
+    /**
+     * Read float from a stream
+     *
+     * @param inputStream Stream to read
+     * @return Float read
+     * @throws IOException On read issue
+     */
+    public static float readFloat(final InputStream inputStream) throws IOException
+    {
+        return Float.intBitsToFloat(UtilIO.readInteger(inputStream));
+    }
+
+    /**
+     * Read float[] from a stream
+     *
+     * @param inputStream Stream to read
+     * @return Float array read
+     * @throws IOException On read issue
+     */
+    public static float[] readFloatArray(final InputStream inputStream) throws IOException
+    {
+        final int length = UtilIO.readInteger(inputStream);
+
+        if (length < 0)
+        {
+            return null;
+        }
+
+        final float[] array = new float[length];
+        for (int a = 0; a < length; a++)
+        {
+            array[a] = UtilIO.readFloat(inputStream);
+        }
+
+        return array;
+    }
+
+    /**
      * Read an integer from stream
      *
      * @param inputStream Stream to read
@@ -1113,6 +1255,81 @@ public final class UtilIO
     public static int readInteger(final InputStream inputStream) throws IOException
     {
         return (inputStream.read() << 24) | (inputStream.read() << 16) | (inputStream.read() << 8) | inputStream.read();
+    }
+
+    /**
+     * Read a array of integer from stream (Wrote with {@link #writeIntegerArray(int[], OutputStream)}
+     *
+     * @param inputStream Stream to read. May be <code>null</code> if {@link #writeIntegerArray(int[], OutputStream)}
+     *                    was write
+     *                    <code>null</code>
+     * @return Read array
+     * @throws IOException On stream read issue
+     */
+    public static int[] readIntegerArray(final InputStream inputStream) throws IOException
+    {
+        final int length = UtilIO.readInteger(inputStream);
+
+        if (length < 0)
+        {
+            return null;
+        }
+
+        final int[] array = new int[length];
+        for (int a = 0; a < length; a++)
+        {
+            array[a] = UtilIO.readInteger(inputStream);
+        }
+
+        return array;
+    }
+
+    public static <I extends InputStream> boolean readLines(
+            InputStreamProducer<I> producerInput, ConsumerTask<String> lineReader)
+    {
+        return UtilIO.readLines(producerInput, lineReader, null);
+    }
+
+    public static <I extends InputStream> boolean readLines(
+            final InputStreamProducer<I> producerInput, final ConsumerTask<String> lineReader,
+            final ConsumerTask<IOException> onError)
+    {
+        return UtilIO.treatInputStream(producerInput, inputStream ->
+        {
+            final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+            String               line           = bufferedReader.readLine();
+
+            while (line != null)
+            {
+                lineReader.consume(line);
+                line = bufferedReader.readLine();
+            }
+
+            bufferedReader.close();
+        }, onError);
+    }
+
+    /**
+     * Read long from stream
+     *
+     * @param inputStream Stream to read
+     * @return Read long
+     * @throws IOException On reading problem
+     */
+    public static long readLong(final InputStream inputStream) throws IOException
+    {
+        long integer = 0;
+
+        integer |= (long) inputStream.read() << 56L;
+        integer |= (long) inputStream.read() << 48L;
+        integer |= (long) inputStream.read() << 40L;
+        integer |= (long) inputStream.read() << 32L;
+        integer |= (long) inputStream.read() << 24L;
+        integer |= (long) inputStream.read() << 16L;
+        integer |= (long) inputStream.read() << 8L;
+        integer |= inputStream.read();
+
+        return integer;
     }
 
     /**
@@ -1184,61 +1401,22 @@ public final class UtilIO
     }
 
     /**
-     * Read a {@link Binarizable} inside a stream.<br>
-     * The {@link Binarizable} should be previously written by {@link #writeBinarizableNamed(Binarizable, OutputStream)}
+     * Read stream and fill an array.<br>
+     * The write in array start at the offset specify.<br>
+     * It stop to read stream if stream reach its end or the array is full<br>
+     * Do same as {@link #readStream(InputStream, byte[], int, int) readStream(inputStream, array, offset, array.length -
+     * offset)}
      *
-     * @param <B>         {@link Binarizable} type
      * @param inputStream Stream to read
-     * @return The {@link Binarizable} read
-     * @throws IOException On read the stream or the data not represents the asked {@link Binarizable}
+     * @param array       Array to fill
+     * @param offset      To start writing
+     * @return Number of bytes read (It can be less than array length if stream have not enough data to fill totaly the
+     * array)
+     * @throws IOException On reading issue
      */
-    public static <B extends Binarizable> B readBinarizableNamed(final InputStream inputStream) throws IOException
+    public static int readStream(final InputStream inputStream, final byte[] array, final int offset) throws IOException
     {
-        try
-        {
-            final String name = UtilIO.readString(inputStream);
-
-            if (name == null)
-            {
-                return null;
-            }
-
-            @SuppressWarnings("unchecked") final Class<B> clas = (Class<B>) Class.forName(name);
-
-            return UtilIO.readBinarizable(clas, inputStream);
-        }
-        catch (final Exception exception)
-        {
-            throw new IOException("Failed to read the Binarizable in the given stream !", exception);
-        }
-    }
-
-    /**
-     * Read a {@link Binarizable} inside a stream.<br>
-     * The {@link Binarizable} should be previously written by {@link #writeBinarizable(Binarizable, OutputStream)}
-     *
-     * @param <B>         {@link Binarizable} type
-     * @param clas        Class of the {@link Binarizable}
-     * @param inputStream Stream to read
-     * @return The {@link Binarizable} read
-     * @throws IOException On read the stream or the data not represents the asked {@link Binarizable}
-     */
-    public static <B extends Binarizable> B readBinarizable(final Class<B> clas, final InputStream inputStream) throws
-                                                                                                                IOException
-    {
-        try
-        {
-            final ByteArray byteArray = new ByteArray();
-
-            UtilIO.write(inputStream, byteArray.getOutputStream());
-
-            return byteArray.readBinarizable(clas);
-        }
-        catch (final Exception exception)
-        {
-            throw new IOException("Failed to read the Binarizable " + clas.getName() + " in the given stream !",
-                                  exception);
-        }
+        return UtilIO.readStream(inputStream, array, offset, array.length - offset);
     }
 
     /**
@@ -1260,184 +1438,25 @@ public final class UtilIO
         return UtilText.readUTF8(utf8, 0, utf8.length);
     }
 
-    /**
-     * Read a byte array from stream
-     *
-     * @param inputStream Stream to read
-     * @return Read array
-     * @throws IOException On reading issue
-     */
-    public static byte[] readByteArray(final InputStream inputStream) throws IOException
+    public static String readText(final InputStream inputStream) throws IOException
     {
-        final int length = UtilIO.readInteger(inputStream);
+        final StringBuilder        stringBuilder = new StringBuilder();
+        final Pointer<IOException> pointer       = new Pointer<>();
 
-        if (length < 0)
+        UtilIO.readLines(() -> inputStream,
+                         line ->
+                         {
+                             stringBuilder.append(line);
+                             stringBuilder.append('\n');
+                         },
+                         pointer::data);
+
+        if (pointer.data() != null)
         {
-            return null;
+            throw pointer.data();
         }
 
-        final byte[] array = new byte[length];
-
-        final int read = UtilIO.readStream(inputStream, array, 0, length);
-
-        return Arrays.copyOfRange(array, 0, read);
-    }
-
-    /**
-     * Read double from stream
-     *
-     * @param inputStream Stream to read
-     * @return Read double
-     * @throws IOException On reading problem
-     */
-    public static double readDouble(final InputStream inputStream) throws IOException
-    {
-        return Double.longBitsToDouble(UtilIO.readLong(inputStream));
-    }
-
-    /**
-     * Read long from stream
-     *
-     * @param inputStream Stream to read
-     * @return Read long
-     * @throws IOException On reading problem
-     */
-    public static long readLong(final InputStream inputStream) throws IOException
-    {
-        long integer = 0;
-
-        integer |= (long) inputStream.read() << 56L;
-        integer |= (long) inputStream.read() << 48L;
-        integer |= (long) inputStream.read() << 40L;
-        integer |= (long) inputStream.read() << 32L;
-        integer |= (long) inputStream.read() << 24L;
-        integer |= (long) inputStream.read() << 16L;
-        integer |= (long) inputStream.read() << 8L;
-        integer |= inputStream.read();
-
-        return integer;
-    }
-
-    /**
-     * Read a file header (First bytes of a file)
-     *
-     * @param file File to read header
-     * @return Header read
-     * @throws IOException On reading issue
-     */
-    public static byte[] readFileHeader(final File file) throws IOException
-    {
-        final int       size            = (int) Math.min(UtilIO.HEADER_SIZE, file.length());
-        final byte[]    header          = new byte[size];
-        FileInputStream fileInputStream = null;
-
-        try
-        {
-            fileInputStream = new FileInputStream(file);
-            UtilIO.readStream(fileInputStream, header);
-        }
-        catch (final Exception exception)
-        {
-            throw new IOException("Failed to get header of " + file.getAbsolutePath(), exception);
-        }
-        finally
-        {
-            if (fileInputStream != null)
-            {
-                try
-                {
-                    fileInputStream.close();
-                }
-                catch (final Exception ignored)
-                {
-                }
-            }
-        }
-
-        return header;
-    }
-
-    /**
-     * Read float[] from a stream
-     *
-     * @param inputStream Stream to read
-     * @return Float array read
-     * @throws IOException On read issue
-     */
-    public static float[] readFloatArray(final InputStream inputStream) throws IOException
-    {
-        final int length = UtilIO.readInteger(inputStream);
-
-        if (length < 0)
-        {
-            return null;
-        }
-
-        final float[] array = new float[length];
-        for (int a = 0; a < length; a++)
-        {
-            array[a] = UtilIO.readFloat(inputStream);
-        }
-
-        return array;
-    }
-
-    /**
-     * Read float from a stream
-     *
-     * @param inputStream Stream to read
-     * @return Float read
-     * @throws IOException On read issue
-     */
-    public static float readFloat(final InputStream inputStream) throws IOException
-    {
-        return Float.intBitsToFloat(UtilIO.readInteger(inputStream));
-    }
-
-    /**
-     * Read a array of integer from stream (Wrote with {@link #writeIntegerArray(int[], OutputStream)}
-     *
-     * @param inputStream Stream to read. May be <code>null</code> if {@link #writeIntegerArray(int[], OutputStream)}
-     *                    was write
-     *                    <code>null</code>
-     * @return Read array
-     * @throws IOException On stream read issue
-     */
-    public static int[] readIntegerArray(final InputStream inputStream) throws IOException
-    {
-        final int length = UtilIO.readInteger(inputStream);
-
-        if (length < 0)
-        {
-            return null;
-        }
-
-        final int[] array = new int[length];
-        for (int a = 0; a < length; a++)
-        {
-            array[a] = UtilIO.readInteger(inputStream);
-        }
-
-        return array;
-    }
-
-    /**
-     * Read stream and fill an array.<br>
-     * The write in array start at the offset specify.<br>
-     * It stop to read stream if stream reach its end or the array is full<br>
-     * Do same as {@link #readStream(InputStream, byte[], int, int) readStream(inputStream, array, offset, array.length -
-     * offset)}
-     *
-     * @param inputStream Stream to read
-     * @param array       Array to fill
-     * @param offset      To start writing
-     * @return Number of bytes read (It can be less than array length if stream have not enough data to fill totaly the
-     * array)
-     * @throws IOException On reading issue
-     */
-    public static int readStream(final InputStream inputStream, final byte[] array, final int offset) throws IOException
-    {
-        return UtilIO.readStream(inputStream, array, offset, array.length - offset);
+        return stringBuilder.toString();
     }
 
     /**
@@ -1546,590 +1565,83 @@ public final class UtilIO
         return stringOutputStream.getString();
     }
 
-    /**
-     * Unzip a file inside a directory
-     *
-     * @param directoryDestination Directory where unzip
-     * @param zip                  Zip file
-     * @throws IOException On extracting issue
-     */
-    public static void unzip(final File directoryDestination, final File zip) throws IOException
+    public static <I extends InputStream, O extends OutputStream> boolean treatInputOutputStream(
+            InputStreamProducer<I> producerInput, OutputStreamProducer<O> producerOutput,
+            InputOutputStreamOperation<I, O> operation)
     {
-        FileInputStream fileInputStream = null;
+        return UtilIO.treatInputOutputStream(producerInput, producerOutput, operation, null);
+    }
+
+    public static <I extends InputStream, O extends OutputStream> boolean treatInputOutputStream(
+            InputStreamProducer<I> producerInput, OutputStreamProducer<O> producerOutput,
+            InputOutputStreamOperation<I, O> operation, ConsumerTask<IOException> onError)
+    {
+        IOException ioException  = null;
+        I           inputStream  = null;
+        O           outputStream = null;
 
         try
         {
-            fileInputStream = new FileInputStream(zip);
-
-            UtilIO.unzip(directoryDestination, fileInputStream);
+            inputStream = producerInput.produce();
+            outputStream = producerOutput.produce();
+            operation.operate(inputStream, outputStream);
+        }
+        catch (IOException io)
+        {
+            ioException = io;
+        }
+        catch (Exception e)
+        {
+            ioException = new IOException("Failed to do operation!", e);
         }
         finally
         {
-            if (fileInputStream != null)
+            if (outputStream != null)
             {
                 try
                 {
-                    fileInputStream.close();
+                    outputStream.flush();
                 }
-                catch (final Exception ignored)
+                catch (Exception ignored)
                 {
-                    //Nothing to do
+                }
+
+                try
+                {
+                    outputStream.close();
+                }
+                catch (Exception ignored)
+                {
+                }
+
+                if (inputStream != null)
+                {
+                    try
+                    {
+                        inputStream.close();
+                    }
+                    catch (Exception ignored)
+                    {
+                    }
                 }
             }
         }
-    }
 
-    /**
-     * Unzip a stream inside a directory
-     *
-     * @param directoryDestination Directory where unzip
-     * @param inputStreamZip       Stream to unzip
-     * @throws IOException On unzipping issue
-     */
-    public static void unzip(final File directoryDestination, final InputStream inputStreamZip) throws IOException
-    {
-        File                 destination;
-        final ZipInputStream zipInputStream = new ZipInputStream(inputStreamZip);
-
-        ZipEntry zipEntry = zipInputStream.getNextEntry();
-        String   name;
-
-        while (zipEntry != null)
+        if (ioException != null)
         {
-            name = zipEntry.getName();
-            destination = UtilIO.obtainFile(directoryDestination, name);
-
-            if (name.endsWith("/"))
+            if (onError != null)
             {
-                if (!UtilIO.createDirectory(destination))
-                {
-                    throw new IOException("Can't create the directory " + destination.getAbsolutePath());
-                }
+                onError.consume(ioException);
             }
             else
             {
-                if (!UtilIO.createFile(destination))
-                {
-                    throw new IOException("Can't create the file " + destination.getAbsolutePath());
-                }
-
-                UtilIO.write(zipInputStream, destination);
+                Debug.exception(ioException, "Issue on operation!");
             }
 
-            zipInputStream.closeEntry();
-
-            zipEntry = zipInputStream.getNextEntry();
-        }
-    }
-
-    /**
-     * Copy a file inside an other one
-     *
-     * @param fileSource      Source file
-     * @param fileDestination Destination file
-     * @throws IOException On copying issue
-     */
-    public static void write(final File fileSource, final File fileDestination) throws IOException
-    {
-        FileInputStream  fileInputStream  = null;
-        FileOutputStream fileOutputStream = null;
-
-        if (!UtilIO.createFile(fileDestination))
-        {
-            throw new IOException("Can't create the file " + fileDestination.getAbsolutePath());
+            return false;
         }
 
-        try
-        {
-            fileInputStream = new FileInputStream(fileSource);
-            fileOutputStream = new FileOutputStream(fileDestination);
-
-            UtilIO.write(fileInputStream, fileOutputStream);
-        }
-        finally
-        {
-            if (fileOutputStream != null)
-            {
-                try
-                {
-                    fileOutputStream.flush();
-                }
-                catch (final Exception ignored)
-                {
-                    //Nothing to do
-                }
-
-                try
-                {
-                    fileOutputStream.close();
-                }
-                catch (final Exception ignored)
-                {
-                }
-            }
-
-            if (fileInputStream != null)
-            {
-                try
-                {
-                    fileInputStream.close();
-                }
-                catch (final Exception ignored)
-                {
-                }
-            }
-        }
-    }
-
-    /**
-     * Write a stream inside a file
-     *
-     * @param inputStream     Stream source
-     * @param fileDestination File destination
-     * @throws IOException On copying issue
-     */
-    public static void write(final InputStream inputStream, final File fileDestination) throws IOException
-    {
-        FileOutputStream fileOutputStream = null;
-
-        if (!UtilIO.createFile(fileDestination))
-        {
-            throw new IOException("Can't create the file " + fileDestination.getAbsolutePath());
-        }
-
-        try
-        {
-            fileOutputStream = new FileOutputStream(fileDestination);
-
-            UtilIO.write(inputStream, fileOutputStream);
-        }
-        finally
-        {
-            if (fileOutputStream != null)
-            {
-                try
-                {
-                    fileOutputStream.flush();
-                }
-                catch (final Exception ignored)
-                {
-                    //Nothing to do
-                }
-
-                try
-                {
-                    fileOutputStream.close();
-                }
-                catch (final Exception ignored)
-                {
-                    //Nothing to do
-                }
-            }
-        }
-    }
-
-    /**
-     * Write a {@link BigInteger} in stream.<br>
-     * To read later, you can use {@link #readBigInteger(InputStream)}
-     *
-     * @param bigInteger   {@link BigInteger} to write
-     * @param outputStream Stream where write
-     * @throws IOException On writing issue
-     */
-    public static void writeBigInteger(final BigInteger bigInteger, final OutputStream outputStream) throws IOException
-    {
-        final byte[] temp = bigInteger.toByteArray();
-
-        UtilIO.writeInteger(temp.length, outputStream);
-        outputStream.write(temp);
-    }
-
-    /**
-     * Write an integer to stream
-     *
-     * @param integer      Integer to write
-     * @param outputStream Stream where write
-     * @throws IOException On writing issue
-     */
-    public static void writeInteger(final int integer, final OutputStream outputStream) throws IOException
-    {
-        outputStream.write((integer >> 24) & 0xFF);
-        outputStream.write((integer >> 16) & 0xFF);
-        outputStream.write((integer >> 8) & 0xFF);
-        outputStream.write(integer & 0xFF);
-    }
-
-    /**
-     * Write a {@link Binarizable} inside a stream.<br>
-     * To read it later, use {@link #readBinarizableNamed(InputStream)}
-     *
-     * @param binarizable  {@link Binarizable} to write
-     * @param outputStream Stream where write
-     * @throws IOException On writing issue
-     */
-    public static void writeBinarizableNamed(final Binarizable binarizable, final OutputStream outputStream) throws
-                                                                                                             IOException
-    {
-        UtilIO.writeString(binarizable.getClass()
-                                      .getName(), outputStream);
-
-        UtilIO.writeBinarizable(binarizable, outputStream);
-    }
-
-    /**
-     * Write a {@link Binarizable} inside a stream.<br>
-     * To read it later, use {@link #readBinarizable(Class, InputStream)}
-     *
-     * @param binarizable  {@link Binarizable} to write
-     * @param outputStream Stream where write
-     * @throws IOException On writing issue
-     */
-    public static void writeBinarizable(final Binarizable binarizable, final OutputStream outputStream)
-            throws IOException
-    {
-        final ByteArray byteArray = new ByteArray();
-
-        byteArray.writeBinarizable(binarizable);
-
-        UtilIO.write(byteArray.getInputStream(), outputStream);
-    }
-
-    /**
-     * Write string to stream
-     *
-     * @param string       String to write
-     * @param outputStream Stream where write
-     * @throws IOException On writing issue
-     */
-    public static void writeString(final String string, final OutputStream outputStream) throws IOException
-    {
-        final byte[] utf8 = UtilText.toUTF8(string);
-
-        UtilIO.writeByteArray(utf8, 0, utf8.length, outputStream);
-    }
-
-    /**
-     * Write a part of byte array on stream
-     *
-     * @param array        Array to write
-     * @param offset       Offset where start read the array
-     * @param length       Number of byte to write
-     * @param outputStream Stream where write
-     * @throws IOException On writing issue
-     */
-    public static void writeByteArray(
-            final byte[] array, final int offset, final int length, final OutputStream
-            outputStream) throws IOException
-    {
-        final int len = Math.min(array.length - offset, length);
-
-        UtilIO.writeInteger(len, outputStream);
-        outputStream.write(array, offset, len);
-    }
-
-    /**
-     * Write an array on stream.<br>
-     * Same as {@link #writeByteArray(byte[], int, int, OutputStream) writeByteArray(array, 0, array.length, outputStream)}
-     *
-     * @param array        Array to write
-     * @param outputStream Stream where write
-     * @throws IOException On writing issue
-     */
-    public static void writeByteArray(final byte[] array, final OutputStream outputStream) throws IOException
-    {
-        UtilIO.writeByteArray(array, 0, array.length, outputStream);
-    }
-
-    /**
-     * Write double in a stream
-     *
-     * @param d            Double to write
-     * @param outputStream Stream where write
-     * @throws IOException On writing problem
-     */
-    public static void writeDouble(final double d, final OutputStream outputStream) throws IOException
-    {
-        UtilIO.writeLong(Double.doubleToLongBits(d), outputStream);
-    }
-
-    /**
-     * Write long in a stream
-     *
-     * @param integer      Long to write
-     * @param outputStream Stream where write
-     * @throws IOException On writing problem
-     */
-    public static void writeLong(final long integer, final OutputStream outputStream) throws IOException
-    {
-        outputStream.write((int) ((integer >> 56) & 0xFF));
-        outputStream.write((int) ((integer >> 48) & 0xFF));
-        outputStream.write((int) ((integer >> 40) & 0xFF));
-        outputStream.write((int) ((integer >> 32) & 0xFF));
-        outputStream.write((int) ((integer >> 24) & 0xFF));
-        outputStream.write((int) ((integer >> 16) & 0xFF));
-        outputStream.write((int) ((integer >> 8) & 0xFF));
-        outputStream.write((int) (integer & 0xFF));
-    }
-
-    /**
-     * Write a float[] in stream
-     *
-     * @param array        Float array to write
-     * @param outputStream Stream where write
-     * @throws IOException On writing issue
-     */
-    public static void writeFloatArray(final float[] array, final OutputStream outputStream) throws IOException
-    {
-        if (array == null)
-        {
-            UtilIO.writeInteger(-1, outputStream);
-
-            return;
-        }
-
-        final int length = array.length;
-        UtilIO.writeInteger(length, outputStream);
-
-        for (float anArray : array)
-        {
-            UtilIO.writeFloat(anArray, outputStream);
-        }
-    }
-
-    /**
-     * Write a float in stream
-     *
-     * @param f            Float to write
-     * @param outputStream Stream where write
-     * @throws IOException On writing issue
-     */
-    public static void writeFloat(final float f, final OutputStream outputStream) throws IOException
-    {
-        UtilIO.writeInteger(Float.floatToIntBits(f), outputStream);
-    }
-
-    /**
-     * Write an array of integer in stream (Can be read later with {@link #readIntegerArray(InputStream)}
-     *
-     * @param array        Array to write (Can be <code>null</code>)
-     * @param outputStream Stream where write
-     * @throws IOException On writing issue
-     */
-    public static void writeIntegerArray(final int[] array, final OutputStream outputStream) throws IOException
-    {
-        if (array == null)
-        {
-            UtilIO.writeInteger(-1, outputStream);
-
-            return;
-        }
-
-        final int length = array.length;
-        UtilIO.writeInteger(length, outputStream);
-
-        for (int anArray : array)
-        {
-            UtilIO.writeInteger(anArray, outputStream);
-        }
-    }
-
-    /**
-     * Zip a file or directory inside a file
-     *
-     * @param source      File/directory to zip
-     * @param destination File destination
-     * @throws IOException On zipping issue
-     */
-    public static void zip(final File source, final File destination) throws IOException
-    {
-        UtilIO.zip(source, destination, false);
-    }
-
-    /**
-     * Zip a file or directory inside a file
-     *
-     * @param source                 File/directory to zip
-     * @param destination            File destination
-     * @param onlyContentIfDirectory Indicates to zip only directory content (not the directory itself) if the given
-     *                               file is a directory.
-     * @throws IOException On zipping issue
-     */
-    public static void zip(final File source, final File destination, final boolean onlyContentIfDirectory) throws
-                                                                                                            IOException
-    {
-        if (!UtilIO.createFile(destination))
-        {
-            throw new IOException("Can't create " + destination.getAbsolutePath());
-        }
-
-        FileOutputStream fileOutputStream = null;
-
-        try
-        {
-            fileOutputStream = new FileOutputStream(destination);
-
-            UtilIO.zip(source, fileOutputStream, onlyContentIfDirectory);
-        }
-        finally
-        {
-            if (fileOutputStream != null)
-            {
-                try
-                {
-                    fileOutputStream.flush();
-                }
-                catch (final Exception ignored)
-                {
-                    //Nothing to do
-                }
-
-                try
-                {
-                    fileOutputStream.close();
-                }
-                catch (final Exception ignored)
-                {
-                }
-            }
-        }
-    }
-
-    /**
-     * Zip a file or directory inside a stream
-     *
-     * @param source          File/directory to zip
-     * @param outputStreamZip Where write the zip
-     * @throws IOException On zipping issue
-     */
-    public static void zip(final File source, final OutputStream outputStreamZip) throws IOException
-    {
-        UtilIO.zip(source, outputStreamZip, false);
-    }
-
-    /**
-     * Zip a file or directory inside a stream
-     *
-     * @param source                 File/directory to zip
-     * @param outputStreamZip        Where write the zip
-     * @param onlyContentIfDirectory Indicates to zip only directory content (not the directory itself) if the given
-     *                               file is a directory.
-     * @throws IOException On zipping issue
-     */
-    public static void zip(final File source, final OutputStream outputStreamZip, final boolean onlyContentIfDirectory)
-            throws IOException
-    {
-        ZipEntry              zipEntry;
-        final ZipOutputStream zipOutputStream = new ZipOutputStream(outputStreamZip);
-        // For the best compression
-        zipOutputStream.setLevel(9);
-
-        Pair<String, File>              pair  = new Pair<String, File>(source.getName(), source);
-        final Stack<Pair<String, File>> stack = new Stack<Pair<String, File>>();
-
-        stack.push(pair);
-        boolean ignore = (source.isDirectory()) && (onlyContentIfDirectory);
-
-        while (!stack.isEmpty())
-        {
-            pair = stack.pop();
-
-            if (!UtilIO.isVirtualLink(pair.second))
-            {
-                if (pair.second.isDirectory())
-                {
-                    final File[] content = pair.second.listFiles();
-
-                    if (content != null)
-                    {
-                        if (!ignore)
-                        {
-                            for (final File child : content)
-                            {
-                                stack.push(new Pair<String, File>(pair.first + "/" + child.getName(), child));
-                            }
-                        }
-                        else
-                        {
-                            for (final File child : content)
-                            {
-                                stack.push(new Pair<String, File>(child.getName(), child));
-                            }
-                        }
-                    }
-                }
-                else if (!ignore)
-                {
-                    zipEntry = new ZipEntry(pair.first);
-                    // For the best compression
-                    zipEntry.setMethod(ZipEntry.DEFLATED);
-
-                    zipOutputStream.putNextEntry(zipEntry);
-
-                    UtilIO.write(pair.second, zipOutputStream);
-
-                    zipOutputStream.closeEntry();
-                }
-            }
-
-            ignore = false;
-        }
-
-        zipOutputStream.finish();
-        zipOutputStream.flush();
-    }
-
-    /**
-     * Write a file inside a stream
-     *
-     * @param fileSource   Source file
-     * @param outputStream Stream where write
-     * @throws IOException On copying issue
-     */
-    public static void write(final File fileSource, final OutputStream outputStream) throws IOException
-    {
-        FileInputStream fileInputStream = null;
-
-        try
-        {
-            fileInputStream = new FileInputStream(fileSource);
-
-            UtilIO.write(fileInputStream, outputStream);
-        }
-        finally
-        {
-            if (fileInputStream != null)
-            {
-                try
-                {
-                    fileInputStream.close();
-                }
-                catch (final Exception ignored)
-                {
-                    //Nothing to do
-                }
-            }
-        }
-    }
-
-    public static String readText(final InputStream inputStream) throws IOException
-    {
-        final StringBuilder        stringBuilder = new StringBuilder();
-        final Pointer<IOException> pointer       = new Pointer<>();
-
-        UtilIO.readLines(() -> inputStream,
-                         line ->
-                         {
-                             stringBuilder.append(line);
-                             stringBuilder.append('\n');
-                         },
-                         pointer::data);
-
-        if (pointer.data() != null)
-        {
-            throw pointer.data();
-        }
-
-        return stringBuilder.toString();
+        return true;
     }
 
     public static <I extends InputStream> boolean treatInputStream(
@@ -2252,107 +1764,596 @@ public final class UtilIO
         return true;
     }
 
-    public static <I extends InputStream, O extends OutputStream> boolean treatInputOutputStream(
-            InputStreamProducer<I> producerInput, OutputStreamProducer<O> producerOutput,
-            InputOutputStreamOperation<I, O> operation)
+    /**
+     * Unzip a file inside a directory
+     *
+     * @param directoryDestination Directory where unzip
+     * @param zip                  Zip file
+     * @throws IOException On extracting issue
+     */
+    public static void unzip(final File directoryDestination, final File zip) throws IOException
     {
-        return UtilIO.treatInputOutputStream(producerInput, producerOutput, operation, null);
-    }
-
-    public static <I extends InputStream, O extends OutputStream> boolean treatInputOutputStream(
-            InputStreamProducer<I> producerInput, OutputStreamProducer<O> producerOutput,
-            InputOutputStreamOperation<I, O> operation, ConsumerTask<IOException> onError)
-    {
-        IOException ioException  = null;
-        I           inputStream  = null;
-        O           outputStream = null;
+        FileInputStream fileInputStream = null;
 
         try
         {
-            inputStream = producerInput.produce();
-            outputStream = producerOutput.produce();
-            operation.operate(inputStream, outputStream);
-        }
-        catch (IOException io)
-        {
-            ioException = io;
-        }
-        catch (Exception e)
-        {
-            ioException = new IOException("Failed to do operation!", e);
+            fileInputStream = new FileInputStream(zip);
+
+            UtilIO.unzip(directoryDestination, fileInputStream);
         }
         finally
         {
-            if (outputStream != null)
+            if (fileInputStream != null)
             {
                 try
                 {
-                    outputStream.flush();
+                    fileInputStream.close();
                 }
-                catch (Exception ignored)
+                catch (final Exception ignored)
                 {
-                }
-
-                try
-                {
-                    outputStream.close();
-                }
-                catch (Exception ignored)
-                {
-                }
-
-                if (inputStream != null)
-                {
-                    try
-                    {
-                        inputStream.close();
-                    }
-                    catch (Exception ignored)
-                    {
-                    }
+                    //Nothing to do
                 }
             }
         }
+    }
 
-        if (ioException != null)
+    /**
+     * Unzip a stream inside a directory
+     *
+     * @param directoryDestination Directory where unzip
+     * @param inputStreamZip       Stream to unzip
+     * @throws IOException On unzipping issue
+     */
+    public static void unzip(final File directoryDestination, final InputStream inputStreamZip) throws IOException
+    {
+        File                 destination;
+        final ZipInputStream zipInputStream = new ZipInputStream(inputStreamZip);
+
+        ZipEntry zipEntry = zipInputStream.getNextEntry();
+        String   name;
+
+        while (zipEntry != null)
         {
-            if (onError != null)
+            name = zipEntry.getName();
+            destination = UtilIO.obtainFile(directoryDestination, name);
+
+            if (name.endsWith("/"))
             {
-                onError.consume(ioException);
+                if (!UtilIO.createDirectory(destination))
+                {
+                    throw new IOException("Can't create the directory " + destination.getAbsolutePath());
+                }
             }
             else
             {
-                Debug.exception(ioException, "Issue on operation!");
+                if (!UtilIO.createFile(destination))
+                {
+                    throw new IOException("Can't create the file " + destination.getAbsolutePath());
+                }
+
+                UtilIO.write(zipInputStream, destination);
             }
 
-            return false;
+            zipInputStream.closeEntry();
+
+            zipEntry = zipInputStream.getNextEntry();
+        }
+    }
+
+    /**
+     * Write a stream inside on other one
+     *
+     * @param inputStream  Stream source
+     * @param outputStream Stream destination
+     * @throws IOException On copying issue
+     */
+    public static void write(final InputStream inputStream, final OutputStream outputStream) throws IOException
+    {
+        final byte[] buffer = new byte[UtilIO.BUFFER_SIZE];
+
+        int read = inputStream.read(buffer);
+
+        while (read >= 0)
+        {
+            outputStream.write(buffer, 0, read);
+
+            read = inputStream.read(buffer);
+        }
+    }
+
+    /**
+     * Copy a file inside an other one
+     *
+     * @param fileSource      Source file
+     * @param fileDestination Destination file
+     * @throws IOException On copying issue
+     */
+    public static void write(final File fileSource, final File fileDestination) throws IOException
+    {
+        FileInputStream  fileInputStream  = null;
+        FileOutputStream fileOutputStream = null;
+
+        if (!UtilIO.createFile(fileDestination))
+        {
+            throw new IOException("Can't create the file " + fileDestination.getAbsolutePath());
         }
 
-        return true;
-    }
-
-    public static <I extends InputStream> boolean readLines(
-            InputStreamProducer<I> producerInput, ConsumerTask<String> lineReader)
-    {
-        return UtilIO.readLines(producerInput, lineReader, null);
-    }
-
-    public static <I extends InputStream> boolean readLines(
-            final InputStreamProducer<I> producerInput, final ConsumerTask<String> lineReader,
-            final ConsumerTask<IOException> onError)
-    {
-        return UtilIO.treatInputStream(producerInput, inputStream ->
+        try
         {
-            final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
-            String               line           = bufferedReader.readLine();
+            fileInputStream = new FileInputStream(fileSource);
+            fileOutputStream = new FileOutputStream(fileDestination);
 
-            while (line != null)
+            UtilIO.write(fileInputStream, fileOutputStream);
+        }
+        finally
+        {
+            if (fileOutputStream != null)
             {
-                lineReader.consume(line);
-                line = bufferedReader.readLine();
+                try
+                {
+                    fileOutputStream.flush();
+                }
+                catch (final Exception ignored)
+                {
+                    //Nothing to do
+                }
+
+                try
+                {
+                    fileOutputStream.close();
+                }
+                catch (final Exception ignored)
+                {
+                }
             }
 
-            bufferedReader.close();
-        }, onError);
+            if (fileInputStream != null)
+            {
+                try
+                {
+                    fileInputStream.close();
+                }
+                catch (final Exception ignored)
+                {
+                }
+            }
+        }
+    }
+
+    /**
+     * Write a stream inside a file
+     *
+     * @param inputStream     Stream source
+     * @param fileDestination File destination
+     * @throws IOException On copying issue
+     */
+    public static void write(final InputStream inputStream, final File fileDestination) throws IOException
+    {
+        FileOutputStream fileOutputStream = null;
+
+        if (!UtilIO.createFile(fileDestination))
+        {
+            throw new IOException("Can't create the file " + fileDestination.getAbsolutePath());
+        }
+
+        try
+        {
+            fileOutputStream = new FileOutputStream(fileDestination);
+
+            UtilIO.write(inputStream, fileOutputStream);
+        }
+        finally
+        {
+            if (fileOutputStream != null)
+            {
+                try
+                {
+                    fileOutputStream.flush();
+                }
+                catch (final Exception ignored)
+                {
+                    //Nothing to do
+                }
+
+                try
+                {
+                    fileOutputStream.close();
+                }
+                catch (final Exception ignored)
+                {
+                    //Nothing to do
+                }
+            }
+        }
+    }
+
+    /**
+     * Write a file inside a stream
+     *
+     * @param fileSource   Source file
+     * @param outputStream Stream where write
+     * @throws IOException On copying issue
+     */
+    public static void write(final File fileSource, final OutputStream outputStream) throws IOException
+    {
+        FileInputStream fileInputStream = null;
+
+        try
+        {
+            fileInputStream = new FileInputStream(fileSource);
+
+            UtilIO.write(fileInputStream, outputStream);
+        }
+        finally
+        {
+            if (fileInputStream != null)
+            {
+                try
+                {
+                    fileInputStream.close();
+                }
+                catch (final Exception ignored)
+                {
+                    //Nothing to do
+                }
+            }
+        }
+    }
+
+    /**
+     * Write a {@link BigInteger} in stream.<br>
+     * To read later, you can use {@link #readBigInteger(InputStream)}
+     *
+     * @param bigInteger   {@link BigInteger} to write
+     * @param outputStream Stream where write
+     * @throws IOException On writing issue
+     */
+    public static void writeBigInteger(final BigInteger bigInteger, final OutputStream outputStream) throws IOException
+    {
+        final byte[] temp = bigInteger.toByteArray();
+
+        UtilIO.writeInteger(temp.length, outputStream);
+        outputStream.write(temp);
+    }
+
+    /**
+     * Write a {@link Binarizable} inside a stream.<br>
+     * To read it later, use {@link #readBinarizable(Class, InputStream)}
+     *
+     * @param binarizable  {@link Binarizable} to write
+     * @param outputStream Stream where write
+     * @throws IOException On writing issue
+     */
+    public static void writeBinarizable(final Binarizable binarizable, final OutputStream outputStream)
+            throws IOException
+    {
+        final ByteArray byteArray = new ByteArray();
+
+        byteArray.writeBinarizable(binarizable);
+
+        UtilIO.write(byteArray.getInputStream(), outputStream);
+    }
+
+    /**
+     * Write a {@link Binarizable} inside a stream.<br>
+     * To read it later, use {@link #readBinarizableNamed(InputStream)}
+     *
+     * @param binarizable  {@link Binarizable} to write
+     * @param outputStream Stream where write
+     * @throws IOException On writing issue
+     */
+    public static void writeBinarizableNamed(final Binarizable binarizable, final OutputStream outputStream) throws
+                                                                                                             IOException
+    {
+        UtilIO.writeString(binarizable.getClass()
+                                      .getName(), outputStream);
+
+        UtilIO.writeBinarizable(binarizable, outputStream);
+    }
+
+    /**
+     * Write a part of byte array on stream
+     *
+     * @param array        Array to write
+     * @param offset       Offset where start read the array
+     * @param length       Number of byte to write
+     * @param outputStream Stream where write
+     * @throws IOException On writing issue
+     */
+    public static void writeByteArray(
+            final byte[] array, final int offset, final int length, final OutputStream
+            outputStream) throws IOException
+    {
+        final int len = Math.min(array.length - offset, length);
+
+        UtilIO.writeInteger(len, outputStream);
+        outputStream.write(array, offset, len);
+    }
+
+    /**
+     * Write an array on stream.<br>
+     * Same as {@link #writeByteArray(byte[], int, int, OutputStream) writeByteArray(array, 0, array.length, outputStream)}
+     *
+     * @param array        Array to write
+     * @param outputStream Stream where write
+     * @throws IOException On writing issue
+     */
+    public static void writeByteArray(final byte[] array, final OutputStream outputStream) throws IOException
+    {
+        UtilIO.writeByteArray(array, 0, array.length, outputStream);
+    }
+
+    /**
+     * Write double in a stream
+     *
+     * @param d            Double to write
+     * @param outputStream Stream where write
+     * @throws IOException On writing problem
+     */
+    public static void writeDouble(final double d, final OutputStream outputStream) throws IOException
+    {
+        UtilIO.writeLong(Double.doubleToLongBits(d), outputStream);
+    }
+
+    /**
+     * Write a float in stream
+     *
+     * @param f            Float to write
+     * @param outputStream Stream where write
+     * @throws IOException On writing issue
+     */
+    public static void writeFloat(final float f, final OutputStream outputStream) throws IOException
+    {
+        UtilIO.writeInteger(Float.floatToIntBits(f), outputStream);
+    }
+
+    /**
+     * Write a float[] in stream
+     *
+     * @param array        Float array to write
+     * @param outputStream Stream where write
+     * @throws IOException On writing issue
+     */
+    public static void writeFloatArray(final float[] array, final OutputStream outputStream) throws IOException
+    {
+        if (array == null)
+        {
+            UtilIO.writeInteger(-1, outputStream);
+
+            return;
+        }
+
+        final int length = array.length;
+        UtilIO.writeInteger(length, outputStream);
+
+        for (float anArray : array)
+        {
+            UtilIO.writeFloat(anArray, outputStream);
+        }
+    }
+
+    /**
+     * Write an integer to stream
+     *
+     * @param integer      Integer to write
+     * @param outputStream Stream where write
+     * @throws IOException On writing issue
+     */
+    public static void writeInteger(final int integer, final OutputStream outputStream) throws IOException
+    {
+        outputStream.write((integer >> 24) & 0xFF);
+        outputStream.write((integer >> 16) & 0xFF);
+        outputStream.write((integer >> 8) & 0xFF);
+        outputStream.write(integer & 0xFF);
+    }
+
+    /**
+     * Write an array of integer in stream (Can be read later with {@link #readIntegerArray(InputStream)}
+     *
+     * @param array        Array to write (Can be <code>null</code>)
+     * @param outputStream Stream where write
+     * @throws IOException On writing issue
+     */
+    public static void writeIntegerArray(final int[] array, final OutputStream outputStream) throws IOException
+    {
+        if (array == null)
+        {
+            UtilIO.writeInteger(-1, outputStream);
+
+            return;
+        }
+
+        final int length = array.length;
+        UtilIO.writeInteger(length, outputStream);
+
+        for (int anArray : array)
+        {
+            UtilIO.writeInteger(anArray, outputStream);
+        }
+    }
+
+    /**
+     * Write long in a stream
+     *
+     * @param integer      Long to write
+     * @param outputStream Stream where write
+     * @throws IOException On writing problem
+     */
+    public static void writeLong(final long integer, final OutputStream outputStream) throws IOException
+    {
+        outputStream.write((int) ((integer >> 56) & 0xFF));
+        outputStream.write((int) ((integer >> 48) & 0xFF));
+        outputStream.write((int) ((integer >> 40) & 0xFF));
+        outputStream.write((int) ((integer >> 32) & 0xFF));
+        outputStream.write((int) ((integer >> 24) & 0xFF));
+        outputStream.write((int) ((integer >> 16) & 0xFF));
+        outputStream.write((int) ((integer >> 8) & 0xFF));
+        outputStream.write((int) (integer & 0xFF));
+    }
+
+    /**
+     * Write string to stream
+     *
+     * @param string       String to write
+     * @param outputStream Stream where write
+     * @throws IOException On writing issue
+     */
+    public static void writeString(final String string, final OutputStream outputStream) throws IOException
+    {
+        final byte[] utf8 = UtilText.toUTF8(string);
+
+        UtilIO.writeByteArray(utf8, 0, utf8.length, outputStream);
+    }
+
+    /**
+     * Zip a file or directory inside a file
+     *
+     * @param source      File/directory to zip
+     * @param destination File destination
+     * @throws IOException On zipping issue
+     */
+    public static void zip(final File source, final File destination) throws IOException
+    {
+        UtilIO.zip(source, destination, false);
+    }
+
+    /**
+     * Zip a file or directory inside a file
+     *
+     * @param source                 File/directory to zip
+     * @param destination            File destination
+     * @param onlyContentIfDirectory Indicates to zip only directory content (not the directory itself) if the given
+     *                               file is a directory.
+     * @throws IOException On zipping issue
+     */
+    public static void zip(final File source, final File destination, final boolean onlyContentIfDirectory) throws
+                                                                                                            IOException
+    {
+        if (!UtilIO.createFile(destination))
+        {
+            throw new IOException("Can't create " + destination.getAbsolutePath());
+        }
+
+        FileOutputStream fileOutputStream = null;
+
+        try
+        {
+            fileOutputStream = new FileOutputStream(destination);
+
+            UtilIO.zip(source, fileOutputStream, onlyContentIfDirectory);
+        }
+        finally
+        {
+            if (fileOutputStream != null)
+            {
+                try
+                {
+                    fileOutputStream.flush();
+                }
+                catch (final Exception ignored)
+                {
+                    //Nothing to do
+                }
+
+                try
+                {
+                    fileOutputStream.close();
+                }
+                catch (final Exception ignored)
+                {
+                }
+            }
+        }
+    }
+
+    /**
+     * Zip a file or directory inside a stream
+     *
+     * @param source          File/directory to zip
+     * @param outputStreamZip Where write the zip
+     * @throws IOException On zipping issue
+     */
+    public static void zip(final File source, final OutputStream outputStreamZip) throws IOException
+    {
+        UtilIO.zip(source, outputStreamZip, false);
+    }
+
+    /**
+     * Zip a file or directory inside a stream
+     *
+     * @param source                 File/directory to zip
+     * @param outputStreamZip        Where write the zip
+     * @param onlyContentIfDirectory Indicates to zip only directory content (not the directory itself) if the given
+     *                               file is a directory.
+     * @throws IOException On zipping issue
+     */
+    public static void zip(final File source, final OutputStream outputStreamZip, final boolean onlyContentIfDirectory)
+            throws IOException
+    {
+        ZipEntry              zipEntry;
+        final ZipOutputStream zipOutputStream = new ZipOutputStream(outputStreamZip);
+        // For the best compression
+        zipOutputStream.setLevel(9);
+
+        Pair<String, File>              pair  = new Pair<>(source.getName(), source);
+        final Stack<Pair<String, File>> stack = new Stack<>();
+
+        stack.push(pair);
+        boolean ignore = (source.isDirectory()) && (onlyContentIfDirectory);
+
+        while (!stack.isEmpty())
+        {
+            pair = stack.pop();
+
+            if (!UtilIO.isVirtualLink(pair.second))
+            {
+                if (pair.second.isDirectory())
+                {
+                    final File[] content = pair.second.listFiles();
+
+                    if (content != null)
+                    {
+                        if (!ignore)
+                        {
+                            for (final File child : content)
+                            {
+                                stack.push(new Pair<>(pair.first + "/" + child.getName(), child));
+                            }
+                        }
+                        else
+                        {
+                            for (final File child : content)
+                            {
+                                stack.push(new Pair<>(child.getName(), child));
+                            }
+                        }
+                    }
+                }
+                else if (!ignore)
+                {
+                    zipEntry = new ZipEntry(pair.first);
+                    // For the best compression
+                    zipEntry.setMethod(ZipEntry.DEFLATED);
+
+                    zipOutputStream.putNextEntry(zipEntry);
+
+                    UtilIO.write(pair.second, zipOutputStream);
+
+                    zipOutputStream.closeEntry();
+                }
+            }
+
+            ignore = false;
+        }
+
+        zipOutputStream.finish();
+        zipOutputStream.flush();
+    }
+
+    /**
+     * To avoid instance
+     */
+    private UtilIO()
+    {
     }
 }

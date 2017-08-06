@@ -1,14 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any
- * damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.filter;
 
 import java.io.File;
@@ -30,55 +31,6 @@ public final class FileFilter
         extends javax.swing.filechooser.FileFilter
         implements FilenameFilter, java.io.FileFilter
 {
-    /**
-     * Indicates if hidden files are accepted
-     */
-    private final boolean            acceptHidden;
-    /**
-     * Indicates if virtual links are accepted
-     */
-    private final boolean            acceptVirtualLink;
-    /**
-     * Filtered extensions
-     */
-    private final ArrayList<String>  extentions;
-    /**
-     * Indicates if directories are accepted
-     */
-    private       boolean            acceptDirectory;
-    /**
-     * Filter information
-     */
-    private       String             information;
-    /**
-     * Second filter
-     */
-    private       java.io.FileFilter secondFileFilter;
-
-    /**
-     * Constructs FileFilter
-     */
-    public FileFilter()
-    {
-        this(false, false);
-    }
-
-    /**
-     * Create a new instance of FileFilter
-     *
-     * @param acceptHidden      Indicates if hidden files are accepted
-     * @param acceptVirtualLink Indicates if virtual links files are accepted
-     */
-    public FileFilter(final boolean acceptHidden, final boolean acceptVirtualLink)
-    {
-        this.extentions = new ArrayList<String>();
-        this.information = "All";
-
-        this.acceptHidden = acceptHidden;
-        this.acceptVirtualLink = acceptVirtualLink;
-        this.acceptDirectory = true;
-    }
-
     /**
      * Create filter initialize to filter images
      *
@@ -109,29 +61,6 @@ public final class FileFilter
         fileFilter.setInformation("Images");
 
         return fileFilter;
-    }
-
-    /**
-     * Add an extension in the filter
-     *
-     * @param extension Extension added
-     */
-    public void addExtension(String extension)
-    {
-        if (extension == null)
-        {
-            throw new NullPointerException("extension MUST NOT be null");
-        }
-
-        extension = extension.trim()
-                             .toLowerCase();
-
-        if (extension.length() == 0)
-        {
-            throw new NullPointerException("extension MUST NOT be empty");
-        }
-
-        this.extentions.add(extension);
     }
 
     /**
@@ -230,6 +159,55 @@ public final class FileFilter
     }
 
     /**
+     * Indicates if directories are accepted
+     */
+    private       boolean            acceptDirectory;
+    /**
+     * Indicates if hidden files are accepted
+     */
+    private final boolean            acceptHidden;
+    /**
+     * Indicates if virtual links are accepted
+     */
+    private final boolean            acceptVirtualLink;
+    /**
+     * Filtered extensions
+     */
+    private final ArrayList<String>  extentions;
+    /**
+     * Filter information
+     */
+    private       String             information;
+    /**
+     * Second filter
+     */
+    private       java.io.FileFilter secondFileFilter;
+
+    /**
+     * Constructs FileFilter
+     */
+    public FileFilter()
+    {
+        this(false, false);
+    }
+
+    /**
+     * Create a new instance of FileFilter
+     *
+     * @param acceptHidden      Indicates if hidden files are accepted
+     * @param acceptVirtualLink Indicates if virtual links files are accepted
+     */
+    public FileFilter(final boolean acceptHidden, final boolean acceptVirtualLink)
+    {
+        this.extentions = new ArrayList<>();
+        this.information = "All";
+
+        this.acceptHidden = acceptHidden;
+        this.acceptVirtualLink = acceptVirtualLink;
+        this.acceptDirectory = true;
+    }
+
+    /**
      * Indicates if a file pass this filter
      *
      * @param dir  Directory path
@@ -313,6 +291,29 @@ public final class FileFilter
     }
 
     /**
+     * Add an extension in the filter
+     *
+     * @param extension Extension added
+     */
+    public void addExtension(String extension)
+    {
+        if (extension == null)
+        {
+            throw new NullPointerException("extension MUST NOT be null");
+        }
+
+        extension = extension.trim()
+                             .toLowerCase();
+
+        if (extension.length() == 0)
+        {
+            throw new NullPointerException("extension MUST NOT be empty");
+        }
+
+        this.extentions.add(extension);
+    }
+
+    /**
      * Filter string
      *
      * @return Filter string
@@ -337,39 +338,6 @@ public final class FileFilter
         }
 
         return stringBuffer.toString();
-    }
-
-    /**
-     * Indicates if a file is filter
-     *
-     * @param fileName File name
-     * @return {@code true} if the file is filter
-     */
-    public boolean isFiltered(String fileName)
-    {
-        if (this.extentions.isEmpty())
-        {
-            return true;
-        }
-
-        final int index = fileName.lastIndexOf('.');
-        if (index < 0)
-        {
-            return false;
-        }
-
-        fileName = fileName.substring(index + 1)
-                           .toLowerCase();
-
-        for (final String extention : this.extentions)
-        {
-            if (extention.equals(fileName))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**
@@ -465,6 +433,39 @@ public final class FileFilter
         }
 
         return this.extentions.contains(extention);
+    }
+
+    /**
+     * Indicates if a file is filter
+     *
+     * @param fileName File name
+     * @return {@code true} if the file is filter
+     */
+    public boolean isFiltered(String fileName)
+    {
+        if (this.extentions.isEmpty())
+        {
+            return true;
+        }
+
+        final int index = fileName.lastIndexOf('.');
+        if (index < 0)
+        {
+            return false;
+        }
+
+        fileName = fileName.substring(index + 1)
+                           .toLowerCase();
+
+        for (final String extention : this.extentions)
+        {
+            if (extention.equals(fileName))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

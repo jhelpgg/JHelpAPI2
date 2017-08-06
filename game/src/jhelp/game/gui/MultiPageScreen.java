@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.game.gui;
 
 import com.sun.istack.internal.NotNull;
@@ -26,11 +38,12 @@ public abstract class MultiPageScreen<S extends Enum> extends StateMachine<S> im
         this.screen = this.obtainScreen(initialState);
     }
 
-    @Override
-    public final void updateScreen(final JHelpImage image)
+    private @NotNull Screen obtainScreen(@NotNull S state)
     {
-        this.screen.updateScreen(image);
+        return this.screens.computeIfAbsent(state, this::createScreen);
     }
+
+    protected abstract @NotNull Screen createScreen(@NotNull S state);
 
     public final void screen(@NotNull S state)
     {
@@ -40,10 +53,9 @@ public abstract class MultiPageScreen<S extends Enum> extends StateMachine<S> im
         }
     }
 
-    private @NotNull Screen obtainScreen(@NotNull S state)
+    @Override
+    public final void updateScreen(final JHelpImage image)
     {
-        return this.screens.computeIfAbsent(state, this::createScreen);
+        this.screen.updateScreen(image);
     }
-
-    protected abstract @NotNull Screen createScreen(@NotNull S state);
 }

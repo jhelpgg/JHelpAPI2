@@ -1,14 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any
- * damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.gui.resolution;
 
 import jhelp.util.math.Math2;
@@ -20,16 +21,16 @@ import jhelp.util.math.Math2;
  */
 public final class Resolution
 {
-    /** Number of pixels per inch */
+    /**
+     * Number of pixels per inch
+     */
     private final int pixelPerInch;
 
     /**
      * Create a new instance of Resolution
      *
-     * @param value
-     *           Screen resolution
-     * @param resolutionUnit
-     *           Resolution unit of given value
+     * @param value          Screen resolution
+     * @param resolutionUnit Resolution unit of given value
      */
     public Resolution(final int value, final ResolutionUnit resolutionUnit)
     {
@@ -54,8 +55,7 @@ public final class Resolution
     /**
      * Obtain resolution in given resolution unit
      *
-     * @param resolutionUnit
-     *           Resolution unit
+     * @param resolutionUnit Resolution unit
      * @return Resolution in given resolution unit
      */
     public int getResolution(final ResolutionUnit resolutionUnit)
@@ -79,10 +79,8 @@ public final class Resolution
     /**
      * Number of pixels inside a distance
      *
-     * @param value
-     *           Distance value
-     * @param measureUnit
-     *           Distance unit
+     * @param value       Distance value
+     * @param measureUnit Distance unit
      * @return Number of Pixels
      */
     public int numberOfPixels(double value, final MeasureUnit measureUnit)
@@ -119,10 +117,8 @@ public final class Resolution
     /**
      * Convert a number of pixels to a measure unit
      *
-     * @param pixels
-     *           Number of pixels
-     * @param measureUnit
-     *           Measure to convert
+     * @param pixels      Number of pixels
+     * @param measureUnit Measure to convert
      * @return Converted value
      */
     public double pixelsToMeasure(final double pixels, final MeasureUnit measureUnit)

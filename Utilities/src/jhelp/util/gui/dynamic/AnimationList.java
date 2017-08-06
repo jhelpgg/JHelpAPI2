@@ -1,22 +1,23 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any
- * damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.gui.dynamic;
 
 import java.util.ArrayList;
 import java.util.List;
 import jhelp.util.gui.JHelpImage;
 import jhelp.util.list.Pair;
-import jhelp.util.thread.ThreadManager;
 import jhelp.util.thread.ConsumerTask;
+import jhelp.util.thread.ThreadManager;
 
 /**
  * List of animation to be played one after other
@@ -27,17 +28,36 @@ public final class AnimationList
         implements DynamicAnimation
 {
     /**
+     * Task for indicates to a listener that one animation inside list he is register for is finish
+     *
+     * @author JHelp
+     */
+    class TaskCallBackFinishListener
+            implements ConsumerTask<Pair<DynamicAnimation, DynamicAnimationFinishListener>>
+    {
+
+        /**
+         * Create a new instance of TaskCallBackFinishListener
+         */
+        TaskCallBackFinishListener()
+        {
+        }
+
+        /**
+         * Play the task
+         *
+         * @param parameter Task parameter
+         */
+        @Override public void consume(final Pair<DynamicAnimation, DynamicAnimationFinishListener> parameter)
+        {
+            parameter.second.dynamicAnimationFinished(parameter.first);
+        }
+    }
+
+    /**
      * Animations list
      */
     private final List<Pair<DynamicAnimation, DynamicAnimationFinishListener>> animations;
-    /**
-     * Number of loop to do
-     */
-    private final int                                                          numberOfLoop;
-    /**
-     * Task for signal to a listener that one animation is finished
-     */
-    private final TaskCallBackFinishListener                                   taskCallBackFinishListener;
     /**
      * Current animation index
      */
@@ -46,6 +66,14 @@ public final class AnimationList
      * Number of loop left
      */
     private       int                                                          loopLeft;
+    /**
+     * Number of loop to do
+     */
+    private final int                                                          numberOfLoop;
+    /**
+     * Task for signal to a listener that one animation is finished
+     */
+    private final TaskCallBackFinishListener                                   taskCallBackFinishListener;
 
     /**
      * Create a new instance of AnimationList
@@ -55,7 +83,7 @@ public final class AnimationList
     public AnimationList(final int numberOfLoop)
     {
         this.numberOfLoop = Math.max(1, numberOfLoop);
-        this.animations = new ArrayList<Pair<DynamicAnimation, DynamicAnimationFinishListener>>();
+        this.animations = new ArrayList<>();
         this.taskCallBackFinishListener = new TaskCallBackFinishListener();
     }
 
@@ -84,7 +112,7 @@ public final class AnimationList
 
         synchronized (this.animations)
         {
-            this.animations.add(new Pair<DynamicAnimation, DynamicAnimationFinishListener>(dynamicAnimation, listener));
+            this.animations.add(new Pair<>(dynamicAnimation, listener));
         }
     }
 
@@ -204,33 +232,6 @@ public final class AnimationList
             {
                 this.animations.get(0).first.startAnimation(startAbsoluteFrame, image);
             }
-        }
-    }
-
-    /**
-     * Task for indicates to a listener that one animation inside list he is register for is finish
-     *
-     * @author JHelp
-     */
-    class TaskCallBackFinishListener
-            implements ConsumerTask<Pair<DynamicAnimation, DynamicAnimationFinishListener>>
-    {
-
-        /**
-         * Create a new instance of TaskCallBackFinishListener
-         */
-        TaskCallBackFinishListener()
-        {
-        }
-
-        /**
-         * Play the task
-         *
-         * @param parameter Task parameter
-         */
-        @Override public void consume(final Pair<DynamicAnimation, DynamicAnimationFinishListener> parameter)
-        {
-            parameter.second.dynamicAnimationFinished(parameter.first);
         }
     }
 }

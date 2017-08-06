@@ -1,14 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any
- * damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.image.raster;
 
 import java.io.IOException;
@@ -57,22 +58,20 @@ public class Image16Bit
     }
 
     /**
-     * Get one pixel color
+     * clear the image <br>
+     * <br>
+     * <b>Parent documentation:</b><br>
+     * {@inheritDoc}
      *
-     * @param x X
-     * @param y Y
-     * @return Color
+     * @see jhelp.util.image.raster.RasterImage#clear()
      */
-    public int getColor(final int x, final int y)
+    @Override
+    public void clear()
     {
-        if ((x < 0) || (x >= this.width) || (y < 0) || (y >= this.height))
+        for (int i = this.data.length - 1; i >= 0; i--)
         {
-            throw new IllegalArgumentException(
-                    "x must be in [0, " + this.width + "[ and y in [0, " + this.height + "[ but specified point (" + x +
-                    ", " + y + ")");
+            this.data[i] = (byte) 0;
         }
-
-        return this.data[x + (y * this.width)];
     }
 
     /**
@@ -89,6 +88,21 @@ public class Image16Bit
     }
 
     /**
+     * Image type <br>
+     * <br>
+     * <b>Parent documentation:</b><br>
+     * {@inheritDoc}
+     *
+     * @return Image type
+     * @see jhelp.util.image.raster.RasterImage#getImageType()
+     */
+    @Override
+    public RasterImageType getImageType()
+    {
+        return RasterImageType.IMAGE_16_BITS;
+    }
+
+    /**
      * Image width <br>
      * <br>
      * <b>Parent documentation:</b><br>
@@ -99,6 +113,40 @@ public class Image16Bit
     public int getWidth()
     {
         return this.width;
+    }
+
+    /**
+     * Convert to JHelp image <br>
+     * <br>
+     * <b>Parent documentation:</b><br>
+     * {@inheritDoc}
+     *
+     * @return Converted image
+     * @see jhelp.util.image.raster.RasterImage#toJHelpImage()
+     */
+    @Override
+    public JHelpImage toJHelpImage()
+    {
+        return new JHelpImage(this.width, this.height, this.data);
+    }
+
+    /**
+     * Get one pixel color
+     *
+     * @param x X
+     * @param y Y
+     * @return Color
+     */
+    public int getColor(final int x, final int y)
+    {
+        if ((x < 0) || (x >= this.width) || (y < 0) || (y >= this.height))
+        {
+            throw new IllegalArgumentException(
+                    "x must be in [0, " + this.width + "[ and y in [0, " + this.height + "[ but specified point (" + x +
+                    ", " + y + ")");
+        }
+
+        return this.data[x + (y * this.width)];
     }
 
     /**
@@ -137,53 +185,6 @@ public class Image16Bit
 
             y--;
         }
-    }
-
-    /**
-     * clear the image <br>
-     * <br>
-     * <b>Parent documentation:</b><br>
-     * {@inheritDoc}
-     *
-     * @see jhelp.util.image.raster.RasterImage#clear()
-     */
-    @Override
-    public void clear()
-    {
-        for (int i = this.data.length - 1; i >= 0; i--)
-        {
-            this.data[i] = (byte) 0;
-        }
-    }
-
-    /**
-     * Image type <br>
-     * <br>
-     * <b>Parent documentation:</b><br>
-     * {@inheritDoc}
-     *
-     * @return Image type
-     * @see jhelp.util.image.raster.RasterImage#getImageType()
-     */
-    @Override
-    public RasterImageType getImageType()
-    {
-        return RasterImageType.IMAGE_16_BITS;
-    }
-
-    /**
-     * Convert to JHelp image <br>
-     * <br>
-     * <b>Parent documentation:</b><br>
-     * {@inheritDoc}
-     *
-     * @return Converted image
-     * @see jhelp.util.image.raster.RasterImage#toJHelpImage()
-     */
-    @Override
-    public JHelpImage toJHelpImage()
-    {
-        return new JHelpImage(this.width, this.height, this.data);
     }
 
     /**

@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.list;
 
 import com.sun.istack.internal.NotNull;
@@ -7,13 +19,13 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
+import jhelp.util.thread.ConsumerTask;
 import jhelp.util.thread.Filter;
 import jhelp.util.thread.Future;
 import jhelp.util.thread.Promise;
 import jhelp.util.thread.Task;
 import jhelp.util.thread.TaskException;
 import jhelp.util.thread.ThreadManager;
-import jhelp.util.thread.ConsumerTask;
 
 /**
  * Tools for execute a task in parallel for each element of a collection, iterable, iterator, enumeration or array.<br>
@@ -68,7 +80,8 @@ public class ForEach
      * @param <T>           Elements type
      * @return Future to track/link to the end of all parallel tasks
      */
-    public static @NotNull <T> Future<Void> async(@NotNull SizedIterable<T> sizedIterable, @NotNull ConsumerTask<T> task)
+    public static @NotNull <T> Future<Void> async(
+            @NotNull SizedIterable<T> sizedIterable, @NotNull ConsumerTask<T> task)
     {
         return ForEach.async(sizedIterable.size(), sizedIterable, task, null);
     }
@@ -360,7 +373,7 @@ public class ForEach
      */
     public static <T> void forEach(@NotNull T[] array, @NotNull ConsumerTask<T> task, @Nullable Filter<T> filter)
     {
-        ForEach.forEach((Iterable<T>) new EnumerationIterator<T>(array), task, null);
+        ForEach.forEach((Iterable<T>) new EnumerationIterator<>(array), task, null);
     }
 
     /**
@@ -372,7 +385,8 @@ public class ForEach
      * @param filter   Filter on elements. Only filtered elements are given to the task
      * @param <T>      Elements type
      */
-    public static <T> void forEach(@NotNull Iterable<T> iterable, @NotNull ConsumerTask<T> task, @Nullable Filter<T> filter)
+    public static <T> void forEach(
+            @NotNull Iterable<T> iterable, @NotNull ConsumerTask<T> task, @Nullable Filter<T> filter)
     {
         Objects.requireNonNull(iterable, "iterable");
         Objects.requireNonNull(task, "task");

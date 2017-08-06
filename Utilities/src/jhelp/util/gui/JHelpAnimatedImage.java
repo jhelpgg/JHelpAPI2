@@ -1,14 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any
- * damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.gui;
 
 import java.awt.Rectangle;
@@ -28,6 +29,68 @@ import java.util.List;
  */
 public class JHelpAnimatedImage
 {
+    /**
+     * Animation mode
+     *
+     * @author JHelp
+     */
+    public enum AnimationMode
+    {
+        /**
+         * Loop mode
+         */
+        LOOP,
+        /**
+         * Revese mode
+         */
+        REVERSE
+    }
+
+    /**
+     * Represents a frame of the animation
+     *
+     * @author JHelp
+     */
+    public static class AnimationFrame
+    {
+        /**
+         * Image to draw
+         */
+        public final JHelpImage image;
+        /**
+         * Zone of the image
+         */
+        public       Rectangle  imagePart;
+        /**
+         * Time duration of the frame
+         */
+        public       int        time;
+        /**
+         * Frame X position
+         */
+        public       int        x;
+        /**
+         * Frame Y position
+         */
+        public       int        y;
+
+        /**
+         * Create a new instance of AnimationFrame
+         *
+         * @param image Image for the frame
+         * @param x     X position
+         * @param y     Y position
+         * @param time  Time to play the frame
+         */
+        public AnimationFrame(final JHelpImage image, final int x, final int y, final int time)
+        {
+            this.image = image;
+            this.x = x;
+            this.y = y;
+            this.time = time;
+        }
+    }
+
     /**
      * Actual mode
      */
@@ -74,7 +137,22 @@ public class JHelpAnimatedImage
         this.imageToRefresh = imageToRefresh;
         this.animationMode = animationMode;
 
-        this.frames = new ArrayList<AnimationFrame>();
+        this.frames = new ArrayList<>();
+    }
+
+    /**
+     * Refresh the image
+     */
+    private void refreshImage()
+    {
+        final AnimationFrame animationFrame = this.frames.get(this.index);
+
+        this.imageToRefresh.startDrawMode();
+
+        this.imageToRefresh.clear(0x00000000);
+        this.imageToRefresh.drawImage(animationFrame.x, animationFrame.y, animationFrame.image);
+
+        this.imageToRefresh.endDrawMode();
     }
 
     /**
@@ -199,83 +277,6 @@ public class JHelpAnimatedImage
         if (!this.frames.isEmpty())
         {
             this.refreshImage();
-        }
-    }
-
-    /**
-     * Refresh the image
-     */
-    private void refreshImage()
-    {
-        final AnimationFrame animationFrame = this.frames.get(this.index);
-
-        this.imageToRefresh.startDrawMode();
-
-        this.imageToRefresh.clear(0x00000000);
-        this.imageToRefresh.drawImage(animationFrame.x, animationFrame.y, animationFrame.image);
-
-        this.imageToRefresh.endDrawMode();
-    }
-
-    /**
-     * Animation mode
-     *
-     * @author JHelp
-     */
-    public enum AnimationMode
-    {
-        /**
-         * Loop mode
-         */
-        LOOP,
-        /**
-         * Revese mode
-         */
-        REVERSE
-    }
-
-    /**
-     * Represents a frame of the animation
-     *
-     * @author JHelp
-     */
-    public static class AnimationFrame
-    {
-        /**
-         * Image to draw
-         */
-        public final JHelpImage image;
-        /**
-         * Zone of the image
-         */
-        public       Rectangle  imagePart;
-        /**
-         * Time duration of the frame
-         */
-        public       int        time;
-        /**
-         * Frame X position
-         */
-        public       int        x;
-        /**
-         * Frame Y position
-         */
-        public       int        y;
-
-        /**
-         * Create a new instance of AnimationFrame
-         *
-         * @param image Image for the frame
-         * @param x     X position
-         * @param y     Y position
-         * @param time  Time to play the frame
-         */
-        public AnimationFrame(final JHelpImage image, final int x, final int y, final int time)
-        {
-            this.image = image;
-            this.x = x;
-            this.y = y;
-            this.time = time;
         }
     }
 }

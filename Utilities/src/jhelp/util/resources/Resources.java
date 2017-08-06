@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.resources;
 
 import java.awt.image.BufferedImage;
@@ -32,6 +44,10 @@ import jhelp.util.io.UtilIO;
 public class Resources
 {
     /**
+     * Base directory
+     */
+    private       File                            baseDirectory;
+    /**
      * Indicates if resources are outside the jar
      */
     private final boolean                         externalFiles;
@@ -44,17 +60,13 @@ public class Resources
      */
     private final String                          relativePathFormClass;
     /**
-     * Map of already loaded resources text
-     */
-    private final Hashtable<String, ResourceText> resourcesTexts;
-    /**
-     * Base directory
-     */
-    private       File                            baseDirectory;
-    /**
      * Resources system associated to the resources
      */
     private       ResourcesSystem                 resourcesSystem;
+    /**
+     * Map of already loaded resources text
+     */
+    private final Hashtable<String, ResourceText> resourcesTexts;
 
     /**
      * Create a new instance of Resources.<br>
@@ -64,7 +76,7 @@ public class Resources
     {
         this.referenceClass = null;
         this.relativePathFormClass = null;
-        this.resourcesTexts = new Hashtable<String, ResourceText>();
+        this.resourcesTexts = new Hashtable<>();
         this.externalFiles = true;
     }
 
@@ -78,7 +90,7 @@ public class Resources
     {
         this.referenceClass = referenceClass;
         this.relativePathFormClass = null;
-        this.resourcesTexts = new Hashtable<String, ResourceText>();
+        this.resourcesTexts = new Hashtable<>();
         this.externalFiles = false;
     }
 
@@ -96,7 +108,7 @@ public class Resources
 
         this.referenceClass = null;
         this.relativePathFormClass = null;
-        this.resourcesTexts = new Hashtable<String, ResourceText>();
+        this.resourcesTexts = new Hashtable<>();
         this.externalFiles = true;
         this.baseDirectory = directory;
     }
@@ -157,7 +169,7 @@ public class Resources
 
         this.relativePathFormClass = stringBuilder.toString();
 
-        this.resourcesTexts = new Hashtable<String, ResourceText>();
+        this.resourcesTexts = new Hashtable<>();
         this.externalFiles = false;
     }
 
@@ -171,6 +183,108 @@ public class Resources
     public BufferedImage obtainBufferedImage(final String path) throws IOException
     {
         return ImageIO.read(this.obtainResourceStream(path));
+    }
+
+    /**
+     * Get a GIF image from resources
+     *
+     * @param source Source path
+     * @return The GIF image OR {@code null} if the resource path not exists or not a GIF
+     */
+    public GIF obtainGIF(final String source)
+    {
+        try
+        {
+            return new GIF(this.obtainResourceStream(source));
+        }
+        catch (final Exception exception)
+        {
+            Debug.exception(exception, "Failed to load gif : ", source);
+        }
+
+        return null;
+    }
+
+    /**
+     * Obtain a image icon
+     *
+     * @param path Relative path of the image (Separator is "/")
+     * @return The buffered image
+     */
+    public ImageIcon obtainImageIcon(final String path)
+    {
+        return new ImageIcon(this.obtainResourceURL(path));
+    }
+
+    /**
+     * Obtain a font embed in resources
+     *
+     * @param type Font type
+     * @param path Resource path
+     * @param size Font size
+     * @return Created font
+     */
+    public JHelpFont obtainJHelpFont(final JHelpFont.Type type, final String path, final int size)
+    {
+        return this.obtainJHelpFont(type, path, size, JHelpFont.Value.FREE, JHelpFont.Value.FREE, false);
+    }
+
+    /**
+     * Obtain a font embed in resources
+     *
+     * @param type      Font type
+     * @param path      Resource path
+     * @param size      Font size
+     * @param bold      Bold value
+     * @param italic    Italic value
+     * @param underline Indicates if have to underline
+     * @return Created font
+     */
+    public JHelpFont obtainJHelpFont(
+            final JHelpFont.Type type, final String path, final int size,
+            final JHelpFont.Value bold, final JHelpFont.Value italic,
+            final boolean underline)
+    {
+        return JHelpFont.createFont(type, this.obtainResourceStream(path), size, bold, italic, underline);
+    }
+
+    /**
+     * Obtain a {@link JHelpImage}
+     *
+     * @param path Relative path of the image (Separator is "/")
+     * @return The image
+     */
+    public JHelpImage obtainJHelpImage(final String path)
+    {
+        try
+        {
+            return JHelpImage.loadImage(this.obtainResourceStream(path));
+        }
+        catch (final Exception exception)
+        {
+            try
+            {
+                final PCX pcx = new PCX(this.obtainResourceStream(path));
+                return pcx.createImage();
+            }
+            catch (final Exception exception2)
+            {
+                return JHelpImage.DUMMY;
+            }
+        }
+    }
+
+    /**
+     * Obtain an image from resources resized to given size
+     *
+     * @param path   Resource path
+     * @param width  Desired width
+     * @param height Desired height
+     * @return Resized image
+     */
+    public JHelpImage obtainResizedJHelpImage(final String path, final int width, final int height)
+    {
+        return JHelpImage.createResizedImage(this.obtainJHelpImage(path), width, height);
     }
 
     /**
@@ -209,34 +323,24 @@ public class Resources
     }
 
     /**
-     * Get a GIF image from resources
+     * Obtain a resource of texts
      *
-     * @param source Source path
-     * @return The GIF image OR {@code null} if the resource path not exists or not a GIF
+     * @param path Relative path of the resource of texts (Separator is "/")
+     * @return Resources of text or null if the resource not found
      */
-    public GIF obtainGIF(final String source)
+    public ResourceText obtainResourceText(final String path)
     {
-        try
+        ResourceText resourceText = this.resourcesTexts.get(path);
+
+        if (resourceText != null)
         {
-            return new GIF(this.obtainResourceStream(source));
-        }
-        catch (final Exception exception)
-        {
-            Debug.exception(exception, "Failed to load gif : ", source);
+            return resourceText;
         }
 
-        return null;
-    }
+        resourceText = new ResourceText(this, path);
+        this.resourcesTexts.put(path, resourceText);
 
-    /**
-     * Obtain a image icon
-     *
-     * @param path Relative path of the image (Separator is "/")
-     * @return The buffered image
-     */
-    public ImageIcon obtainImageIcon(final String path)
-    {
-        return new ImageIcon(this.obtainResourceURL(path));
+        return resourceText;
     }
 
     /**
@@ -274,77 +378,6 @@ public class Resources
         }
 
         return Resources.class.getResource(this.relativePathFormClass + path);
-    }
-
-    /**
-     * Obtain a font embed in resources
-     *
-     * @param type Font type
-     * @param path Resource path
-     * @param size Font size
-     * @return Created font
-     */
-    public JHelpFont obtainJHelpFont(final JHelpFont.Type type, final String path, final int size)
-    {
-        return this.obtainJHelpFont(type, path, size, JHelpFont.Value.FREE, JHelpFont.Value.FREE, false);
-    }
-
-    /**
-     * Obtain a font embed in resources
-     *
-     * @param type      Font type
-     * @param path      Resource path
-     * @param size      Font size
-     * @param bold      Bold value
-     * @param italic    Italic value
-     * @param underline Indicates if have to underline
-     * @return Created font
-     */
-    public JHelpFont obtainJHelpFont(
-            final JHelpFont.Type type, final String path, final int size,
-            final JHelpFont.Value bold, final JHelpFont.Value italic,
-            final boolean underline)
-    {
-        return JHelpFont.createFont(type, this.obtainResourceStream(path), size, bold, italic, underline);
-    }
-
-    /**
-     * Obtain an image from resources resized to given size
-     *
-     * @param path   Resource path
-     * @param width  Desired width
-     * @param height Desired height
-     * @return Resized image
-     */
-    public JHelpImage obtainResizedJHelpImage(final String path, final int width, final int height)
-    {
-        return JHelpImage.createResizedImage(this.obtainJHelpImage(path), width, height);
-    }
-
-    /**
-     * Obtain a {@link JHelpImage}
-     *
-     * @param path Relative path of the image (Separator is "/")
-     * @return The image
-     */
-    public JHelpImage obtainJHelpImage(final String path)
-    {
-        try
-        {
-            return JHelpImage.loadImage(this.obtainResourceStream(path));
-        }
-        catch (final Exception exception)
-        {
-            try
-            {
-                final PCX pcx = new PCX(this.obtainResourceStream(path));
-                return pcx.createImage();
-            }
-            catch (final Exception exception2)
-            {
-                return JHelpImage.DUMMY;
-            }
-        }
     }
 
     /**
@@ -396,26 +429,5 @@ public class Resources
         }
 
         return this.resourcesSystem;
-    }
-
-    /**
-     * Obtain a resource of texts
-     *
-     * @param path Relative path of the resource of texts (Separator is "/")
-     * @return Resources of text or null if the resource not found
-     */
-    public ResourceText obtainResourceText(final String path)
-    {
-        ResourceText resourceText = this.resourcesTexts.get(path);
-
-        if (resourceText != null)
-        {
-            return resourceText;
-        }
-
-        resourceText = new ResourceText(this, path);
-        this.resourcesTexts.put(path, resourceText);
-
-        return resourceText;
     }
 }

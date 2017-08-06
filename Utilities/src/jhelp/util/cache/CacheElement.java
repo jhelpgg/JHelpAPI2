@@ -1,13 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any
- * damage it may cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.cache;
 
 import com.sun.istack.internal.NotNull;
@@ -38,6 +40,24 @@ public abstract class CacheElement<T>
     }
 
     /**
+     * Called when element is cleared.<br>
+     * Does nothing by default
+     *
+     * @param element Cleared value
+     */
+    protected void cleared(final @NotNull T element)
+    {
+        //Does nothing by default
+    }
+
+    /**
+     * Create the element
+     *
+     * @return Created element
+     */
+    protected abstract @NotNull T create();
+
+    /**
      * Remove the element
      */
     public final void clear()
@@ -55,17 +75,6 @@ public abstract class CacheElement<T>
         }
 
         this.softReference = null;
-    }
-
-    /**
-     * Called when element is cleared.<br>
-     * Does nothing by default
-     *
-     * @param element Cleared value
-     */
-    protected void cleared(final @NotNull T element)
-    {
-        //Does nothing by default
     }
 
     /**
@@ -100,11 +109,4 @@ public abstract class CacheElement<T>
         this.softReference = new SoftReference<>(element);
         return element;
     }
-
-    /**
-     * Create the element
-     *
-     * @return Created element
-     */
-    protected abstract @NotNull T create();
 }

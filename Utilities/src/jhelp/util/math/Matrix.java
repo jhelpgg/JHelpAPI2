@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.math;
 
 import java.text.NumberFormat;
@@ -18,6 +30,38 @@ public final class Matrix
      * Precision used in computing
      */
     public static final double PRECISION = 1e-5;
+
+    /**
+     * Indicates if 2 real are enough near to be considered as equals
+     *
+     * @param real1 First
+     * @param real2 Second
+     * @return {@code true} if equals
+     */
+    public static boolean equals(final double real1, final double real2)
+    {
+        return Math.abs(real1 - real2) <= Matrix.PRECISION;
+    }
+
+    /**
+     * Indicates if a real is enough small to be consider as zero
+     *
+     * @param real Real to test
+     * @return {@code true} if consider as zero
+     */
+    public static boolean isNul(final double real)
+    {
+        return Math.abs(real) <= Matrix.PRECISION;
+    }
+
+    /**
+     * The matrix determinant
+     */
+    private       double   determinant;
+    /**
+     * Indicates if determinant is already computed and still accurate (No need to compute it again)
+     */
+    private       boolean  determinantKnown;
     /**
      * Matrix height
      */
@@ -34,14 +78,6 @@ public final class Matrix
      * Matrix width
      */
     private final int      width;
-    /**
-     * The matrix determinant
-     */
-    private       double   determinant;
-    /**
-     * Indicates if determinant is already computed and still accurate (No need to compute it again)
-     */
-    private       boolean  determinantKnown;
 
     /**
      * Create a new instance of Matrix full of zero
@@ -65,23 +101,181 @@ public final class Matrix
     }
 
     /**
-     * Push list of values inside the matrix, from up left, left to right, then up to down.<br>
-     * If not enough value are given, the rest of the matrix is fill by 0.<br>
-     * If to much value is given, the matrix is fill and other values are ignored
+     * Check if position is inside the matrix
      *
-     * @param values Values for fill the matrix
+     * @param x X
+     * @param y Y
+     * @throws IllegalArgumentException If position outside the matrix
      */
-    public void setValues(final double... values)
+    private void check(final int x, final int y)
     {
-        final int nb = Math.min(this.size, values.length);
-        System.arraycopy(values, 0, this.matrix, 0, nb);
-
-        for (int i = nb; i < this.size; i++)
+        if ((x < 0) || (x >= this.width) || (y < 0) || (y >= this.height))
         {
-            this.matrix[i] = 0;
+            throw new IllegalArgumentException(
+                    "x must be in [0, " + this.width + "[ and y in [0, " + this.height + "[ not (" + x + ", " + y +
+                    ")");
+        }
+    }
+
+    /**
+     * Compute the determinant (Here we have already checked that determinant need to be computed and matrix is square)
+     *
+     * @return Determinant
+     */
+    private double determinantInternal()
+    {
+        if (this.width == 1)
+        {
+            this.determinantKnown = true;
+            this.determinant = this.matrix[0];
+            return this.determinant;
+        }
+
+        if (this.width == 2)
+        {
+            this.determinantKnown = true;
+            this.determinant = (this.matrix[0] * this.matrix[3]) - (this.matrix[2] * this.matrix[1]);
+            return this.determinant;
+        }
+
+        return this.determinantInternalMore2();
+    }
+
+    /**
+     * Compute determinant for matrix bigger than 2x2
+     *
+     * @return Computed determinant
+     */
+    private double determinantInternalMore2()
+    {
+        final Matrix work        = this.copy();
+        double       determinant = 1;
+        int          y2;
+        int          diagonal    = 0;
+        final int    more        = this.width + 1;
+        double       diagonalValue;
+
+        for (int y = 0; y < this.height; y++)
+        {
+            y2 = y;
+            diagonalValue = work.matrix[diagonal];
+
+            while (Matrix.isNul(diagonalValue))
+            {
+                y2++;
+
+                if (y2 >= this.height)
+                {
+                    this.determinantKnown = true;
+                    this.determinant = 0;
+                    return 0;
+                }
+
+                determinant *= -1;
+                work.interExchangeRowInternal(y, y2);
+                diagonalValue = work.matrix[diagonal];
+            }
+
+            determinant *= diagonalValue;
+            work.pivotInternal(y);
+            diagonal += more;
+        }
+
+        this.determinantKnown = true;
+        this.determinant = determinant;
+        return determinant;
+    }
+
+    /**
+     * Exchange 2 row.<br>
+     * The determinant not change except by the sign (y1 and y2 are inside matrix and different)
+     *
+     * @param y1 First row
+     * @param y2 Second row
+     */
+    private void interExchangeRowInternal(final int y1, final int y2)
+    {
+        final int      line1 = y1 * this.width;
+        final int      line2 = y2 * this.width;
+        final double[] temp  = new double[this.width];
+        System.arraycopy(this.matrix, line1, temp, 0, this.width);
+        System.arraycopy(this.matrix, line2, this.matrix, line1, this.width);
+        System.arraycopy(temp, 0, this.matrix, line2, this.width);
+        this.determinant *= -1;
+    }
+
+    /**
+     * Pivot matrix from one diagonal point
+     *
+     * @param xy X and Y coordinate of diagonal point
+     */
+    private void pivotInternal(final int xy)
+    {
+        final int    startY = xy * this.width;
+        int          y      = startY + this.width;
+        int          destination;
+        int          source;
+        double       coefficient;
+        final double div    = this.matrix[startY + xy];
+
+        for (int yy = xy + 1; yy < this.height; yy++)
+        {
+            coefficient = this.matrix[y + xy];
+
+            if (!Matrix.isNul(coefficient))
+            {
+                destination = y;
+                source = startY;
+                coefficient /= div;
+
+                for (int xx = 0; xx < this.width; xx++)
+                {
+                    this.matrix[destination++] -= coefficient * this.matrix[source++];
+                }
+            }
+
+            y += this.width;
         }
 
         this.determinantKnown = false;
+    }
+
+    /**
+     * Extract a sub matrix by remove one column and one row
+     *
+     * @param removedColumn Column to remove
+     * @param removedRow    Row to remove
+     * @return Extracted matrix
+     */
+    private Matrix subMatrix(final int removedColumn, final int removedRow)
+    {
+        final int    w               = this.width - 1;
+        final Matrix result          = new Matrix(w, this.height - 1);
+        int          lineSource      = 0;
+        int          lineDestination = 0;
+        final int    x               = removedColumn + 1;
+        final int    left            = w - removedColumn;
+
+        for (int y = 0; y < removedRow; y++)
+        {
+            System.arraycopy(this.matrix, lineSource, result.matrix, lineDestination, removedColumn);
+            System.arraycopy(this.matrix, lineSource + x, result.matrix, lineDestination + removedColumn, left);
+            lineSource += this.width;
+            lineDestination += w;
+        }
+
+        lineSource += this.width;
+
+        for (int y = removedRow + 1; y < this.height; y++)
+        {
+            System.arraycopy(this.matrix, lineSource, result.matrix, lineDestination, removedColumn);
+            System.arraycopy(this.matrix, lineSource + x, result.matrix, lineDestination + removedColumn, left);
+            lineSource += this.width;
+            lineDestination += w;
+        }
+
+        result.determinantKnown = false;
+        return result;
     }
 
     /**
@@ -140,168 +334,6 @@ public final class Matrix
     }
 
     /**
-     * Compute determinant for matrix bigger than 2x2
-     *
-     * @return Computed determinant
-     */
-    private double determinantInternalMore2()
-    {
-        final Matrix work        = this.copy();
-        double       determinant = 1;
-        int          y2;
-        int          diagonal    = 0;
-        final int    more        = this.width + 1;
-        double       diagonalValue;
-
-        for (int y = 0; y < this.height; y++)
-        {
-            y2 = y;
-            diagonalValue = work.matrix[diagonal];
-
-            while (Matrix.isNul(diagonalValue))
-            {
-                y2++;
-
-                if (y2 >= this.height)
-                {
-                    this.determinantKnown = true;
-                    this.determinant = 0;
-                    return 0;
-                }
-
-                determinant *= -1;
-                work.interExchangeRowInternal(y, y2);
-                diagonalValue = work.matrix[diagonal];
-            }
-
-            determinant *= diagonalValue;
-            work.pivotInternal(y);
-            diagonal += more;
-        }
-
-        this.determinantKnown = true;
-        this.determinant = determinant;
-        return determinant;
-    }
-
-    /**
-     * Indicates if a real is enough small to be consider as zero
-     *
-     * @param real Real to test
-     * @return {@code true} if consider as zero
-     */
-    public static boolean isNul(final double real)
-    {
-        return Math.abs(real) <= Matrix.PRECISION;
-    }
-
-    /**
-     * Exchange 2 row.<br>
-     * The determinant not change except by the sign (y1 and y2 are inside matrix and different)
-     *
-     * @param y1 First row
-     * @param y2 Second row
-     */
-    private void interExchangeRowInternal(final int y1, final int y2)
-    {
-        final int      line1 = y1 * this.width;
-        final int      line2 = y2 * this.width;
-        final double[] temp  = new double[this.width];
-        System.arraycopy(this.matrix, line1, temp, 0, this.width);
-        System.arraycopy(this.matrix, line2, this.matrix, line1, this.width);
-        System.arraycopy(temp, 0, this.matrix, line2, this.width);
-        this.determinant *= -1;
-    }
-
-    /**
-     * Pivot matrix from one diagonal point
-     *
-     * @param xy X and Y coordinate of diagonal point
-     */
-    private void pivotInternal(final int xy)
-    {
-        final int    startY = xy * this.width;
-        int          y      = startY + this.width;
-        int          destination;
-        int          source;
-        double       coefficient;
-        final double div    = this.matrix[startY + xy];
-
-        for (int yy = xy + 1; yy < this.height; yy++)
-        {
-            coefficient = this.matrix[y + xy];
-
-            if (!Matrix.isNul(coefficient))
-            {
-                destination = y;
-                source = startY;
-                coefficient /= div;
-
-                for (int xx = 0; xx < this.width; xx++)
-                {
-                    this.matrix[destination++] -= coefficient * this.matrix[source++];
-                }
-            }
-
-            y += this.width;
-        }
-
-        this.determinantKnown = false;
-    }
-
-    /**
-     * Copy the matrix
-     *
-     * @return Matrix copy
-     */
-    public Matrix copy()
-    {
-        final Matrix matrix = new Matrix(this.width, this.height);
-        System.arraycopy(this.matrix, 0, matrix.matrix, 0, this.size);
-        matrix.determinantKnown = this.determinantKnown;
-        matrix.determinant = this.determinant;
-        return matrix;
-    }
-
-    /**
-     * Extract a sub matrix by remove one column and one row
-     *
-     * @param removedColumn Column to remove
-     * @param removedRow    Row to remove
-     * @return Extracted matrix
-     */
-    private Matrix subMatrix(final int removedColumn, final int removedRow)
-    {
-        final int    w               = this.width - 1;
-        final Matrix result          = new Matrix(w, this.height - 1);
-        int          lineSource      = 0;
-        int          lineDestination = 0;
-        final int    x               = removedColumn + 1;
-        final int    left            = w - removedColumn;
-
-        for (int y = 0; y < removedRow; y++)
-        {
-            System.arraycopy(this.matrix, lineSource, result.matrix, lineDestination, removedColumn);
-            System.arraycopy(this.matrix, lineSource + x, result.matrix, lineDestination + removedColumn, left);
-            lineSource += this.width;
-            lineDestination += w;
-        }
-
-        lineSource += this.width;
-
-        for (int y = removedRow + 1; y < this.height; y++)
-        {
-            System.arraycopy(this.matrix, lineSource, result.matrix, lineDestination, removedColumn);
-            System.arraycopy(this.matrix, lineSource + x, result.matrix, lineDestination + removedColumn, left);
-            lineSource += this.width;
-            lineDestination += w;
-        }
-
-        result.determinantKnown = false;
-        return result;
-    }
-
-    /**
      * Addition wit an other matrix
      *
      * @param matrix Matrix to add
@@ -323,6 +355,68 @@ public final class Matrix
     }
 
     /**
+     * Compute adjacent matrix
+     *
+     * @return Adjacent matrix
+     * @throws IllegalStateException If matrix is not square
+     */
+    public Matrix adjacent()
+    {
+        if (this.width != this.height)
+        {
+            throw new IllegalStateException("Adjacent only for square matrix");
+        }
+
+        if (this.width == 1)
+        {
+            return this.copy();
+        }
+
+        if (this.width == 2)
+        {
+            final Matrix adjacent = new Matrix(2, 2);
+            adjacent.matrix[0] = this.matrix[3];
+            adjacent.matrix[1] = -this.matrix[1];
+            adjacent.matrix[2] = -this.matrix[2];
+            adjacent.matrix[3] = this.matrix[0];
+            adjacent.determinantKnown = this.determinantKnown;
+            adjacent.determinant = this.determinant;
+            return adjacent;
+        }
+
+        final Matrix        adjacent = new Matrix(this.width, this.height);
+        int                 index    = 0;
+        double              signMain = 1;
+        final AtomicInteger count    = new AtomicInteger(this.width);
+
+        for (int x = 0; x < this.width; x++)
+        {
+            ThreadManager.parallel(new TaskAdjacent(count, adjacent.matrix, signMain, index, x, this.height, this));
+            signMain *= -1;
+            index += this.width;
+        }
+
+        //noinspection SynchronizationOnLocalVariableOrMethodParameter
+        synchronized (count)
+        {
+            while (count.get() > 0)
+            {
+                try
+                {
+                    count.wait();
+                }
+                catch (final Exception ignored)
+                {
+                }
+            }
+        }
+
+        adjacent.determinantKnown = this.determinantKnown;
+        adjacent.determinant = Math.pow(this.determinant, this.width - 1);
+        return adjacent;
+    }
+
+    /**
      * Indicates if matrix can be invert
      *
      * @return {@code true} If matrix can be invert
@@ -330,6 +424,20 @@ public final class Matrix
     public boolean canBeInvert()
     {
         return (this.isSquare()) && (!Matrix.isNul(this.determinant()));
+    }
+
+    /**
+     * Copy the matrix
+     *
+     * @return Matrix copy
+     */
+    public Matrix copy()
+    {
+        final Matrix matrix = new Matrix(this.width, this.height);
+        System.arraycopy(this.matrix, 0, matrix.matrix, 0, this.size);
+        matrix.determinantKnown = this.determinantKnown;
+        matrix.determinant = this.determinant;
+        return matrix;
     }
 
     /**
@@ -354,40 +462,6 @@ public final class Matrix
     }
 
     /**
-     * Compute the determinant (Here we have already checked that determinant need to be computed and matrix is square)
-     *
-     * @return Determinant
-     */
-    private double determinantInternal()
-    {
-        if (this.width == 1)
-        {
-            this.determinantKnown = true;
-            this.determinant = this.matrix[0];
-            return this.determinant;
-        }
-
-        if (this.width == 2)
-        {
-            this.determinantKnown = true;
-            this.determinant = (this.matrix[0] * this.matrix[3]) - (this.matrix[2] * this.matrix[1]);
-            return this.determinant;
-        }
-
-        return this.determinantInternalMore2();
-    }
-
-    /**
-     * Indicates if matrix is square
-     *
-     * @return {@code true} if matrix is square
-     */
-    public boolean isSquare()
-    {
-        return this.width == this.height;
-    }
-
-    /**
      * Obtain a matrix cell
      *
      * @param x X
@@ -400,23 +474,6 @@ public final class Matrix
         this.check(x, y);
 
         return this.matrix[x + (y * this.width)];
-    }
-
-    /**
-     * Check if position is inside the matrix
-     *
-     * @param x X
-     * @param y Y
-     * @throws IllegalArgumentException If position outside the matrix
-     */
-    private void check(final int x, final int y)
-    {
-        if ((x < 0) || (x >= this.width) || (y < 0) || (y >= this.height))
-        {
-            throw new IllegalArgumentException(
-                    "x must be in [0, " + this.width + "[ and y in [0, " + this.height + "[ not (" + x + ", " + y +
-                    ")");
-        }
     }
 
     /**
@@ -503,18 +560,6 @@ public final class Matrix
         }
 
         return true;
-    }
-
-    /**
-     * Indicates if 2 real are enough near to be considered as equals
-     *
-     * @param real1 First
-     * @param real2 Second
-     * @return {@code true} if equals
-     */
-    public static boolean equals(final double real1, final double real2)
-    {
-        return Math.abs(real1 - real2) <= Matrix.PRECISION;
     }
 
     /**
@@ -634,68 +679,6 @@ public final class Matrix
     }
 
     /**
-     * Compute adjacent matrix
-     *
-     * @return Adjacent matrix
-     * @throws IllegalStateException If matrix is not square
-     */
-    public Matrix adjacent()
-    {
-        if (this.width != this.height)
-        {
-            throw new IllegalStateException("Adjacent only for square matrix");
-        }
-
-        if (this.width == 1)
-        {
-            return this.copy();
-        }
-
-        if (this.width == 2)
-        {
-            final Matrix adjacent = new Matrix(2, 2);
-            adjacent.matrix[0] = this.matrix[3];
-            adjacent.matrix[1] = -this.matrix[1];
-            adjacent.matrix[2] = -this.matrix[2];
-            adjacent.matrix[3] = this.matrix[0];
-            adjacent.determinantKnown = this.determinantKnown;
-            adjacent.determinant = this.determinant;
-            return adjacent;
-        }
-
-        final Matrix        adjacent = new Matrix(this.width, this.height);
-        int                 index    = 0;
-        double              signMain = 1;
-        final AtomicInteger count    = new AtomicInteger(this.width);
-
-        for (int x = 0; x < this.width; x++)
-        {
-            ThreadManager.parallel(new TaskAdjacent(count, adjacent.matrix, signMain, index, x, this.height, this));
-            signMain *= -1;
-            index += this.width;
-        }
-
-        //noinspection SynchronizationOnLocalVariableOrMethodParameter
-        synchronized (count)
-        {
-            while (count.get() > 0)
-            {
-                try
-                {
-                    count.wait();
-                }
-                catch (final Exception ignored)
-                {
-                }
-            }
-        }
-
-        adjacent.determinantKnown = this.determinantKnown;
-        adjacent.determinant = Math.pow(this.determinant, this.width - 1);
-        return adjacent;
-    }
-
-    /**
      * Indicates if matrix is the identity matrix
      *
      * @return {@code true} if matrix is the identity one
@@ -723,6 +706,16 @@ public final class Matrix
         this.determinantKnown = this.width == this.height;
         this.determinant = 1;
         return true;
+    }
+
+    /**
+     * Indicates if matrix is square
+     *
+     * @return {@code true} if matrix is square
+     */
+    public boolean isSquare()
+    {
+        return this.width == this.height;
     }
 
     /**
@@ -850,6 +843,26 @@ public final class Matrix
     {
         this.check(x, y);
         this.matrix[x + (y * this.width)] = value;
+        this.determinantKnown = false;
+    }
+
+    /**
+     * Push list of values inside the matrix, from up left, left to right, then up to down.<br>
+     * If not enough value are given, the rest of the matrix is fill by 0.<br>
+     * If to much value is given, the matrix is fill and other values are ignored
+     *
+     * @param values Values for fill the matrix
+     */
+    public void setValues(final double... values)
+    {
+        final int nb = Math.min(this.size, values.length);
+        System.arraycopy(values, 0, this.matrix, 0, nb);
+
+        for (int i = nb; i < this.size; i++)
+        {
+            this.matrix[i] = 0;
+        }
+
         this.determinantKnown = false;
     }
 

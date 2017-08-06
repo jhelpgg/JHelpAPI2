@@ -1,11 +1,23 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.data;
 
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
 import java.util.Objects;
 import jhelp.util.math.Math2;
-import jhelp.util.thread.Task;
 import jhelp.util.thread.ConsumerTask;
+import jhelp.util.thread.Task;
 
 /**
  * Interval of numbers
@@ -13,13 +25,13 @@ import jhelp.util.thread.ConsumerTask;
 public final class Interval<N extends Number>
 {
     /**
-     * Minimum
-     */
-    private final double minimum;
-    /**
      * Maxiimum
      */
     private final double maximum;
+    /**
+     * Minimum
+     */
+    private final double minimum;
 
     /**
      * Create interval
@@ -35,6 +47,34 @@ public final class Interval<N extends Number>
         final double value2 = number2.doubleValue();
         this.minimum = Math.min(value1, value2);
         this.maximum = Math.max(value1, value2);
+    }
+
+    /**
+     * Call a task when an observable enter inside the interval.<br>
+     * Task will be called each time observable enter
+     *
+     * @param observable Observable to track
+     * @param task       Task to do if enter in interval
+     */
+    public final void eachTimeInside(@NotNull Observable<N> observable, @NotNull ConsumerTask<N> task)
+    {
+        Objects.requireNonNull(observable, "observable MUST NOT be null!");
+        Objects.requireNonNull(task, "task MUST NOT be null!");
+        observable.eachTime(Condition.insideInterval(this), task);
+    }
+
+    /**
+     * Call a task when an observable exit outside the interval.<br>
+     * Task will be called each time observable enter
+     *
+     * @param observable Observable to track
+     * @param task       Task to do if exit from interval
+     */
+    public final void eachTimeOutside(@NotNull Observable<N> observable, @NotNull ConsumerTask<N> task)
+    {
+        Objects.requireNonNull(observable, "observable MUST NOT be null!");
+        Objects.requireNonNull(task, "task MUST NOT be null!");
+        observable.eachTime(Condition.outsideInterval(this), task);
     }
 
     /**
@@ -66,21 +106,18 @@ public final class Interval<N extends Number>
     }
 
     /**
-     * Call a task when an observable enter inside the interval
+     * Create an observable based on condition that an observable of a number outside an interval.<br>
+     * That is to say, the created observable is {@code true} when the number, carry by given observable,
+     * outside the interval.<br>
+     * The created observable is {@code false} otherwise<br>
      *
-     * @param observable Observable to track
-     * @param task       Task to do if enter in interval
-     * @param id         Task ID, used by "repeat"
-     * @param repeat     Decide if have to do the task again or not. If {@code null} the task is play once
-     * @param <R>        Task return type
+     * @param observable Observable of the value to check
+     * @return Created observable
      */
-    public final <R> void whenInside(
-            @NotNull Observable<N> observable, @NotNull Task<N, R> task, int id,
-            @Nullable Combiner<R, Integer, Boolean> repeat)
+    public @NotNull Observable<Boolean> outside(@NotNull Observable<N> observable)
     {
         Objects.requireNonNull(observable, "observable MUST NOT be null!");
-        Objects.requireNonNull(task, "task MUST NOT be null!");
-        observable.when(Condition.insideInterval(this), task, id, repeat);
+        return observable.validate(Condition.outsideInterval(this));
     }
 
     /**
@@ -98,18 +135,21 @@ public final class Interval<N extends Number>
     }
 
     /**
-     * Create an observable based on condition that an observable of a number outside an interval.<br>
-     * That is to say, the created observable is {@code true} when the number, carry by given observable,
-     * outside the interval.<br>
-     * The created observable is {@code false} otherwise<br>
+     * Call a task when an observable enter inside the interval
      *
-     * @param observable Observable of the value to check
-     * @return Created observable
+     * @param observable Observable to track
+     * @param task       Task to do if enter in interval
+     * @param id         Task ID, used by "repeat"
+     * @param repeat     Decide if have to do the task again or not. If {@code null} the task is play once
+     * @param <R>        Task return type
      */
-    public @NotNull Observable<Boolean> outside(@NotNull Observable<N> observable)
+    public final <R> void whenInside(
+            @NotNull Observable<N> observable, @NotNull Task<N, R> task, int id,
+            @Nullable Combiner<R, Integer, Boolean> repeat)
     {
         Objects.requireNonNull(observable, "observable MUST NOT be null!");
-        return observable.validate(Condition.outsideInterval(this));
+        Objects.requireNonNull(task, "task MUST NOT be null!");
+        observable.when(Condition.insideInterval(this), task, id, repeat);
     }
 
     /**
@@ -142,33 +182,5 @@ public final class Interval<N extends Number>
         Objects.requireNonNull(observable, "observable MUST NOT be null!");
         Objects.requireNonNull(task, "task MUST NOT be null!");
         observable.when(Condition.outsideInterval(this), task);
-    }
-
-    /**
-     * Call a task when an observable enter inside the interval.<br>
-     * Task will be called each time observable enter
-     *
-     * @param observable Observable to track
-     * @param task       Task to do if enter in interval
-     */
-    public final void eachTimeInside(@NotNull Observable<N> observable, @NotNull ConsumerTask<N> task)
-    {
-        Objects.requireNonNull(observable, "observable MUST NOT be null!");
-        Objects.requireNonNull(task, "task MUST NOT be null!");
-        observable.eachTime(Condition.insideInterval(this), task);
-    }
-
-    /**
-     * Call a task when an observable exit outside the interval.<br>
-     * Task will be called each time observable enter
-     *
-     * @param observable Observable to track
-     * @param task       Task to do if exit from interval
-     */
-    public final void eachTimeOutside(@NotNull Observable<N> observable, @NotNull ConsumerTask<N> task)
-    {
-        Objects.requireNonNull(observable, "observable MUST NOT be null!");
-        Objects.requireNonNull(task, "task MUST NOT be null!");
-        observable.eachTime(Condition.outsideInterval(this), task);
     }
 }

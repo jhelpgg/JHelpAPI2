@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.thread;
 
 import com.sun.istack.internal.Nullable;
@@ -7,11 +19,6 @@ import com.sun.istack.internal.Nullable;
  */
 public interface RunnableTask extends Task<Void, Void>
 {
-    /**
-     * Play the task
-     */
-    void run();
-
     /**
      * Play the task.<br>
      * By default call {@link #run()} and return {@code null}
@@ -25,4 +32,9 @@ public interface RunnableTask extends Task<Void, Void>
         this.run();
         return null;
     }
+
+    /**
+     * Play the task
+     */
+    void run();
 }

@@ -1,14 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any
- * damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.gui.dynamic;
 
 import jhelp.util.gui.JHelpImage;
@@ -34,10 +35,8 @@ public abstract class ImmediateAnimation
      * <b>Parent documentation:</b><br>
      * {@inheritDoc}
      *
-     * @param absoluteFrame
-     *           Absolute frame
-     * @param image
-     *           Image parent
+     * @param absoluteFrame Absolute frame
+     * @param image         Image parent
      * @return {@code false} because animation is immediately finished when done
      * @see DynamicAnimation#animate(float, jhelp.util.gui.JHelpImage)
      */
@@ -49,21 +48,12 @@ public abstract class ImmediateAnimation
     }
 
     /**
-     * Do the animation immediate
-     *
-     * @param image
-     *           Image parent
-     */
-    public abstract void doImmediately(JHelpImage image);
-
-    /**
      * Called when animation stopped <br>
      * <br>
      * <b>Parent documentation:</b><br>
      * {@inheritDoc}
      *
-     * @param image
-     *           Image parent
+     * @param image Image parent
      * @see DynamicAnimation#endAnimation(jhelp.util.gui.JHelpImage)
      */
     @Override
@@ -77,14 +67,19 @@ public abstract class ImmediateAnimation
      * <b>Parent documentation:</b><br>
      * {@inheritDoc}
      *
-     * @param startAbsoluteFrame
-     *           Start absolute frame
-     * @param image
-     *           Image parent
+     * @param startAbsoluteFrame Start absolute frame
+     * @param image              Image parent
      * @see DynamicAnimation#startAnimation(float, jhelp.util.gui.JHelpImage)
      */
     @Override
     public final void startAnimation(final float startAbsoluteFrame, final JHelpImage image)
     {
     }
+
+    /**
+     * Do the animation immediate
+     *
+     * @param image Image parent
+     */
+    public abstract void doImmediately(JHelpImage image);
 }

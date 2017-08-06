@@ -1,14 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any
- * damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.gui;
 
 import java.awt.Cursor;
@@ -18,7 +19,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-
 import jhelp.util.io.UtilIO;
 
 /**
@@ -28,56 +28,102 @@ import jhelp.util.io.UtilIO;
  */
 public class ImageArea
 {
-    /** Image area file extension */
-    public static final  String EXTENSION  = "jha";
-    /** Area color */
-    static final         int    COLOR_AREA = 0x87654321;
-    /** Over color */
-    static final         int    COLOR_OVER = 0x42100124;
-    /** Edge/corner thick size */
-    private static final int    THICK      = 5;
-    /** Areas list */
-    private final List<Area>  areas;
-    /** Base image */
-    private       JHelpImage  base;
-    /** Grid height */
-    private       int         gridHeight;
-    /** Grid width */
-    private       int         gridWidth;
-    /** Rectangle over */
-    private       Rectangle   overRectangle;
-    /** Sprite over */
-    private       JHelpSprite spriteOver;
     /**
-     * Create a new instance of ImageArea
+     * Position relative to an area
      *
-     * @param base
-     *           Image base
+     * @author JHelp
      */
-    public ImageArea(final JHelpImage base)
+    public enum OverPosition
     {
-        this();
-        this.base = base;
-        this.initializeSpriteOver();
+        /**
+         * Indicates that position is on down edge of the area
+         */
+        DOWN_EDGE(Cursor.getPredefinedCursor(Cursor.S_RESIZE_CURSOR)),
+        /**
+         * Indicates that position is on down left corner of the area
+         */
+        DOWN_LEFT_CORNER(Cursor.getPredefinedCursor(Cursor.SW_RESIZE_CURSOR)),
+        /**
+         * Indicates that position is on down right corner of the area
+         */
+        DOWN_RIGHT_CORNER(Cursor.getPredefinedCursor(Cursor.SE_RESIZE_CURSOR)),
+        /**
+         * Indicates that position is inside the area
+         */
+        INSIDE(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)),
+        /**
+         * Indicates that position is on left edge of the area
+         */
+        LEFT_EDGE(Cursor.getPredefinedCursor(Cursor.W_RESIZE_CURSOR)),
+        /**
+         * Indicates that position is outside the area
+         */
+        OUTSIDE(Cursor.getDefaultCursor()),
+        /**
+         * Indicates that position is on right edge of the area
+         */
+        RIGHT_EDGE(Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR)),
+        /**
+         * Indicates that position is on up edge of the area
+         */
+        UP_EDGE(Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR)),
+        /**
+         * Indicates that position is on up left corner of the area
+         */
+        UP_LEFT_CORNER(Cursor.getPredefinedCursor(Cursor.NW_RESIZE_CURSOR)),
+        /**
+         * Indicates that position is on up right corner of the area
+         */
+        UP_RIGHT_CORNER(Cursor.getPredefinedCursor(Cursor.NE_RESIZE_CURSOR));
+        /**
+         * Suggested cursor to use for area manipulation
+         */
+        private final Cursor cursor;
+
+        /**
+         * Create a new instance of OverPosition
+         *
+         * @param cursor Suggested cursor to use for area manipulation
+         */
+        OverPosition(final Cursor cursor)
+        {
+            this.cursor = cursor;
+        }
+
+        /**
+         * Suggested cursor to use for area manipulation
+         *
+         * @return Suggested cursor to use for area manipulation
+         */
+        public Cursor getCursor()
+        {
+            return this.cursor;
+        }
     }
+
     /**
-     * Create a new instance of ImageArea
+     * Edge/corner thick size
      */
-    private ImageArea()
-    {
-        this.areas = new ArrayList<Area>();
-        this.gridWidth = 1;
-        this.gridHeight = 1;
-    }
+    private static final int    THICK      = 5;
+    /**
+     * Area color
+     */
+    static final         int    COLOR_AREA = 0x87654321;
+    /**
+     * Over color
+     */
+    static final         int    COLOR_OVER = 0x42100124;
+    /**
+     * Image area file extension
+     */
+    public static final  String EXTENSION  = "jha";
 
     /**
      * Load an image area from a stream
      *
-     * @param inputStream
-     *           Stream to read
+     * @param inputStream Stream to read
      * @return Loaded image area
-     * @throws IOException
-     *            On reading exception or stream not a valid image area
+     * @throws IOException On reading exception or stream not a valid image area
      */
     public static ImageArea loadImageArea(final InputStream inputStream) throws IOException
     {
@@ -87,12 +133,254 @@ public class ImageArea
     }
 
     /**
+     * Describe an area
+     *
+     * @author JHelp
+     */
+    class Area
+    {
+        /**
+         * Part of image inside the area
+         */
+        private JHelpImage part;
+        /**
+         * Height
+         */
+        final   int        height;
+        /**
+         * Width
+         */
+        final   int        width;
+        /**
+         * X
+         */
+        final   int        x;
+        /**
+         * Y
+         */
+        final   int        y;
+
+        /**
+         * Create a new instance of Area
+         *
+         * @param x      X
+         * @param y      Y
+         * @param width  Width
+         * @param height Height
+         */
+        Area(final int x, final int y, final int width, final int height)
+        {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+        }
+
+        /**
+         * Area height
+         *
+         * @return Area height
+         */
+        public int getHeight()
+        {
+            return this.height;
+        }
+
+        /**
+         * Image part associated to the area
+         *
+         * @return Image part associated to the area
+         */
+        public JHelpImage getPart()
+        {
+            if (this.part == null)
+            {
+                this.part = ImageArea.this.obtainPart(this);
+            }
+
+            return this.part;
+        }
+
+        /**
+         * Area width
+         *
+         * @return Area width
+         */
+        public int getWidth()
+        {
+            return this.width;
+        }
+
+        /**
+         * Area X
+         *
+         * @return X
+         */
+        public int getX()
+        {
+            return this.x;
+        }
+
+        /**
+         * Area Y
+         *
+         * @return Y
+         */
+        public int getY()
+        {
+            return this.y;
+        }
+    }
+
+    /**
+     * Rectangle
+     *
+     * @author JHelp
+     */
+    public class Rectangle
+    {
+        /**
+         * Down points Y
+         */
+        int down;
+        /**
+         * Left points X
+         */
+        int left;
+        /**
+         * Right points X
+         */
+        int right;
+        /**
+         * Up points Y
+         */
+        int up;
+
+        /**
+         * Create a new instance of Rectangle
+         *
+         * @param x1 First corner X
+         * @param y1 First corner Y
+         * @param x2 Second corner X
+         * @param y2 Second corner Y
+         */
+        Rectangle(final int x1, final int y1, final int x2, final int y2)
+        {
+            this.left = Math.min(x1, x2);
+            this.up = Math.min(y1, y2);
+            this.right = Math.max(x1, x2);
+            this.down = Math.max(y1, y2);
+        }
+
+        /**
+         * Height
+         *
+         * @return Height
+         */
+        public int getHeight()
+        {
+            return 1 + Math.abs(this.up - this.down);
+        }
+
+        /**
+         * Width
+         *
+         * @return Width
+         */
+        public int getWidth()
+        {
+            return 1 + Math.abs(this.left - this.right);
+        }
+
+        /**
+         * X up left corner
+         *
+         * @return X up left corner
+         */
+        public int getX()
+        {
+            return Math.min(this.left, this.right);
+        }
+
+        /**
+         * Y up left corner
+         *
+         * @return Y up left corner
+         */
+        public int getY()
+        {
+            return Math.min(this.up, this.down);
+        }
+    }
+
+    /**
+     * Areas list
+     */
+    private final List<Area>  areas;
+    /**
+     * Base image
+     */
+    private       JHelpImage  base;
+    /**
+     * Grid height
+     */
+    private       int         gridHeight;
+    /**
+     * Grid width
+     */
+    private       int         gridWidth;
+    /**
+     * Rectangle over
+     */
+    private       Rectangle   overRectangle;
+    /**
+     * Sprite over
+     */
+    private       JHelpSprite spriteOver;
+
+    /**
+     * Create a new instance of ImageArea
+     *
+     * @param base Image base
+     */
+    public ImageArea(final JHelpImage base)
+    {
+        this();
+        this.base = base;
+        this.initializeSpriteOver();
+    }
+
+    /**
+     * Create a new instance of ImageArea
+     */
+    private ImageArea()
+    {
+        this.areas = new ArrayList<>();
+        this.gridWidth = 1;
+        this.gridHeight = 1;
+    }
+
+    /**
+     * Initialize sprite over area
+     */
+    private void initializeSpriteOver()
+    {
+        final boolean drawMode = this.base.isDrawMode();
+        this.base.endDrawMode();
+        this.spriteOver = this.base.createSprite(0, 0, this.base.getWidth() - 1, this.base.getHeight() - 1);
+        this.spriteOver.setVisible(true);
+
+        if (drawMode)
+        {
+            this.base.startDrawMode();
+        }
+    }
+
+    /**
      * Load image area from stream
      *
-     * @param inputStream
-     *           Stream to read
-     * @throws IOException
-     *            On read issue or stream not a valid image area
+     * @param inputStream Stream to read
+     * @throws IOException On read issue or stream not a valid image area
      */
     private void load(final InputStream inputStream) throws IOException
     {
@@ -111,22 +399,6 @@ public class ImageArea
         this.base = JHelpImage.loadImage(inputStream);
         this.initializeSpriteOver();
         this.updateOver();
-    }
-
-    /**
-     * Initialize sprite over area
-     */
-    private void initializeSpriteOver()
-    {
-        final boolean drawMode = this.base.isDrawMode();
-        this.base.endDrawMode();
-        this.spriteOver = this.base.createSprite(0, 0, this.base.getWidth() - 1, this.base.getHeight() - 1);
-        this.spriteOver.setVisible(true);
-
-        if (drawMode)
-        {
-            this.base.startDrawMode();
-        }
     }
 
     /**
@@ -207,8 +479,7 @@ public class ImageArea
     /**
      * Compute image part of an area
      *
-     * @param area
-     *           Area to get its image part
+     * @param area Area to get its image part
      * @return Image part
      */
     JHelpImage obtainPart(final Area area)
@@ -256,14 +527,10 @@ public class ImageArea
     /**
      * Add an area
      *
-     * @param x
-     *           X
-     * @param y
-     *           Y
-     * @param width
-     *           Width
-     * @param height
-     *           Height
+     * @param x      X
+     * @param y      Y
+     * @param width  Width
+     * @param height Height
      */
     public void addArea(final int x, final int y, final int width, final int height)
     {
@@ -274,10 +541,8 @@ public class ImageArea
     /**
      * Divide image in grid selection
      *
-     * @param horizontal
-     *           Number horizontal cell
-     * @param vertical
-     *           Number vertical cell
+     * @param horizontal Number horizontal cell
+     * @param vertical   Number vertical cell
      */
     public void divide(final int horizontal, final int vertical)
     {
@@ -289,28 +554,9 @@ public class ImageArea
     }
 
     /**
-     * Changes the over rectangle
-     *
-     * @param x1
-     *           First corner X
-     * @param y1
-     *           First corner Y
-     * @param x2
-     *           Second corner X
-     * @param y2
-     *           Second corner Y
-     */
-    public void setOverRectangle(final int x1, final int y1, final int x2, final int y2)
-    {
-        this.overRectangle = new Rectangle(x1, y1, x2, y2);
-        this.updateOver();
-    }
-
-    /**
      * Obtain an area
      *
-     * @param index
-     *           Area index
+     * @param index Area index
      * @return The area
      */
     public Area getArea(final int index)
@@ -402,10 +648,8 @@ public class ImageArea
     /**
      * Make a color transparent
      *
-     * @param x
-     *           X pixel
-     * @param y
-     *           Y pixel
+     * @param x X pixel
+     * @param y Y pixel
      */
     public void makeTransparent(final int x, final int y)
     {
@@ -427,10 +671,8 @@ public class ImageArea
     /**
      * Obtain relative position from current selection
      *
-     * @param x
-     *           X
-     * @param y
-     *           Y
+     * @param x X
+     * @param y Y
      * @return Relative position
      */
     public OverPosition obtainPosition(final int x, final int y)
@@ -498,10 +740,8 @@ public class ImageArea
     /**
      * Save image area
      *
-     * @param outputStream
-     *           Stream where write
-     * @throws IOException
-     *            On writing issue
+     * @param outputStream Stream where write
+     * @throws IOException On writing issue
      */
     public void saveImageArea(final OutputStream outputStream) throws IOException
     {
@@ -523,10 +763,8 @@ public class ImageArea
     /**
      * Defines the grid
      *
-     * @param width
-     *           Width
-     * @param height
-     *           Height
+     * @param width  Width
+     * @param height Height
      */
     public void setGrid(final int width, final int height)
     {
@@ -537,10 +775,8 @@ public class ImageArea
     /**
      * Reduce over rectangle to one point
      *
-     * @param x
-     *           X
-     * @param y
-     *           Y
+     * @param x X
+     * @param y Y
      */
     public void setOnePoint(final int x, final int y)
     {
@@ -548,14 +784,25 @@ public class ImageArea
     }
 
     /**
+     * Changes the over rectangle
+     *
+     * @param x1 First corner X
+     * @param y1 First corner Y
+     * @param x2 Second corner X
+     * @param y2 Second corner Y
+     */
+    public void setOverRectangle(final int x1, final int y1, final int x2, final int y2)
+    {
+        this.overRectangle = new Rectangle(x1, y1, x2, y2);
+        this.updateOver();
+    }
+
+    /**
      * Change the selection
      *
-     * @param x
-     *           X
-     * @param y
-     *           Y
-     * @param overPosition
-     *           Relative position to change
+     * @param x            X
+     * @param y            Y
+     * @param overPosition Relative position to change
      */
     public void setPoint(final int x, final int y, final OverPosition overPosition)
     {
@@ -638,10 +885,8 @@ public class ImageArea
     /**
      * Change selection down right corner
      *
-     * @param x
-     *           X
-     * @param y
-     *           Y
+     * @param x X
+     * @param y Y
      */
     public void setPointDownRight(final int x, final int y)
     {
@@ -659,10 +904,8 @@ public class ImageArea
     /**
      * Change selection up left corner
      *
-     * @param x
-     *           X
-     * @param y
-     *           Y
+     * @param x X
+     * @param y Y
      */
     public void setPointUpLeft(final int x, final int y)
     {
@@ -675,228 +918,5 @@ public class ImageArea
         this.overRectangle.left = x;
         this.overRectangle.up = y;
         this.updateOver();
-    }
-
-    /**
-     * Position relative to an area
-     *
-     * @author JHelp
-     */
-    public enum OverPosition
-    {
-        /** Indicates that position is on down edge of the area */
-        DOWN_EDGE(Cursor.getPredefinedCursor(Cursor.S_RESIZE_CURSOR)),
-        /** Indicates that position is on down left corner of the area */
-        DOWN_LEFT_CORNER(Cursor.getPredefinedCursor(Cursor.SW_RESIZE_CURSOR)),
-        /** Indicates that position is on down right corner of the area */
-        DOWN_RIGHT_CORNER(Cursor.getPredefinedCursor(Cursor.SE_RESIZE_CURSOR)),
-        /** Indicates that position is inside the area */
-        INSIDE(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)),
-        /** Indicates that position is on left edge of the area */
-        LEFT_EDGE(Cursor.getPredefinedCursor(Cursor.W_RESIZE_CURSOR)),
-        /** Indicates that position is outside the area */
-        OUTSIDE(Cursor.getDefaultCursor()),
-        /** Indicates that position is on right edge of the area */
-        RIGHT_EDGE(Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR)),
-        /** Indicates that position is on up edge of the area */
-        UP_EDGE(Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR)),
-        /** Indicates that position is on up left corner of the area */
-        UP_LEFT_CORNER(Cursor.getPredefinedCursor(Cursor.NW_RESIZE_CURSOR)),
-        /** Indicates that position is on up right corner of the area */
-        UP_RIGHT_CORNER(Cursor.getPredefinedCursor(Cursor.NE_RESIZE_CURSOR));
-        /** Suggested cursor to use for area manipulation */
-        private final Cursor cursor;
-
-        /**
-         * Create a new instance of OverPosition
-         *
-         * @param cursor
-         *           Suggested cursor to use for area manipulation
-         */
-        OverPosition(final Cursor cursor)
-        {
-            this.cursor = cursor;
-        }
-
-        /**
-         * Suggested cursor to use for area manipulation
-         *
-         * @return Suggested cursor to use for area manipulation
-         */
-        public Cursor getCursor()
-        {
-            return this.cursor;
-        }
-    }
-
-    /**
-     * Describe an area
-     *
-     * @author JHelp
-     */
-    class Area
-    {
-        /** Height */
-        final   int        height;
-        /** Width */
-        final   int        width;
-        /** X */
-        final   int        x;
-        /** Y */
-        final   int        y;
-        /** Part of image inside the area */
-        private JHelpImage part;
-
-        /**
-         * Create a new instance of Area
-         *
-         * @param x
-         *           X
-         * @param y
-         *           Y
-         * @param width
-         *           Width
-         * @param height
-         *           Height
-         */
-        Area(final int x, final int y, final int width, final int height)
-        {
-            this.x = x;
-            this.y = y;
-            this.width = width;
-            this.height = height;
-        }
-
-        /**
-         * Area height
-         *
-         * @return Area height
-         */
-        public int getHeight()
-        {
-            return this.height;
-        }
-
-        /**
-         * Image part associated to the area
-         *
-         * @return Image part associated to the area
-         */
-        public JHelpImage getPart()
-        {
-            if (this.part == null)
-            {
-                this.part = ImageArea.this.obtainPart(this);
-            }
-
-            return this.part;
-        }
-
-        /**
-         * Area width
-         *
-         * @return Area width
-         */
-        public int getWidth()
-        {
-            return this.width;
-        }
-
-        /**
-         * Area X
-         *
-         * @return X
-         */
-        public int getX()
-        {
-            return this.x;
-        }
-
-        /**
-         * Area Y
-         *
-         * @return Y
-         */
-        public int getY()
-        {
-            return this.y;
-        }
-    }
-
-    /**
-     * Rectangle
-     *
-     * @author JHelp
-     */
-    public class Rectangle
-    {
-        /** Down points Y */
-        int down;
-        /** Left points X */
-        int left;
-        /** Right points X */
-        int right;
-        /** Up points Y */
-        int up;
-
-        /**
-         * Create a new instance of Rectangle
-         *
-         * @param x1
-         *           First corner X
-         * @param y1
-         *           First corner Y
-         * @param x2
-         *           Second corner X
-         * @param y2
-         *           Second corner Y
-         */
-        Rectangle(final int x1, final int y1, final int x2, final int y2)
-        {
-            this.left = Math.min(x1, x2);
-            this.up = Math.min(y1, y2);
-            this.right = Math.max(x1, x2);
-            this.down = Math.max(y1, y2);
-        }
-
-        /**
-         * Height
-         *
-         * @return Height
-         */
-        public int getHeight()
-        {
-            return 1 + Math.abs(this.up - this.down);
-        }
-
-        /**
-         * Width
-         *
-         * @return Width
-         */
-        public int getWidth()
-        {
-            return 1 + Math.abs(this.left - this.right);
-        }
-
-        /**
-         * X up left corner
-         *
-         * @return X up left corner
-         */
-        public int getX()
-        {
-            return Math.min(this.left, this.right);
-        }
-
-        /**
-         * Y up left corner
-         *
-         * @return Y up left corner
-         */
-        public int getY()
-        {
-            return Math.min(this.up, this.down);
-        }
     }
 }

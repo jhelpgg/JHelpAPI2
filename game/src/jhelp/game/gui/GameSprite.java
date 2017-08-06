@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.game.gui;
 
 import jhelp.game.data.Zoom;
@@ -14,12 +26,12 @@ import jhelp.util.gui.dynamic.Positionable;
 public final class GameSprite implements Positionable, Zoomable
 {
     private final JHelpImage           image;
-    private       JHelpSprite          sprite;
     private final Observable<Position> positionObservable;
-    private final Observable<Zoom>     zoomObservable;
-    private final Observable<Boolean>  visibleObservable;
+    private       JHelpSprite          sprite;
     private final int                  tx;
     private final int                  ty;
+    private final Observable<Boolean>  visibleObservable;
+    private final Observable<Zoom>     zoomObservable;
 
     GameSprite(int width, int height)
     {
@@ -35,25 +47,21 @@ public final class GameSprite implements Positionable, Zoomable
         this.visibleObservable.startObserve(this::visibilityChanged);
     }
 
-    public JHelpImage image()
-    {
-        return this.image;
-    }
-
-    void ensureInitialized(JHelpImage parent)
+    private void positionChanged(Observable<Position> positionObservable, Position position)
     {
         synchronized (this.image)
         {
-            if (this.sprite == null)
+            if (this.sprite != null)
             {
-                Position position = this.positionObservable.value();
-                this.sprite = parent.createSprite(position.getX() - this.tx, position.getY() - this.ty,
-                                                  this.image.getWidth(),
-                                                  this.image.getHeight());
-                this.sprite.setVisible(this.visibleObservable.value());
-                this.refreshSprite();
+                this.sprite.setPosition(position.getX() - this.ty, position.getY() - this.ty);
             }
         }
+    }
+
+    private void refreshImage(JHelpImage image)
+    {
+        this.refreshSprite();
+        this.image.playWhenExitDrawMode(this::refreshImage);
     }
 
     private void refreshSprite()
@@ -84,22 +92,6 @@ public final class GameSprite implements Positionable, Zoomable
         }
     }
 
-    private void positionChanged(Observable<Position> positionObservable, Position position)
-    {
-        synchronized (this.image)
-        {
-            if (this.sprite != null)
-            {
-                this.sprite.setPosition(position.getX() - this.ty, position.getY() - this.ty);
-            }
-        }
-    }
-
-    private void zoomChanged(Observable<Zoom> zoomObservable, Zoom zoom)
-    {
-        this.refreshSprite();
-    }
-
     private void visibilityChanged(Observable<Boolean> visibleObservable, Boolean visible)
     {
         synchronized (this.image)
@@ -111,10 +103,30 @@ public final class GameSprite implements Positionable, Zoomable
         }
     }
 
-    private void refreshImage(JHelpImage image)
+    private void zoomChanged(Observable<Zoom> zoomObservable, Zoom zoom)
     {
         this.refreshSprite();
-        this.image.playWhenExitDrawMode(this::refreshImage);
+    }
+
+    void ensureInitialized(JHelpImage parent)
+    {
+        synchronized (this.image)
+        {
+            if (this.sprite == null)
+            {
+                Position position = this.positionObservable.value();
+                this.sprite = parent.createSprite(position.getX() - this.tx, position.getY() - this.ty,
+                                                  this.image.getWidth(),
+                                                  this.image.getHeight());
+                this.sprite.setVisible(this.visibleObservable.value());
+                this.refreshSprite();
+            }
+        }
+    }
+
+    public JHelpImage image()
+    {
+        return this.image;
     }
 
     /**
@@ -144,6 +156,21 @@ public final class GameSprite implements Positionable, Zoomable
         return this.positionObservable;
     }
 
+    public boolean visible()
+    {
+        return this.visibleObservable.value();
+    }
+
+    public void visible(boolean visible)
+    {
+        this.visibleObservable.value(visible);
+    }
+
+    public Observable<Boolean> visibleObservable()
+    {
+        return this.visibleObservable;
+    }
+
     @Override
     public Zoom zoom()
     {
@@ -159,20 +186,5 @@ public final class GameSprite implements Positionable, Zoomable
     public Observable<Zoom> zoomObservable()
     {
         return this.zoomObservable;
-    }
-
-    public boolean visible()
-    {
-        return this.visibleObservable.value();
-    }
-
-    public void visible(boolean visible)
-    {
-        this.visibleObservable.value(visible);
-    }
-
-    public Observable<Boolean> visibleObservable()
-    {
-        return this.visibleObservable;
     }
 }

@@ -1,20 +1,13 @@
 /*
+ * Copyright:
  * License :
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any damage it may cause.
- * You can use, modify, the code as your need for any usage.
- * But you can't do any action that avoid me or other person use, modify this code.
- * The code is free for usage and modification, you can't change that fact.
- * JHelp
- */
-
-/*
- * License :
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any
- * damage it may cause.
- * You can use, modify, the code as your need for any usage.
- * But you can't do any action that avoid me or other person use, modify this code.
- * The code is free for usage and modification, you can't change that fact.
- * JHelp
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
  */
 
 package jhelp.util.io.json;
@@ -40,19 +33,6 @@ import jhelp.util.util.HashCode;
  */
 public class ObjectJSON
 {
-    /**
-     * Couples of key, value
-     */
-    private final HashMap<String, ValueJSON> values;
-
-    /**
-     * Create a new instance of ObjectJSON
-     */
-    public ObjectJSON()
-    {
-        this.values = new HashMap<String, ValueJSON>();
-    }
-
     /**
      * Parse stream to read object
      *
@@ -159,40 +139,103 @@ public class ObjectJSON
             first = string.indexOf(',', pair.second);
         }
 
-        return new Pair<ObjectJSON, Integer>(objectJSON, last);
+        return new Pair<>(objectJSON, last);
     }
 
     /**
-     * Associate a key and a value
-     *
-     * @param key       Key
-     * @param valueJSON Value
+     * Couples of key, value
      */
-    public void put(final String key, final ValueJSON valueJSON)
+    private final HashMap<String, ValueJSON> values;
+
+    /**
+     * Create a new instance of ObjectJSON
+     */
+    public ObjectJSON()
     {
-        if (key == null)
-        {
-            throw new NullPointerException("key MUST NOT be null");
-        }
-
-        if (valueJSON == null)
-        {
-            throw new NullPointerException("valueJSON MUST NOT be null");
-        }
-
-        this.values.put(key, valueJSON);
+        this.values = new HashMap<>();
     }
 
     /**
-     * Obtain a value.<br>
-     * It returns {@code null} if key not defined
+     * Serialize inside a stream
      *
-     * @param key Key
-     * @return Value or {@code null} if key not defined
+     * @param bufferedWriter Stream where write
+     * @param compact        Indicates if compact mode
+     * @param headerSize     Header size
+     * @throws IOException On writing issue
      */
-    public ValueJSON get(final String key)
+    void serialize(final BufferedWriter bufferedWriter, final boolean compact, int headerSize)
+            throws IOException
     {
-        return this.values.get(key);
+        String head = UtilText.repeat('\t', headerSize);
+
+        if (!compact)
+        {
+            bufferedWriter.write(head);
+        }
+
+        bufferedWriter.write("{");
+
+        if (!compact)
+        {
+            bufferedWriter.newLine();
+            headerSize++;
+            head = UtilText.repeat('\t', headerSize);
+        }
+
+        boolean   first = true;
+        ValueJSON valueJSON;
+        ValueType valueType;
+        int       more;
+
+        for (final String key : this.values.keySet())
+        {
+            if (!first)
+            {
+                bufferedWriter.write(",");
+
+                if (!compact)
+                {
+                    bufferedWriter.newLine();
+                }
+            }
+
+            first = false;
+
+            if (!compact)
+            {
+                bufferedWriter.write(head);
+            }
+
+            bufferedWriter.write("\"");
+            bufferedWriter.write(key);
+            bufferedWriter.write("\":");
+            valueJSON = this.values.get(key);
+            valueType = valueJSON.getType();
+            more = 0;
+
+            if ((!compact) && ((valueType == ValueType.ARRAY) || (valueType == ValueType
+                    .OBJECT)))
+            {
+                more = 1;
+                bufferedWriter.newLine();
+            }
+
+            valueJSON.serialize(bufferedWriter, compact, headerSize + more);
+        }
+
+        if (!compact)
+        {
+            if (this.values.size() > 0)
+            {
+                bufferedWriter.newLine();
+            }
+
+            headerSize--;
+            bufferedWriter.write(UtilText.repeat('\t', headerSize));
+        }
+
+        bufferedWriter.write("}");
+        bufferedWriter.flush();
     }
 
     /**
@@ -207,15 +250,15 @@ public class ObjectJSON
     }
 
     /**
-     * Indicates if a key as {@code null} value
+     * Obtain a value.<br>
+     * It returns {@code null} if key not defined
      *
-     * @param key Tested key
-     * @return {@code true} if key as {@code null} value
+     * @param key Key
+     * @return Value or {@code null} if key not defined
      */
-    public boolean isNull(String key)
+    public ValueJSON get(final String key)
     {
-        return this.values.get(key)
-                          .isNull();
+        return this.values.get(key);
     }
 
     /**
@@ -238,23 +281,6 @@ public class ObjectJSON
     }
 
     /**
-     * Associate key to array
-     *
-     * @param key       Key
-     * @param arrayJSON Array
-     */
-    public void put(final String key, final ArrayJSON arrayJSON)
-    {
-        if (arrayJSON == null)
-        {
-            this.put(key, ValueJSON.NULL);
-            return;
-        }
-
-        this.put(key, ValueJSON.newValue(arrayJSON));
-    }
-
-    /**
      * Obtain a boolean
      *
      * @param key          Key
@@ -271,24 +297,6 @@ public class ObjectJSON
         }
 
         return json.getBoolean();
-    }
-
-    /**
-     * Associate key to boolean
-     *
-     * @param key   Key
-     * @param value Boolean value
-     */
-    public void put(final String key, final boolean value)
-    {
-        if (value)
-        {
-            this.put(key, ValueJSON.TRUE);
-        }
-        else
-        {
-            this.put(key, ValueJSON.FALSE);
-        }
     }
 
     /**
@@ -311,17 +319,6 @@ public class ObjectJSON
     }
 
     /**
-     * Associate key to double value
-     *
-     * @param key   Key
-     * @param value Double value
-     */
-    public void put(final String key, final double value)
-    {
-        this.put(key, ValueJSON.newValue(value));
-    }
-
-    /**
      * Obtain a float
      *
      * @param key          Key
@@ -338,17 +335,6 @@ public class ObjectJSON
         }
 
         return (float) json.getNumber();
-    }
-
-    /**
-     * Associate key to float value
-     *
-     * @param key   Key
-     * @param value Float value
-     */
-    public void put(final String key, final float value)
-    {
-        this.put(key, ValueJSON.newValue(value));
     }
 
     /**
@@ -371,17 +357,6 @@ public class ObjectJSON
     }
 
     /**
-     * Associate key to int value
-     *
-     * @param key   Key
-     * @param value Int value
-     */
-    public void put(final String key, final int value)
-    {
-        this.put(key, ValueJSON.newValue(value));
-    }
-
-    /**
      * Set of keys
      *
      * @return Set of keys
@@ -389,11 +364,6 @@ public class ObjectJSON
     public Set<String> getKeys()
     {
         return this.values.keySet();
-    }
-
-    public int numberOfValue()
-    {
-        return this.values.size();
     }
 
     /**
@@ -416,17 +386,6 @@ public class ObjectJSON
     }
 
     /**
-     * Associate key to long value
-     *
-     * @param key   Key
-     * @param value Long value
-     */
-    public void put(final String key, final long value)
-    {
-        this.put(key, ValueJSON.newValue(value));
-    }
-
-    /**
      * Obtain an object<br>
      * It return {@code null} if key not defined
      *
@@ -446,24 +405,6 @@ public class ObjectJSON
     }
 
     /**
-     * Associate key to object value
-     *
-     * @param key   Key
-     * @param value Object value
-     */
-    public void put(final String key, final ObjectJSON value)
-    {
-        if (value == null)
-        {
-            this.put(key, ValueJSON.NULL);
-        }
-        else
-        {
-            this.put(key, ValueJSON.newValue(value));
-        }
-    }
-
-    /**
      * Obtain a String
      *
      * @param key          Key
@@ -480,24 +421,6 @@ public class ObjectJSON
         }
 
         return json.getString();
-    }
-
-    /**
-     * Associate key to String value
-     *
-     * @param key   Key
-     * @param value String value
-     */
-    public void put(final String key, final String value)
-    {
-        if (value == null)
-        {
-            this.put(key, ValueJSON.NULL);
-        }
-        else
-        {
-            this.put(key, ValueJSON.newValue(value));
-        }
     }
 
     /**
@@ -601,6 +524,159 @@ public class ObjectJSON
     }
 
     /**
+     * Indicates if a key as {@code null} value
+     *
+     * @param key Tested key
+     * @return {@code true} if key as {@code null} value
+     */
+    public boolean isNull(String key)
+    {
+        return this.values.get(key)
+                          .isNull();
+    }
+
+    public int numberOfValue()
+    {
+        return this.values.size();
+    }
+
+    /**
+     * Associate a key and a value
+     *
+     * @param key       Key
+     * @param valueJSON Value
+     */
+    public void put(final String key, final ValueJSON valueJSON)
+    {
+        if (key == null)
+        {
+            throw new NullPointerException("key MUST NOT be null");
+        }
+
+        if (valueJSON == null)
+        {
+            throw new NullPointerException("valueJSON MUST NOT be null");
+        }
+
+        this.values.put(key, valueJSON);
+    }
+
+    /**
+     * Associate key to array
+     *
+     * @param key       Key
+     * @param arrayJSON Array
+     */
+    public void put(final String key, final ArrayJSON arrayJSON)
+    {
+        if (arrayJSON == null)
+        {
+            this.put(key, ValueJSON.NULL);
+            return;
+        }
+
+        this.put(key, ValueJSON.newValue(arrayJSON));
+    }
+
+    /**
+     * Associate key to boolean
+     *
+     * @param key   Key
+     * @param value Boolean value
+     */
+    public void put(final String key, final boolean value)
+    {
+        if (value)
+        {
+            this.put(key, ValueJSON.TRUE);
+        }
+        else
+        {
+            this.put(key, ValueJSON.FALSE);
+        }
+    }
+
+    /**
+     * Associate key to double value
+     *
+     * @param key   Key
+     * @param value Double value
+     */
+    public void put(final String key, final double value)
+    {
+        this.put(key, ValueJSON.newValue(value));
+    }
+
+    /**
+     * Associate key to float value
+     *
+     * @param key   Key
+     * @param value Float value
+     */
+    public void put(final String key, final float value)
+    {
+        this.put(key, ValueJSON.newValue(value));
+    }
+
+    /**
+     * Associate key to int value
+     *
+     * @param key   Key
+     * @param value Int value
+     */
+    public void put(final String key, final int value)
+    {
+        this.put(key, ValueJSON.newValue(value));
+    }
+
+    /**
+     * Associate key to long value
+     *
+     * @param key   Key
+     * @param value Long value
+     */
+    public void put(final String key, final long value)
+    {
+        this.put(key, ValueJSON.newValue(value));
+    }
+
+    /**
+     * Associate key to object value
+     *
+     * @param key   Key
+     * @param value Object value
+     */
+    public void put(final String key, final ObjectJSON value)
+    {
+        if (value == null)
+        {
+            this.put(key, ValueJSON.NULL);
+        }
+        else
+        {
+            this.put(key, ValueJSON.newValue(value));
+        }
+    }
+
+    /**
+     * Associate key to String value
+     *
+     * @param key   Key
+     * @param value String value
+     */
+    public void put(final String key, final String value)
+    {
+        if (value == null)
+        {
+            this.put(key, ValueJSON.NULL);
+        }
+        else
+        {
+            this.put(key, ValueJSON.newValue(value));
+        }
+    }
+
+    /**
      * Serialize inside a stream
      *
      * @param outputStream Stream where write
@@ -623,88 +699,5 @@ public class ObjectJSON
                                                                                       IOException
     {
         this.serialize(bufferedWriter, compact, 0);
-    }
-
-    /**
-     * Serialize inside a stream
-     *
-     * @param bufferedWriter Stream where write
-     * @param compact        Indicates if compact mode
-     * @param headerSize     Header size
-     * @throws IOException On writing issue
-     */
-    void serialize(final BufferedWriter bufferedWriter, final boolean compact, int headerSize)
-            throws IOException
-    {
-        String head = UtilText.repeat('\t', headerSize);
-
-        if (!compact)
-        {
-            bufferedWriter.write(head);
-        }
-
-        bufferedWriter.write("{");
-
-        if (!compact)
-        {
-            bufferedWriter.newLine();
-            headerSize++;
-            head = UtilText.repeat('\t', headerSize);
-        }
-
-        boolean   first = true;
-        ValueJSON valueJSON;
-        ValueType valueType;
-        int       more;
-
-        for (final String key : this.values.keySet())
-        {
-            if (!first)
-            {
-                bufferedWriter.write(",");
-
-                if (!compact)
-                {
-                    bufferedWriter.newLine();
-                }
-            }
-
-            first = false;
-
-            if (!compact)
-            {
-                bufferedWriter.write(head);
-            }
-
-            bufferedWriter.write("\"");
-            bufferedWriter.write(key);
-            bufferedWriter.write("\":");
-            valueJSON = this.values.get(key);
-            valueType = valueJSON.getType();
-            more = 0;
-
-            if ((!compact) && ((valueType == ValueType.ARRAY) || (valueType == ValueType
-                    .OBJECT)))
-            {
-                more = 1;
-                bufferedWriter.newLine();
-            }
-
-            valueJSON.serialize(bufferedWriter, compact, headerSize + more);
-        }
-
-        if (!compact)
-        {
-            if (this.values.size() > 0)
-            {
-                bufferedWriter.newLine();
-            }
-
-            headerSize--;
-            bufferedWriter.write(UtilText.repeat('\t', headerSize));
-        }
-
-        bufferedWriter.write("}");
-        bufferedWriter.flush();
     }
 }

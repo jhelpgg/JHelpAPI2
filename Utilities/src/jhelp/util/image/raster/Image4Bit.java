@@ -1,13 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.image.raster;
 
 import java.io.IOException;
@@ -23,31 +25,41 @@ import jhelp.util.io.UtilIO;
 public class Image4Bit
         implements RasterImage
 {
-    /** Default color table if none given */
+    /**
+     * Default color table if none given
+     */
     private static final int[] DEFAULT_COLOR_TABLE =
             {
                     0xFF000000, 0xFFFFFFFF, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF00FFFF, 0xFFFF00FF, 0xFFFFFF00,
                     0xFF808080, 0xFF000080, 0xFF008000, 0xFF800000,
                     0xFF80FF80, 0xFFFF80FF, 0xFFFFFF80, 0xFFFFFF80
             };
-    /** Color table size */
+    /**
+     * Color table size
+     */
     public static final  int   COLOR_TABLE_SIZE    = 16;
-    /** Color table */
+    /**
+     * Color table
+     */
     private final int[]  colorTable;
-    /** Image data */
+    /**
+     * Image data
+     */
     private final byte[] data;
-    /** Image height */
+    /**
+     * Image height
+     */
     private final int    height;
-    /** Image width */
+    /**
+     * Image width
+     */
     private final int    width;
 
     /**
      * Create a new instance of Image4Bit
      *
-     * @param width
-     *           Width
-     * @param height
-     *           Height
+     * @param width  Width
+     * @param height Height
      */
     public Image4Bit(final int width, final int height)
     {
@@ -84,8 +96,7 @@ public class Image4Bit
     /**
      * Obtain color from color table
      *
-     * @param colorIndex
-     *           Color table index
+     * @param colorIndex Color table index
      * @return Color
      */
     public int getColor(final int colorIndex)
@@ -96,10 +107,8 @@ public class Image4Bit
     /**
      * Obtain color table index of image pixel
      *
-     * @param x
-     *           X
-     * @param y
-     *           Y
+     * @param x X
+     * @param y Y
      * @return Color table index
      */
     public int getColorIndex(final int x, final int y)
@@ -120,19 +129,6 @@ public class Image4Bit
         }
 
         return info & 0xF;
-    }
-
-    /**
-     * Image height <br>
-     * <br>
-     * <b>Parent documentation:</b><br>
-     * {@inheritDoc}
-     *
-     * @return Image height
-     */
-    public int getHeight()
-    {
-        return this.height;
     }
 
     /**
@@ -164,12 +160,68 @@ public class Image4Bit
     }
 
     /**
+     * Image height <br>
+     * <br>
+     * <b>Parent documentation:</b><br>
+     * {@inheritDoc}
+     *
+     * @return Image height
+     */
+    public int getHeight()
+    {
+        return this.height;
+    }
+
+    /**
+     * Convert to JHelp Image <br>
+     * <br>
+     * <b>Parent documentation:</b><br>
+     * {@inheritDoc}
+     *
+     * @return Converted image
+     * @see jhelp.util.image.raster.RasterImage#toJHelpImage()
+     */
+    @Override
+    public JHelpImage toJHelpImage()
+    {
+        final int   length  = this.width * this.height;
+        final int[] pixels  = new int[length];
+        boolean     high    = true;
+        int         pixData = 0;
+        int         info    = this.data[0] & 0xFF;
+        int         colorIndex;
+
+        for (int pix = 0; pix < length; pix++)
+        {
+            if (high)
+            {
+                colorIndex = info >> 4;
+                high = false;
+            }
+            else
+            {
+                colorIndex = info & 0xF;
+                pixData++;
+
+                if (pixData < this.data.length)
+                {
+                    info = this.data[pixData] & 0xFF;
+                }
+
+                high = true;
+            }
+
+            pixels[pix] = this.colorTable[colorIndex];
+        }
+
+        return new JHelpImage(this.width, this.height, pixels);
+    }
+
+    /**
      * Parse bitmap stream to image data
      *
-     * @param inputStream
-     *           Stream to parse
-     * @throws IOException
-     *            On reading issue
+     * @param inputStream Stream to parse
+     * @throws IOException On reading issue
      */
     public void parseBitmapStream(final InputStream inputStream) throws IOException
     {
@@ -226,10 +278,8 @@ public class Image4Bit
     /**
      * Parse bitmap compressed stream to image data
      *
-     * @param inputStream
-     *           Stream to read
-     * @throws IOException
-     *            On reading issue
+     * @param inputStream Stream to read
+     * @throws IOException On reading issue
      */
     public void parseBitmapStreamCompressed(final InputStream inputStream) throws IOException
     {
@@ -407,10 +457,8 @@ public class Image4Bit
     /**
      * Define color in color table
      *
-     * @param colorIndex
-     *           Color index table
-     * @param color
-     *           Color to set
+     * @param colorIndex Color index table
+     * @param color      Color to set
      */
     public void setColor(final int colorIndex, final int color)
     {
@@ -420,12 +468,9 @@ public class Image4Bit
     /**
      * Change color index in image pixel
      *
-     * @param x
-     *           X
-     * @param y
-     *           Y
-     * @param colorIndex
-     *           Color index
+     * @param x          X
+     * @param y          Y
+     * @param colorIndex Color index
      */
     public void setColorIndex(final int x, final int y, final int colorIndex)
     {
@@ -457,10 +502,8 @@ public class Image4Bit
     /**
      * Change several colors in color table
      *
-     * @param colorIndexStart
-     *           Color index to start to override
-     * @param colors
-     *           Colors to set
+     * @param colorIndexStart Color index to start to override
+     * @param colors          Colors to set
      */
     public void setColors(final int colorIndexStart, final int... colors)
     {
@@ -491,50 +534,5 @@ public class Image4Bit
             part = i << 4;
             this.colorTable[i] = 0xFF000000 | (part << 16) | (part << 8) | part;
         }
-    }
-
-    /**
-     * Convert to JHelp Image <br>
-     * <br>
-     * <b>Parent documentation:</b><br>
-     * {@inheritDoc}
-     *
-     * @return Converted image
-     * @see jhelp.util.image.raster.RasterImage#toJHelpImage()
-     */
-    @Override
-    public JHelpImage toJHelpImage()
-    {
-        final int   length  = this.width * this.height;
-        final int[] pixels  = new int[length];
-        boolean     high    = true;
-        int         pixData = 0;
-        int         info    = this.data[0] & 0xFF;
-        int         colorIndex;
-
-        for (int pix = 0; pix < length; pix++)
-        {
-            if (high)
-            {
-                colorIndex = info >> 4;
-                high = false;
-            }
-            else
-            {
-                colorIndex = info & 0xF;
-                pixData++;
-
-                if (pixData < this.data.length)
-                {
-                    info = this.data[pixData] & 0xFF;
-                }
-
-                high = true;
-            }
-
-            pixels[pix] = this.colorTable[colorIndex];
-        }
-
-        return new JHelpImage(this.width, this.height, pixels);
     }
 }

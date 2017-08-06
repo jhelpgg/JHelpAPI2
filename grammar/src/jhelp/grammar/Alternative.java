@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.grammar;
 
 import com.sun.istack.internal.NotNull;
@@ -32,11 +44,6 @@ public class Alternative extends RuleDescription implements Iterable<RuleDescrip
         this.alternatives.add(ruleDescription);
     }
 
-    public int numberOfAlternative()
-    {
-        return this.alternatives.size();
-    }
-
     public @NotNull RuleDescription getAlternative(int index)
     {
         return this.alternatives.get(index);
@@ -51,6 +58,11 @@ public class Alternative extends RuleDescription implements Iterable<RuleDescrip
     public @NotNull Iterator<RuleDescription> iterator()
     {
         return new EnumerationIterator<>(this.alternatives.iterator(), false);
+    }
+
+    public int numberOfAlternative()
+    {
+        return this.alternatives.size();
     }
 
     @Override

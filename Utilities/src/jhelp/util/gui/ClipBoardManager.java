@@ -1,14 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any
- * damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.gui;
 
 import java.awt.Toolkit;
@@ -43,6 +44,38 @@ public class ClipBoardManager
      * Clip board manager singleton
      */
     public static final ClipBoardManager CLIP_BOARD = new ClipBoardManager();
+
+    /**
+     * Default security manager that accept all.<br>
+     * It use when no security manager found <br>
+     * <br>
+     * Last modification : 16 juin 2010<br>
+     * Version 0.0.0<br>
+     *
+     * @author JHelp
+     */
+    private class AllPermissionSecurityManager
+            extends SecurityManager
+    {
+        /**
+         * Constructs AllPermissionSecurityManager
+         */
+        public AllPermissionSecurityManager()
+        {
+        }
+
+        /**
+         * Check if permission is allowed
+         *
+         * @param perm Tested permission
+         * @see SecurityManager#checkPermission(Permission)
+         */
+        @Override
+        public void checkPermission(final Permission perm)
+        {
+            // Debug.println("Yes you can do : ", perm);
+        }
+    }
     /**
      * Clip bord link with
      */
@@ -82,90 +115,6 @@ public class ClipBoardManager
         {
             this.clipboard = new Clipboard(ClipBoardManager.class.getName());
         }
-    }
-
-    /**
-     * Indicates if clip board contains a file list
-     *
-     * @return {@code true} if clip board contains a file list
-     */
-    public boolean isFileListStore()
-    {
-        try
-        {
-            return this.clipboard.getData(DataFlavor.javaFileListFlavor) != null;
-        }
-        catch (final Exception exception)
-        {
-            return false;
-        }
-    }
-
-    /**
-     * Indicates if clip board contains a string
-     *
-     * @return {@code true} if clip board contains a string
-     */
-    public boolean isStringStore()
-    {
-        return this.obtainString() != null;
-    }
-
-    /**
-     * Obtain the stored string in clip board
-     *
-     * @return Stored string or {@code null} if no string inside
-     */
-    public String obtainString()
-    {
-        String data;
-        for (final DataFlavor dataFlavor : this.clipboard.getAvailableDataFlavors())
-        {
-            if (dataFlavor.isFlavorTextType())
-            {
-                if (dataFlavor.isRepresentationClassByteBuffer())
-                {
-                    if ((data = this.decodeByteBuffer(dataFlavor)) != null)
-                    {
-                        return data;
-                    }
-                }
-                else if (dataFlavor.isRepresentationClassCharBuffer())
-                {
-                    if ((data = this.decodeCharBuffer(dataFlavor)) != null)
-                    {
-                        return data;
-                    }
-                }
-                else if (dataFlavor.isRepresentationClassInputStream())
-                {
-                    if ((data = this.decodeInputStream(dataFlavor)) != null)
-                    {
-                        return data;
-                    }
-                }
-                else if (dataFlavor.isRepresentationClassReader())
-                {
-                    if ((data = this.decodeReader(dataFlavor)) != null)
-                    {
-                        return data;
-                    }
-                }
-                else if (String.class.isAssignableFrom(dataFlavor.getRepresentationClass()))
-                {
-                    try
-                    {
-                        return (String) this.clipboard.getData(dataFlavor);
-                    }
-                    catch (final Exception exception)
-                    {
-                        Debug.exception(exception);
-                    }
-                }
-            }
-        }
-
-        return null;
     }
 
     /**
@@ -279,13 +228,40 @@ public class ClipBoardManager
     }
 
     /**
+     * Indicates if clip board contains a file list
+     *
+     * @return {@code true} if clip board contains a file list
+     */
+    public boolean isFileListStore()
+    {
+        try
+        {
+            return this.clipboard.getData(DataFlavor.javaFileListFlavor) != null;
+        }
+        catch (final Exception exception)
+        {
+            return false;
+        }
+    }
+
+    /**
+     * Indicates if clip board contains a string
+     *
+     * @return {@code true} if clip board contains a string
+     */
+    public boolean isStringStore()
+    {
+        return this.obtainString() != null;
+    }
+
+    /**
      * Obtain list of file from clip board
      *
      * @return List of file from clip board
      */
     public List<File> obtainListOfFile()
     {
-        final ArrayList<File> listFile = new ArrayList<File>();
+        final ArrayList<File> listFile = new ArrayList<>();
 
         try
         {
@@ -312,6 +288,63 @@ public class ClipBoardManager
         }
 
         return listFile;
+    }
+
+    /**
+     * Obtain the stored string in clip board
+     *
+     * @return Stored string or {@code null} if no string inside
+     */
+    public String obtainString()
+    {
+        String data;
+        for (final DataFlavor dataFlavor : this.clipboard.getAvailableDataFlavors())
+        {
+            if (dataFlavor.isFlavorTextType())
+            {
+                if (dataFlavor.isRepresentationClassByteBuffer())
+                {
+                    if ((data = this.decodeByteBuffer(dataFlavor)) != null)
+                    {
+                        return data;
+                    }
+                }
+                else if (dataFlavor.isRepresentationClassCharBuffer())
+                {
+                    if ((data = this.decodeCharBuffer(dataFlavor)) != null)
+                    {
+                        return data;
+                    }
+                }
+                else if (dataFlavor.isRepresentationClassInputStream())
+                {
+                    if ((data = this.decodeInputStream(dataFlavor)) != null)
+                    {
+                        return data;
+                    }
+                }
+                else if (dataFlavor.isRepresentationClassReader())
+                {
+                    if ((data = this.decodeReader(dataFlavor)) != null)
+                    {
+                        return data;
+                    }
+                }
+                else if (String.class.isAssignableFrom(dataFlavor.getRepresentationClass()))
+                {
+                    try
+                    {
+                        return (String) this.clipboard.getData(dataFlavor);
+                    }
+                    catch (final Exception exception)
+                    {
+                        Debug.exception(exception);
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -358,37 +391,5 @@ public class ClipBoardManager
     public void storeString(final String text)
     {
         this.clipboard.setContents(new StringSelection(text), null);
-    }
-
-    /**
-     * Default security manager that accept all.<br>
-     * It use when no security manager found <br>
-     * <br>
-     * Last modification : 16 juin 2010<br>
-     * Version 0.0.0<br>
-     *
-     * @author JHelp
-     */
-    private class AllPermissionSecurityManager
-            extends SecurityManager
-    {
-        /**
-         * Constructs AllPermissionSecurityManager
-         */
-        public AllPermissionSecurityManager()
-        {
-        }
-
-        /**
-         * Check if permission is allowed
-         *
-         * @param perm Tested permission
-         * @see SecurityManager#checkPermission(Permission)
-         */
-        @Override
-        public void checkPermission(final Permission perm)
-        {
-            // Debug.println("Yes you can do : ", perm);
-        }
     }
 }

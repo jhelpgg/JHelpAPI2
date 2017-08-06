@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.text;
 
 import java.util.ArrayList;
@@ -25,9 +37,21 @@ import jhelp.util.util.Utilities;
 public class StringExtractor
 {
     /**
+     * Indicates if empty string result is allowaed
+     */
+    private       boolean                               canReturnEmptyString;
+    /**
+     * Current word start index
+     */
+    private       int                                   currentWordStart;
+    /**
      * Escape characters
      */
     private final char[]                                escapeCharacters;
+    /**
+     * Current read index
+     */
+    private       int                                   index;
     /**
      * String to parse length
      */
@@ -45,6 +69,12 @@ public class StringExtractor
      */
     private final char[]                                separators;
     /**
+     * Indicates if have to stop parsing when meet "string" to treat them separately {@code true} OR treat them as a
+     * part of
+     * something : {@code false}
+     */
+    private       boolean                               stopAtString;
+    /**
      * String to parse
      */
     private final char[]                                string;
@@ -52,24 +82,6 @@ public class StringExtractor
      * String delimiters
      */
     private final char[]                                stringLimiters;
-    /**
-     * Indicates if empty string result is allowaed
-     */
-    private       boolean                               canReturnEmptyString;
-    /**
-     * Current read index
-     */
-    private       int                                   index;
-    /**
-     * Indicates if have to stop parsing when meet "string" to treat them separately {@code true} OR treat them as a
-     * part of
-     * something : {@code false}
-     */
-    private       boolean                               stopAtString;
-    /**
-     * Current word start index
-     */
-    private       int                                   currentWordStart;
 
     /**
      * Create a new instance of StringExtractor with default separators (see {@link UtilText#DEFAULT_SEPARATORS}), string
@@ -121,7 +133,7 @@ public class StringExtractor
         this.currentWordStart = -1;
         this.length = string.length();
 
-        this.openCloseIgnore = new ArrayList<Pair<Character, Character>>();
+        this.openCloseIgnore = new ArrayList<>();
         this.canReturnEmptyString = true;
         this.stopAtString = true;
     }
@@ -163,7 +175,17 @@ public class StringExtractor
             }
         }
 
-        this.openCloseIgnore.add(new Pair<Character, Character>(open, close));
+        this.openCloseIgnore.add(new Pair<>(open, close));
+    }
+
+    public int currentWordEnd()
+    {
+        return this.index;
+    }
+
+    public int currentWordStart()
+    {
+        return this.currentWordStart;
     }
 
     /**
@@ -337,15 +359,5 @@ public class StringExtractor
         }
 
         return new String(this.string, start, end - start);
-    }
-
-    public int currentWordStart()
-    {
-        return this.currentWordStart;
-    }
-
-    public int currentWordEnd()
-    {
-        return this.index;
     }
 }

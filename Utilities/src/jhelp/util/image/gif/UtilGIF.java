@@ -1,19 +1,19 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any
- * damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.image.gif;
 
 import java.io.IOException;
 import java.io.InputStream;
-
 import jhelp.util.io.UtilIO;
 
 /**
@@ -26,10 +26,8 @@ class UtilGIF
     /**
      * Append ASCII byte to a string builder
      *
-     * @param stringBuilder
-     *           String builder where append
-     * @param data
-     *           ASCII bytes to append
+     * @param stringBuilder String builder where append
+     * @param data          ASCII bytes to append
      */
     public static void appendAsciiBytes(final StringBuilder stringBuilder, final byte[] data)
     {
@@ -42,11 +40,9 @@ class UtilGIF
     /**
      * Read a 2 byte integer
      *
-     * @param inputStream
-     *           Stream to read
+     * @param inputStream Stream to read
      * @return Read integer
-     * @throws IOException
-     *            If stream close or reach end before the 2 bytes are read
+     * @throws IOException If stream close or reach end before the 2 bytes are read
      */
     public static int read2ByteInt(final InputStream inputStream) throws IOException
     {
@@ -64,13 +60,10 @@ class UtilGIF
     /**
      * Read ASCII String in stream
      *
-     * @param size
-     *           String size
-     * @param inputStream
-     *           Stream to read
+     * @param size        String size
+     * @param inputStream Stream to read
      * @return String read
-     * @throws IOException
-     *            If stream close or end before read the all String
+     * @throws IOException If stream close or end before read the all String
      */
     public static String readString(final int size, final InputStream inputStream) throws IOException
     {

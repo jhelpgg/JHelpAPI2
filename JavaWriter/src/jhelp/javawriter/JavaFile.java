@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.javawriter;
 
 import java.io.File;
@@ -10,15 +22,15 @@ import jhelp.util.list.SortedArray;
  */
 public abstract class JavaFile
 {
-    private final String              packageName;
     private final String              className;
-    private final boolean             isPublic;
-    private final boolean             isFinal;
     private       String              comment;
-    private       String              nature;
-    private final SortedArray<String> imports;
-    private final String              parent;
     private final SortedArray<String> implementedList;
+    private final SortedArray<String> imports;
+    private final boolean             isFinal;
+    private final boolean             isPublic;
+    private       String              nature;
+    private final String              packageName;
+    private final String              parent;
 
     public JavaFile(String nature, String fullName, boolean isPublic, boolean isFinal)
     {
@@ -48,34 +60,16 @@ public abstract class JavaFile
         this.parent = parent;
     }
 
-    public final void addImport(String completeName)
-    {
-        this.imports.add(completeName);
-    }
+    protected abstract void writeInternal(TextWriter textWriter, String spaces);
 
     public final void addImplements(String completeName)
     {
         this.implementedList.add(completeName);
     }
 
-    public final String comment()
+    public final void addImport(String completeName)
     {
-        return this.comment;
-    }
-
-    public final void comment(final String comment)
-    {
-        this.comment = comment;
-    }
-
-    public final boolean isPublic()
-    {
-        return this.isPublic;
-    }
-
-    public final boolean isFinal()
-    {
-        return this.isFinal;
+        this.imports.add(completeName);
     }
 
     public final String className()
@@ -83,12 +77,30 @@ public abstract class JavaFile
         return this.className;
     }
 
+    public final void comment(final String comment)
+    {
+        this.comment = comment;
+    }
+
+    public final String comment()
+    {
+        return this.comment;
+    }
+
+    public final boolean isFinal()
+    {
+        return this.isFinal;
+    }
+
+    public final boolean isPublic()
+    {
+        return this.isPublic;
+    }
+
     public final String packageName()
     {
         return this.packageName;
     }
-
-    protected abstract void writeInternal(TextWriter textWriter, String spaces);
 
     public final void write(File directory, String spaces) throws IOException
     {

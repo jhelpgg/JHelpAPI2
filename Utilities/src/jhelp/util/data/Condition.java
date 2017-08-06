@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.data;
 
 import com.sun.istack.internal.NotNull;
@@ -10,6 +22,59 @@ import java.util.Objects;
 public interface Condition<T>
 {
     /**
+     * Condition that check if a boolean is true
+     */
+    Condition<Boolean> IS_TRUE  = new Condition<Boolean>()
+    {
+        /**
+         * Indicates if value is {@code true}
+         * @param value Tested value
+         * @return Parameter validity
+         */
+        @Override
+        public boolean isValid(final @Nullable Boolean value)
+        {
+            return value != null && value;
+        }
+
+        /**
+         * Opposite condition
+         * @return Opposite condition
+         */
+        @Override
+        public @NotNull Condition<Boolean> negate()
+        {
+            return Condition.IS_FALSE;
+        }
+    };
+    /**
+     * Condition that check if a boolean is false
+     */
+    Condition<Boolean> IS_FALSE = new Condition<Boolean>()
+    {
+        /**
+         * Indicates if value is {@code false}
+         * @param value Tested value
+         * @return Parameter validity
+         */
+        @Override
+        public boolean isValid(final @Nullable Boolean value)
+        {
+            return value == null || !value;
+        }
+
+        /**
+         * Opposite condition
+         * @return Opposite condition
+         */
+        @Override
+        public @NotNull Condition<Boolean> negate()
+        {
+            return Condition.IS_TRUE;
+        }
+    };
+
+    /**
      * Create condition result of an "and" on all given conditions.<br>
      * Tht is to say, the result condition wil be validate if and only if all given conditions are validate
      *
@@ -18,7 +83,7 @@ public interface Condition<T>
      * @param <T>        Element type that conditions have to full fill
      * @return Created condition
      */
-    static @NotNull <T> Condition<T> and(
+    static @SafeVarargs @NotNull <T> Condition<T> and(
             final @NotNull Condition<T> condition1, final @NotNull Condition<T>... conditions)
     {
         Objects.requireNonNull(condition1, "condition1 MUST NOT be null!");
@@ -55,120 +120,6 @@ public interface Condition<T>
             return true;
         };
     }
-
-    /**
-     * Create condition result of an "or" on all given conditions.<br>
-     * Tht is to say, the result condition wil be validate if and only if at least one of given conditions is validate
-     *
-     * @param condition1 First condition
-     * @param conditions Other conditions
-     * @param <T>        Element type that conditions have to full fill
-     * @return Created condition
-     */
-    static @NotNull <T> Condition<T> or(
-            final @NotNull Condition<T> condition1, final @NotNull Condition<T>... conditions)
-    {
-        Objects.requireNonNull(condition1, "condition1 MUST NOT be null!");
-        Objects.requireNonNull(conditions, "conditions MUST NOT be null!");
-
-        for (Condition<T> condition : conditions)
-        {
-            if (condition == null)
-            {
-                throw new NullPointerException("One of given condition is null!");
-            }
-        }
-
-        if (conditions.length == 0)
-        {
-            return condition1;
-        }
-
-        return value ->
-        {
-            if (condition1.isValid(value))
-            {
-                return true;
-            }
-
-            for (Condition<T> condition : conditions)
-            {
-                if (condition.isValid(value))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        };
-    }
-
-    /**
-     * Create condition that negate the given one.<br>
-     * That is to say the return a condition which is valid if and only if given condition is not valid
-     *
-     * @param condition Condition to negate
-     * @param <T>       Element type of condition to negate
-     * @return Opposite condition
-     */
-    static @NotNull <T> Condition<T> not(@NotNull Condition<T> condition)
-    {
-        return condition.negate();
-    }
-
-    /**
-     * Condition that check if a boolean is true
-     */
-    Condition<Boolean> IS_TRUE = new Condition<Boolean>()
-    {
-        /**
-         * Indicates if value is {@code true}
-         * @param value Tested value
-         * @return Parameter validity
-         */
-        @Override
-        public boolean isValid(final @Nullable Boolean value)
-        {
-            return value != null && value;
-        }
-
-        /**
-         * Opposite condition
-         * @return Opposite condition
-         */
-        @Override
-        public @NotNull Condition<Boolean> negate()
-        {
-            return Condition.IS_FALSE;
-        }
-    };
-
-    /**
-     * Condition that check if a boolean is false
-     */
-    Condition<Boolean> IS_FALSE = new Condition<Boolean>()
-    {
-        /**
-         * Indicates if value is {@code false}
-         * @param value Tested value
-         * @return Parameter validity
-         */
-        @Override
-        public boolean isValid(final @Nullable Boolean value)
-        {
-            return value == null || !value;
-        }
-
-        /**
-         * Opposite condition
-         * @return Opposite condition
-         */
-        @Override
-        public @NotNull Condition<Boolean> negate()
-        {
-            return Condition.IS_TRUE;
-        }
-    };
 
     /**
      * Create condition to check a value is inside a given interval
@@ -217,6 +168,66 @@ public interface Condition<T>
             {
                 return Condition.outsideInterval(interval);
             }
+        };
+    }
+
+    /**
+     * Create condition that negate the given one.<br>
+     * That is to say the return a condition which is valid if and only if given condition is not valid
+     *
+     * @param condition Condition to negate
+     * @param <T>       Element type of condition to negate
+     * @return Opposite condition
+     */
+    static @NotNull <T> Condition<T> not(@NotNull Condition<T> condition)
+    {
+        return condition.negate();
+    }
+
+    /**
+     * Create condition result of an "or" on all given conditions.<br>
+     * Tht is to say, the result condition wil be validate if and only if at least one of given conditions is validate
+     *
+     * @param condition1 First condition
+     * @param conditions Other conditions
+     * @param <T>        Element type that conditions have to full fill
+     * @return Created condition
+     */
+    static @SafeVarargs @NotNull <T> Condition<T> or(
+            final @NotNull Condition<T> condition1, final @NotNull Condition<T>... conditions)
+    {
+        Objects.requireNonNull(condition1, "condition1 MUST NOT be null!");
+        Objects.requireNonNull(conditions, "conditions MUST NOT be null!");
+
+        for (Condition<T> condition : conditions)
+        {
+            if (condition == null)
+            {
+                throw new NullPointerException("One of given condition is null!");
+            }
+        }
+
+        if (conditions.length == 0)
+        {
+            return condition1;
+        }
+
+        return value ->
+        {
+            if (condition1.isValid(value))
+            {
+                return true;
+            }
+
+            for (Condition<T> condition : conditions)
+            {
+                if (condition.isValid(value))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         };
     }
 

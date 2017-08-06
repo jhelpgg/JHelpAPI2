@@ -1,14 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any
- * damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.gui.dynamic;
 
 import java.util.ArrayList;
@@ -16,9 +17,9 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import jhelp.util.gui.JHelpImage;
 import jhelp.util.list.Pair;
-import jhelp.util.thread.ThreadManager;
 import jhelp.util.thread.ConsumerTask;
 import jhelp.util.thread.RunnableTask;
+import jhelp.util.thread.ThreadManager;
 
 /**
  * Image that can play animation
@@ -31,6 +32,57 @@ public class JHelpDynamicImage
      * Animation frame per seconds
      */
     public static final int FPS = 25;
+
+    /**
+     * Task for signal to a listener that an animation is finished
+     *
+     * @author JHelp
+     */
+    class TaskCallBackFinishListener
+            implements ConsumerTask<Pair<DynamicAnimation, DynamicAnimationFinishListener>>
+    {
+        /**
+         * Create a new instance of TaskCallBackFinishListener
+         */
+        TaskCallBackFinishListener()
+        {
+        }
+
+        /**
+         * Play the task
+         *
+         * @param parameter Task parameter
+         */
+        @Override public void consume(final Pair<DynamicAnimation, DynamicAnimationFinishListener> parameter)
+        {
+            parameter.second.dynamicAnimationFinished(parameter.first);
+        }
+    }
+
+    /**
+     * Task that refresh the image
+     *
+     * @author JHelp
+     */
+    class TaskRefreshImage
+            implements RunnableTask
+    {
+        /**
+         * Create a new instance of TaskRefreshImage
+         */
+        TaskRefreshImage()
+        {
+        }
+
+        /**
+         * Play the task
+         */
+        @Override public void run()
+        {
+            JHelpDynamicImage.this.doRefreshImage();
+        }
+    }
+
     /**
      * Indicates if refresh thread still alive
      */
@@ -39,6 +91,10 @@ public class JHelpDynamicImage
      * Animations to refresh list
      */
     private final List<Pair<DynamicAnimation, DynamicAnimationFinishListener>> animations;
+    /**
+     * Current background
+     */
+    private       Background                                                   background;
     /**
      * Height
      */
@@ -56,6 +112,14 @@ public class JHelpDynamicImage
      */
     private final TaskCallBackFinishListener                                   taskCallBackFinishListener;
     /**
+     * Refresh image task
+     */
+    private final TaskRefreshImage                                             taskRefreshImage;
+    /**
+     * Time when animation started
+     */
+    private       long                                                         timeStart;
+    /**
      * Indicates if task refresh wait next instruction
      */
     private final AtomicBoolean                                                waiting;
@@ -67,18 +131,6 @@ public class JHelpDynamicImage
      * Listener of image dynamic events
      */
     JHelpDynamicImageListener dynamicImageListener;
-    /**
-     * Current background
-     */
-    private       Background       background;
-    /**
-     * Refresh image task
-     */
-    private final TaskRefreshImage taskRefreshImage;
-    /**
-     * Time when animation started
-     */
-    private       long             timeStart;
 
     /**
      * Create a new instance of JHelpDynamicImage
@@ -92,7 +144,7 @@ public class JHelpDynamicImage
         this.alive = new AtomicBoolean(true);
         this.waiting = new AtomicBoolean(false);
         this.taskRefreshImage = new TaskRefreshImage();
-        this.animations = new ArrayList<Pair<DynamicAnimation, DynamicAnimationFinishListener>>();
+        this.animations = new ArrayList<>();
         this.width = Math.max(128, width);
         this.height = Math.max(128, height);
         this.image = new JHelpImage(this.width, this.height);
@@ -100,6 +152,16 @@ public class JHelpDynamicImage
         this.background = new Background();
         this.timeStart = System.currentTimeMillis();
         ThreadManager.doTask(this.taskRefreshImage, null);
+    }
+
+    /**
+     * Actual absolute frame
+     *
+     * @return Actual absolute frame
+     */
+    private float getAbsoluteFrame()
+    {
+        return (float) (((System.currentTimeMillis() - this.timeStart) * JHelpDynamicImage.FPS) / 1000d);
     }
 
     /**
@@ -179,16 +241,6 @@ public class JHelpDynamicImage
                 }
             }
         }
-    }
-
-    /**
-     * Actual absolute frame
-     *
-     * @return Actual absolute frame
-     */
-    private float getAbsoluteFrame()
-    {
-        return (float) (((System.currentTimeMillis() - this.timeStart) * JHelpDynamicImage.FPS) / 1000d);
     }
 
     /**
@@ -277,7 +329,7 @@ public class JHelpDynamicImage
                 this.image.startDrawMode();
             }
 
-            this.animations.add(new Pair<DynamicAnimation, DynamicAnimationFinishListener>(dynamicAnimation, listener));
+            this.animations.add(new Pair<>(dynamicAnimation, listener));
 
             if (this.waiting.get())
             {
@@ -346,56 +398,6 @@ public class JHelpDynamicImage
                     this.image.startDrawMode();
                 }
             }
-        }
-    }
-
-    /**
-     * Task for signal to a listener that an animation is finished
-     *
-     * @author JHelp
-     */
-    class TaskCallBackFinishListener
-            implements ConsumerTask<Pair<DynamicAnimation, DynamicAnimationFinishListener>>
-    {
-        /**
-         * Create a new instance of TaskCallBackFinishListener
-         */
-        TaskCallBackFinishListener()
-        {
-        }
-
-        /**
-         * Play the task
-         *
-         * @param parameter Task parameter
-         */
-        @Override public void consume(final Pair<DynamicAnimation, DynamicAnimationFinishListener> parameter)
-        {
-            parameter.second.dynamicAnimationFinished(parameter.first);
-        }
-    }
-
-    /**
-     * Task that refresh the image
-     *
-     * @author JHelp
-     */
-    class TaskRefreshImage
-            implements RunnableTask
-    {
-        /**
-         * Create a new instance of TaskRefreshImage
-         */
-        TaskRefreshImage()
-        {
-        }
-
-        /**
-         * Play the task
-         */
-        @Override public void run()
-        {
-            JHelpDynamicImage.this.doRefreshImage();
         }
     }
 }

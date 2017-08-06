@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.ia.game.tictactoe;
 
 import jhelp.ia.astar.AStarNode;
@@ -8,7 +20,8 @@ import jhelp.ia.astar.Quantifier;
  */
 public class QuantifierBoard implements Quantifier<Board>
 {
-    private static int computerTest = 0;
+    private static      int             computerTest     = 0;
+    public static final QuantifierBoard QUANTIFIER_BOARD = new QuantifierBoard();
 
     public static void computer(boolean first)
     {
@@ -26,8 +39,6 @@ public class QuantifierBoard implements Quantifier<Board>
     {
         return (starNode.depth() & 1) == QuantifierBoard.computerTest;
     }
-
-    public static final QuantifierBoard QUANTIFIER_BOARD = new QuantifierBoard();
 
     private QuantifierBoard()
     {

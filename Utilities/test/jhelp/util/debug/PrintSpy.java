@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.debug;
 
 import java.io.IOException;
@@ -19,6 +31,53 @@ public class PrintSpy extends PrintStream
         {
             this.data = new byte[4096];
             this.size = 0;
+        }
+
+        private void append(byte... buffer)
+        {
+            this.append(0, buffer.length, buffer);
+        }
+
+        private void append(int offset, int length, byte... buffer)
+        {
+            if (offset < 0)
+            {
+                length += offset;
+                offset = 0;
+            }
+
+            if (offset + length > buffer.length)
+            {
+                length = buffer.length - offset;
+            }
+
+            if (length <= 0)
+            {
+                return;
+            }
+
+            this.ensureCapacity(length);
+            System.arraycopy(buffer, offset, this.data, this.size, length);
+            this.size += length;
+        }
+
+        private void ensureCapacity(int more)
+        {
+            if (this.size + more >= this.data.length)
+            {
+                int newLength = this.size + more;
+                newLength += newLength >> 3;
+                byte[] buffer = new byte[newLength];
+                System.arraycopy(this.data, 0, buffer, 0, this.size);
+                this.data = buffer;
+            }
+        }
+
+        public String popLastWrote()
+        {
+            String lastWrote = new String(this.data, 0, this.size);
+            this.size = 0;
+            return lastWrote;
         }
 
         /**
@@ -53,57 +112,9 @@ public class PrintSpy extends PrintStream
         {
             this.append(off, len, b);
         }
-
-        private void ensureCapacity(int more)
-        {
-            if (this.size + more >= this.data.length)
-            {
-                int newLength = this.size + more;
-                newLength += newLength >> 3;
-                byte[] buffer = new byte[newLength];
-                System.arraycopy(this.data, 0, buffer, 0, this.size);
-                this.data = buffer;
-            }
-        }
-
-        private void append(byte... buffer)
-        {
-            this.append(0, buffer.length, buffer);
-        }
-
-        private void append(int offset, int length, byte... buffer)
-        {
-            if (offset < 0)
-            {
-                length += offset;
-                offset = 0;
-            }
-
-            if (offset + length > buffer.length)
-            {
-                length = buffer.length - offset;
-            }
-
-            if (length <= 0)
-            {
-                return;
-            }
-
-            this.ensureCapacity(length);
-            System.arraycopy(buffer, offset, this.data, this.size, length);
-            this.size += length;
-        }
-
-        public String popLastWrote()
-        {
-            String lastWrote = new String(this.data, 0, this.size);
-            this.size = 0;
-            return lastWrote;
-        }
     }
-
-    private final SpyOutputStream spyOutputStream;
     private final PrintStream     printStreamToSpy;
+    private final SpyOutputStream spyOutputStream;
 
     public PrintSpy(PrintStream printStream)
     {
@@ -118,25 +129,28 @@ public class PrintSpy extends PrintStream
         this.spyOutputStream = (SpyOutputStream) this.out;
     }
 
-    public String popLastWrote()
+    @Override
+    public void flush()
     {
-        return this.spyOutputStream.popLastWrote();
+        super.flush();
+        this.printStreamToSpy.flush();
+    }
+
+    @Override
+    public void close()
+    {
+        super.close();
+        this.printStreamToSpy.close();
+    }
+
+    @Override
+    public boolean checkError()
+    {
+        return super.checkError() || this.printStreamToSpy.checkError();
     }
 
     @Override
     public void write(final int b)
-    {
-        try
-        {
-            this.spyOutputStream.write(b);
-        }
-        catch (Exception ignored)
-        {
-        }
-    }
-
-    @Override
-    public void write(final byte[] b) throws IOException
     {
         try
         {
@@ -167,14 +181,14 @@ public class PrintSpy extends PrintStream
     }
 
     @Override
-    public void print(final int message)
+    public void print(final char message)
     {
         super.print(message);
         this.printStreamToSpy.print(message);
     }
 
     @Override
-    public void print(final char message)
+    public void print(final int message)
     {
         super.print(message);
         this.printStreamToSpy.print(message);
@@ -195,14 +209,14 @@ public class PrintSpy extends PrintStream
     }
 
     @Override
-    public void print(final char[] message)
+    public void print(final double message)
     {
         super.print(message);
         this.printStreamToSpy.print(message);
     }
 
     @Override
-    public void print(final double message)
+    public void print(final char[] message)
     {
         super.print(message);
         this.printStreamToSpy.print(message);
@@ -230,7 +244,7 @@ public class PrintSpy extends PrintStream
     }
 
     @Override
-    public void println(final int message)
+    public void println(final boolean message)
     {
         super.println(message);
         this.printStreamToSpy.println(message);
@@ -238,6 +252,13 @@ public class PrintSpy extends PrintStream
 
     @Override
     public void println(final char message)
+    {
+        super.println(message);
+        this.printStreamToSpy.println(message);
+    }
+
+    @Override
+    public void println(final int message)
     {
         super.println(message);
         this.printStreamToSpy.println(message);
@@ -258,13 +279,6 @@ public class PrintSpy extends PrintStream
     }
 
     @Override
-    public void println(final char[] message)
-    {
-        super.println(message);
-        this.printStreamToSpy.println(message);
-    }
-
-    @Override
     public void println(final double message)
     {
         super.println(message);
@@ -272,7 +286,7 @@ public class PrintSpy extends PrintStream
     }
 
     @Override
-    public void println(final Object message)
+    public void println(final char[] message)
     {
         super.println(message);
         this.printStreamToSpy.println(message);
@@ -286,33 +300,25 @@ public class PrintSpy extends PrintStream
     }
 
     @Override
-    public void println(final boolean message)
+    public void println(final Object message)
     {
         super.println(message);
         this.printStreamToSpy.println(message);
     }
 
     @Override
-    public PrintStream append(final char message)
+    public PrintStream printf(final String format, final Object... args)
     {
-        super.append(message);
-        this.printStreamToSpy.append(message);
+        super.printf(format, args);
+        this.printStreamToSpy.printf(format, args);
         return this;
     }
 
     @Override
-    public PrintStream append(final CharSequence message)
+    public PrintStream printf(final Locale l, final String format, final Object... args)
     {
-        super.append(message);
-        this.printStreamToSpy.append(message);
-        return this;
-    }
-
-    @Override
-    public PrintStream append(final CharSequence message, final int start, final int end)
-    {
-        super.append(message, start, end);
-        this.printStreamToSpy.append(message, start, end);
+        super.printf(l, format, args);
+        this.printStreamToSpy.printf(l, format, args);
         return this;
     }
 
@@ -333,38 +339,43 @@ public class PrintSpy extends PrintStream
     }
 
     @Override
-    public void flush()
+    public PrintStream append(final CharSequence message)
     {
-        super.flush();
-        this.printStreamToSpy.flush();
-    }
-
-    @Override
-    public PrintStream printf(final String format, final Object... args)
-    {
-        super.printf(format, args);
-        this.printStreamToSpy.printf(format, args);
+        super.append(message);
+        this.printStreamToSpy.append(message);
         return this;
     }
 
     @Override
-    public PrintStream printf(final Locale l, final String format, final Object... args)
+    public PrintStream append(final CharSequence message, final int start, final int end)
     {
-        super.printf(l, format, args);
-        this.printStreamToSpy.printf(l, format, args);
+        super.append(message, start, end);
+        this.printStreamToSpy.append(message, start, end);
         return this;
     }
 
     @Override
-    public boolean checkError()
+    public PrintStream append(final char message)
     {
-        return super.checkError() || this.printStreamToSpy.checkError();
+        super.append(message);
+        this.printStreamToSpy.append(message);
+        return this;
+    }
+
+    public String popLastWrote()
+    {
+        return this.spyOutputStream.popLastWrote();
     }
 
     @Override
-    public void close()
+    public void write(final byte[] b) throws IOException
     {
-        super.close();
-        this.printStreamToSpy.close();
+        try
+        {
+            this.spyOutputStream.write(b);
+        }
+        catch (Exception ignored)
+        {
+        }
     }
 }

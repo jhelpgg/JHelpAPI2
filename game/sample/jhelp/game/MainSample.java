@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.game;
 
 import jhelp.game.gui.GameWindow;
@@ -16,11 +28,10 @@ public class MainSample implements Screen
         GameWindow gameWindow = new GameWindow("Test", new MainSample());
         gameWindow.show();
     }
-
-    private int x  = 0;
-    private int y  = 0;
     private int sx = 1;
     private int sy = 1;
+    private int x  = 0;
+    private int y  = 0;
 
     @Override
     public void updateScreen(final JHelpImage image)

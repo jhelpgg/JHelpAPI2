@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.reflection;
 
 import com.sun.istack.internal.Nullable;
@@ -13,17 +25,21 @@ import java.lang.reflect.Modifier;
 public class Reflection
 {
     /**
-     * Default Character value
-     */
-    public static final Character DEFAULT_CHARACTER = new Character('\u0000');
-    /**
      * Default Byte value
      */
     public static final Byte      DEFAULT_BYTE      = new Byte((byte) 0);
     /**
-     * Default Short value
+     * Default Character value
      */
-    public static final Short     DEFAULT_SHORT     = new Short((short) 0);
+    public static final Character DEFAULT_CHARACTER = new Character('\u0000');
+    /**
+     * Default Double value
+     */
+    public static final Double    DEFAULT_DOUBLE    = new Double(0.0);
+    /**
+     * Default Float value
+     */
+    public static final Float     DEFAULT_FLOAT     = new Float(0.0f);
     /**
      * Default Integer value
      */
@@ -33,13 +49,20 @@ public class Reflection
      */
     public static final Long      DEFAULT_LONG      = new Long(0L);
     /**
-     * Default Float value
+     * Default Short value
      */
-    public static final Float     DEFAULT_FLOAT     = new Float(0.0f);
+    public static final Short     DEFAULT_SHORT     = new Short((short) 0);
+
     /**
-     * Default Double value
+     * Indicates if given class can be considered as void
+     *
+     * @param clazz Tested class
+     * @return {@code true} if given class can be considered as void
      */
-    public static final Double    DEFAULT_DOUBLE    = new Double(0.0);
+    public static boolean canBeConsideredAsVoid(@Nullable Class<?> clazz)
+    {
+        return clazz == null || void.class.equals(clazz) || Void.class.equals(clazz);
+    }
 
     /**
      * Compute a default value for a given class
@@ -175,15 +198,20 @@ public class Reflection
         return null;
     }
 
-    /**
-     * Indicates if given class can be considered as void
-     *
-     * @param clazz Tested class
-     * @return {@code true} if given class can be considered as void
-     */
-    public static boolean canBeConsideredAsVoid(@Nullable Class<?> clazz)
+    public static Object invokePublicMethod(Class<?> clazz, String methodName, Object... parameters)
+            throws InvocationTargetException, IllegalAccessException, NoSuchMethodException
     {
-        return clazz == null || void.class.equals(clazz) || Void.class.equals(clazz);
+        final Class<?>[] types  = Reflection.obtainTypes(parameters);
+        final Method     method = Reflection.obtainPublicMethod(clazz, methodName, types);
+
+        if (Modifier.isStatic(method.getModifiers()))
+        {
+            return method.invoke(null, parameters);
+        }
+        else
+        {
+            return method.invoke(Reflection.newInstance(clazz), parameters);
+        }
     }
 
     /**
@@ -362,20 +390,68 @@ public class Reflection
         return Reflection.newInstance(classLoader.loadClass(typeName));
     }
 
-    public static Object invokePublicMethod(Class<?> clazz, String methodName, Object... parameters)
-            throws InvocationTargetException, IllegalAccessException, NoSuchMethodException
+    /**
+     * Obtain public method from a class
+     *
+     * @param clazz      Class where method lies
+     * @param methodName Method name
+     * @param types      Method parameters type
+     * @return The method
+     * @throws NoSuchMethodException If the method not public or not exists with specified types
+     */
+    public static Method obtainPublicMethod(final Class<?> clazz, final String methodName, final Class<?>... types)
+            throws NoSuchMethodException
     {
-        final Class<?>[] types  = Reflection.obtainTypes(parameters);
-        final Method     method = Reflection.obtainPublicMethod(clazz, methodName, types);
+        Method         method        = null;
+        final Method[] publicMethods = clazz.getMethods();
+        if (publicMethods != null)
+        {
+            for (int i = 0; (i < publicMethods.length) && (method == null); i++)
+            {
+                final Method m = publicMethods[i];
+                if ((m.getName()
+                      .equals(methodName)) && (Reflection.typeMatch(types, m.getParameterTypes())))
+                {
+                    method = m;
+                }
+            }
+        }
+        if (method == null)
+        {
+            final StringBuilder stringBuffer = new StringBuilder();
+            stringBuffer.append(clazz.getName());
+            stringBuffer.append('.');
+            stringBuffer.append(methodName);
+            stringBuffer.append('(');
+            if ((types != null) && (types.length > 0))
+            {
+                if (types[0] == null)
+                {
+                    stringBuffer.append("null");
+                }
+                else
+                {
+                    stringBuffer.append(types[0].getName());
 
-        if (Modifier.isStatic(method.getModifiers()))
-        {
-            return method.invoke(null, parameters);
+                }
+                for (int i = 1; i < types.length; i++)
+                {
+                    stringBuffer.append(", ");
+                    if (types[i] == null)
+                    {
+                        stringBuffer.append("null");
+                    }
+                    else
+                    {
+                        stringBuffer.append(types[i].getName());
+
+                    }
+                }
+            }
+            stringBuffer.append(')');
+            throw new NoSuchMethodException(stringBuffer.toString());
         }
-        else
-        {
-            return method.invoke(Reflection.newInstance(clazz), parameters);
-        }
+        return method;
     }
 
     /**
@@ -561,69 +637,5 @@ public class Reflection
             }
         }
         return true;
-    }
-
-    /**
-     * Obtain public method from a class
-     *
-     * @param clazz      Class where method lies
-     * @param methodName Method name
-     * @param types      Method parameters type
-     * @return The method
-     * @throws NoSuchMethodException If the method not public or not exists with specified types
-     */
-    public static Method obtainPublicMethod(final Class<?> clazz, final String methodName, final Class<?>... types)
-            throws NoSuchMethodException
-    {
-        Method         method        = null;
-        final Method[] publicMethods = clazz.getMethods();
-        if (publicMethods != null)
-        {
-            for (int i = 0; (i < publicMethods.length) && (method == null); i++)
-            {
-                final Method m = publicMethods[i];
-                if ((m.getName()
-                      .equals(methodName)) && (Reflection.typeMatch(types, m.getParameterTypes())))
-                {
-                    method = m;
-                }
-            }
-        }
-        if (method == null)
-        {
-            final StringBuilder stringBuffer = new StringBuilder();
-            stringBuffer.append(clazz.getName());
-            stringBuffer.append('.');
-            stringBuffer.append(methodName);
-            stringBuffer.append('(');
-            if ((types != null) && (types.length > 0))
-            {
-                if (types[0] == null)
-                {
-                    stringBuffer.append("null");
-                }
-                else
-                {
-                    stringBuffer.append(types[0].getName());
-
-                }
-                for (int i = 1; i < types.length; i++)
-                {
-                    stringBuffer.append(", ");
-                    if (types[i] == null)
-                    {
-                        stringBuffer.append("null");
-                    }
-                    else
-                    {
-                        stringBuffer.append(types[i].getName());
-
-                    }
-                }
-            }
-            stringBuffer.append(')');
-            throw new NoSuchMethodException(stringBuffer.toString());
-        }
-        return method;
     }
 }

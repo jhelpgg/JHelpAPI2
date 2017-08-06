@@ -1,9 +1,22 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.ia.astar;
 
 import com.sun.istack.internal.NotNull;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import jhelp.util.list.ArrayObject;
 import jhelp.util.list.EnumerationIterator;
 
 /**
@@ -11,12 +24,12 @@ import jhelp.util.list.EnumerationIterator;
  */
 public class AStarNode<T> implements Iterable<AStarNode<T>>
 {
-    private final T                       data;
-    private final int                     depth;
-    private final AStartNodeComparator<T> comparator;
-    private final Quantifier<T>           quantifier;
-    private final List<AStarNode<T>>      children;
-    private       int                     number;
+    private final ArrayObject<AStarNode<T>> children;
+    private final AStartNodeComparator<T>   comparator;
+    private final T                         data;
+    private final int                       depth;
+    private       int                       number;
+    private final Quantifier<T>             quantifier;
 
     AStarNode(@NotNull T data, int depth, @NotNull Quantifier<T> quantifier)
     {
@@ -24,7 +37,7 @@ public class AStarNode<T> implements Iterable<AStarNode<T>>
         this.depth = depth;
         this.quantifier = quantifier;
         this.comparator = new AStartNodeComparator<>(quantifier);
-        this.children = new ArrayList<>();
+        this.children = new ArrayObject<>();
         this.number = -1;
     }
 
@@ -40,6 +53,11 @@ public class AStarNode<T> implements Iterable<AStarNode<T>>
         return child;
     }
 
+    public AStarNode<T> child(int index)
+    {
+        return this.children.get(index);
+    }
+
     public @NotNull T data()
     {
         return this.data;
@@ -48,36 +66,6 @@ public class AStarNode<T> implements Iterable<AStarNode<T>>
     public int depth()
     {
         return this.depth;
-    }
-
-    public void sort()
-    {
-        synchronized (this.children)
-        {
-            int count = this.children.size();
-
-            if (count > 0)
-            {
-                this.children.stream().forEach(child -> child.number = this.quantifier.value(child));
-            }
-
-            this.children.stream().forEach(child -> child.sort());
-/*
-            int count = this.children.size();
-
-            if (count > 0)
-            {
-                this.number = 0;
-                this.children.stream().forEach(child -> this.number += child.number);
-                this.number /= count;
-            }
-            else
-            {
-                this.number = this.quantifier.value(this);
-            }
-*/
-            this.children.sort(this.comparator);
-        }
     }
 
     /**
@@ -99,18 +87,29 @@ public class AStarNode<T> implements Iterable<AStarNode<T>>
         return new EnumerationIterator<>(copy.iterator());
     }
 
+    public int number()
+    {
+        return this.number;
+    }
+
     public int numberOfChildren()
     {
         return this.children.size();
     }
 
-    public AStarNode<T> child(int index)
+    public void sort()
     {
-        return this.children.get(index);
-    }
+        synchronized (this.children)
+        {
+            int count = this.children.size();
 
-    public int number()
-    {
-        return this.number;
+            if (count > 0)
+            {
+                this.children.map(child -> child.number = this.quantifier.value(child));
+            }
+
+            this.children.consume(AStarNode::sort);
+            this.children.sort(this.comparator);
+        }
     }
 }

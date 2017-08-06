@@ -1,14 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any
- * damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.image.gif;
 
 import java.io.IOException;
@@ -43,29 +44,29 @@ class ImageDescriptorBlock
                     0, 4, 2, 1
             };
     /**
-     * Image color resolution
-     */
-    private final int colorResolution;
-    /**
      * Actual read bit position
      */
     private int bitPos = 0;
     /**
      * Actual buffered 32 bits
      */
-    private int     buffer32;
+    private       int     buffer32;
     /**
      * Image well ordered, uncompressed color indexes
      */
-    private int[]   colorIndexes;
+    private       int[]   colorIndexes;
+    /**
+     * Image color resolution
+     */
+    private final int     colorResolution;
     /**
      * Image width
      */
-    private int     height;
+    private       int     height;
     /**
      * Indicates if image is interlaced
      */
-    private boolean interlaced;
+    private       boolean interlaced;
     /**
      * Indicates that we reach the last block
      */
@@ -118,41 +119,90 @@ class ImageDescriptorBlock
     }
 
     /**
-     * Read image descriptor block <br>
-     * <br>
-     * <b>Parent documentation:</b><br>
-     * {@inheritDoc}
+     * Read the next code and next block couple
      *
+     * @param codeSize    Size of code
+     * @param codeMask    Code mask
      * @param inputStream Stream to read
-     * @throws IOException If stream is not a valid image descriptor block
-     * @see Block#read(InputStream)
+     * @param subBlock    Current block to read
+     * @param endCode     Code for terminate
+     * @return Next code and next block pair
+     * @throws IOException If stream reach end or close suddenly
      */
-    @Override
-    protected void read(final InputStream inputStream) throws IOException
+    private Pair<Integer, SubBlock> getCode(
+            final int codeSize, final int codeMask, final InputStream inputStream,
+            SubBlock subBlock, final int endCode)
+            throws IOException
     {
-        this.x = UtilGIF.read2ByteInt(inputStream);
-        this.y = UtilGIF.read2ByteInt(inputStream);
-        this.width = UtilGIF.read2ByteInt(inputStream);
-        this.height = UtilGIF.read2ByteInt(inputStream);
-        final int flags = inputStream.read();
-
-        if (flags < 0)
+        if ((this.bitPos + codeSize) > 32)
         {
-            throw new IOException("No enough data for have image flags");
+            return new Pair<>(endCode, subBlock); // No more data available
         }
 
-        final boolean colorTableFollow = (flags & GIFConstants.MASK_COLOR_TABLE_FOLLOW) != 0;
-        this.interlaced = (flags & GIFConstants.MASK_IMAGE_INTERLACED) != 0;
-        final boolean ordered        = (flags & GIFConstants.MASK_COLOR_TABLE_ORDERED) != 0;
-        final int     localTableSize = 1 << ((flags & GIFConstants.MASK_GLOBAL_COLOR_TABLE_SIZE) + 1);
+        final int code = (this.buffer32 >> this.bitPos) & codeMask;
+        this.bitPos += codeSize;
+        int    blockLength = subBlock.getSize();
+        byte[] block       = subBlock.getData();
 
-        if (colorTableFollow)
+        // Shift in a byte of new data at a time
+        while ((this.bitPos >= 8) && (!this.lastBlockFound))
         {
-            this.localColorTable = new GIFColorTable(this.colorResolution, ordered, localTableSize);
-            this.localColorTable.read(inputStream);
+            this.buffer32 >>>= 8;
+            this.bitPos -= 8;
+
+            // Check if current block is out of bytes
+            if (this.nextByte >= blockLength)
+            {
+                // Get next block size
+                subBlock = SubBlock.read(inputStream);
+                if (subBlock == SubBlock.EMPTY)
+                {
+                    this.lastBlockFound = true;
+                    return new Pair<>(code, subBlock);
+                }
+                else
+                {
+                    blockLength = subBlock.getSize();
+                    block = subBlock.getData();
+                    this.nextByte = 0;
+                }
+            }
+
+            this.buffer32 |= block[this.nextByte++] << 24;
         }
 
-        this.readImage(inputStream);
+        return new Pair<>(code, subBlock);
+    }
+
+    /**
+     * Initialize LZW table
+     *
+     * @param prefix  Prefixes to initialize
+     * @param suffix  Suffixes to initialize
+     * @param initial Initial values to initialize
+     * @param length  Code lengths to initialize
+     * @param lzwCode Read LZW code
+     */
+    private void initializeStringTable(
+            final int[] prefix, final byte[] suffix, final byte[] initial, final int[] length,
+            final int lzwCode)
+    {
+        final int numEntries = 1 << lzwCode;
+        for (int i = 0; i < numEntries; i++)
+        {
+            prefix[i] = -1;
+            suffix[i] = (byte) i;
+            initial[i] = (byte) i;
+            length[i] = 1;
+        }
+
+        // Fill in the entire table for robustness against
+        // out-of-sequence codes.
+        for (int i = numEntries; i < 4096; i++)
+        {
+            prefix[i] = -1;
+            length[i] = 1;
+        }
     }
 
     /**
@@ -200,7 +250,7 @@ class ImageDescriptorBlock
         int                     tableIndex = (1 << lzwCode) + 2;
         int                     codeSize   = lzwCode + 1;
         int                     codeMask   = (1 << codeSize) - 1;
-        Pair<Integer, SubBlock> pair       = new Pair<Integer, SubBlock>(0, subBlock);
+        Pair<Integer, SubBlock> pair       = new Pair<>(0, subBlock);
 
         while (pair.first != endCode)
         {
@@ -275,93 +325,6 @@ class ImageDescriptorBlock
     }
 
     /**
-     * Read the next code and next block couple
-     *
-     * @param codeSize    Size of code
-     * @param codeMask    Code mask
-     * @param inputStream Stream to read
-     * @param subBlock    Current block to read
-     * @param endCode     Code for terminate
-     * @return Next code and next block pair
-     * @throws IOException If stream reach end or close suddenly
-     */
-    private Pair<Integer, SubBlock> getCode(
-            final int codeSize, final int codeMask, final InputStream inputStream,
-            SubBlock subBlock, final int endCode)
-            throws IOException
-    {
-        if ((this.bitPos + codeSize) > 32)
-        {
-            return new Pair<Integer, SubBlock>(endCode, subBlock); // No more data available
-        }
-
-        final int code = (this.buffer32 >> this.bitPos) & codeMask;
-        this.bitPos += codeSize;
-        int    blockLength = subBlock.getSize();
-        byte[] block       = subBlock.getData();
-
-        // Shift in a byte of new data at a time
-        while ((this.bitPos >= 8) && (!this.lastBlockFound))
-        {
-            this.buffer32 >>>= 8;
-            this.bitPos -= 8;
-
-            // Check if current block is out of bytes
-            if (this.nextByte >= blockLength)
-            {
-                // Get next block size
-                subBlock = SubBlock.read(inputStream);
-                if (subBlock == SubBlock.EMPTY)
-                {
-                    this.lastBlockFound = true;
-                    return new Pair<Integer, SubBlock>(code, subBlock);
-                }
-                else
-                {
-                    blockLength = subBlock.getSize();
-                    block = subBlock.getData();
-                    this.nextByte = 0;
-                }
-            }
-
-            this.buffer32 |= block[this.nextByte++] << 24;
-        }
-
-        return new Pair<Integer, SubBlock>(code, subBlock);
-    }
-
-    /**
-     * Initialize LZW table
-     *
-     * @param prefix  Prefixes to initialize
-     * @param suffix  Suffixes to initialize
-     * @param initial Initial values to initialize
-     * @param length  Code lengths to initialize
-     * @param lzwCode Read LZW code
-     */
-    private void initializeStringTable(
-            final int[] prefix, final byte[] suffix, final byte[] initial, final int[] length,
-            final int lzwCode)
-    {
-        final int numEntries = 1 << lzwCode;
-        for (int i = 0; i < numEntries; i++)
-        {
-            prefix[i] = -1;
-            suffix[i] = (byte) i;
-            initial[i] = (byte) i;
-            length[i] = 1;
-        }
-
-        // Fill in the entire table for robustness against
-        // out-of-sequence codes.
-        for (int i = numEntries; i < 4096; i++)
-        {
-            prefix[i] = -1;
-            length[i] = 1;
-        }
-    }
-
-    /**
      * Write in correct order uncompressed indexes
      *
      * @param data   Uncompressed indexes
@@ -400,6 +363,44 @@ class ImageDescriptorBlock
                 }
             }
         }
+    }
+
+    /**
+     * Read image descriptor block <br>
+     * <br>
+     * <b>Parent documentation:</b><br>
+     * {@inheritDoc}
+     *
+     * @param inputStream Stream to read
+     * @throws IOException If stream is not a valid image descriptor block
+     * @see Block#read(InputStream)
+     */
+    @Override
+    protected void read(final InputStream inputStream) throws IOException
+    {
+        this.x = UtilGIF.read2ByteInt(inputStream);
+        this.y = UtilGIF.read2ByteInt(inputStream);
+        this.width = UtilGIF.read2ByteInt(inputStream);
+        this.height = UtilGIF.read2ByteInt(inputStream);
+        final int flags = inputStream.read();
+
+        if (flags < 0)
+        {
+            throw new IOException("No enough data for have image flags");
+        }
+
+        final boolean colorTableFollow = (flags & GIFConstants.MASK_COLOR_TABLE_FOLLOW) != 0;
+        this.interlaced = (flags & GIFConstants.MASK_IMAGE_INTERLACED) != 0;
+        final boolean ordered        = (flags & GIFConstants.MASK_COLOR_TABLE_ORDERED) != 0;
+        final int     localTableSize = 1 << ((flags & GIFConstants.MASK_GLOBAL_COLOR_TABLE_SIZE) + 1);
+
+        if (colorTableFollow)
+        {
+            this.localColorTable = new GIFColorTable(this.colorResolution, ordered, localTableSize);
+            this.localColorTable.read(inputStream);
+        }
+
+        this.readImage(inputStream);
     }
 
     /**

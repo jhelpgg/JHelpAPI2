@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.thread;
 
 import com.sun.istack.internal.NotNull;
@@ -160,10 +172,11 @@ public final class ThreadManager
     {
         ThreadManager.doTask(task, parameter, delay);
     }
+
     /**
      * Indicates if manager is alive
      */
-    private boolean alive        = false;
+    private       boolean                          alive         = false;
     /**
      * Tasks to play queue
      */
@@ -175,11 +188,11 @@ public final class ThreadManager
     /**
      * Indicates if manager waiting
      */
-    private final AtomicBoolean                    waiting       = new AtomicBoolean(false);
+    private final AtomicBoolean waiting      = new AtomicBoolean(false);
     /**
      * Indicates if have to wakeup as soon as possible
      */
-    private boolean wakeupUrgent = false;
+    private       boolean       wakeupUrgent = false;
 
     /**
      * Create the manager

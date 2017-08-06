@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.data;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -10,36 +22,6 @@ import org.junit.Test;
  */
 public class TestConditionChecker
 {
-    @Test
-    public void testHello()
-    {
-        Observable<Boolean> observable = new Observable<>(false);
-        AtomicInteger       count      = new AtomicInteger(0);
-
-        ConditionChecker.when(observable, bool ->
-        {
-            System.out.println("Hello!");
-            count.incrementAndGet();
-        });
-
-        observable.value(true);
-        observable.value(false);
-        observable.value(true);
-        observable.value(false);
-        observable.value(true);
-
-        try
-        {
-            Thread.sleep(16);
-        }
-        catch (InterruptedException e)
-        {
-            e.printStackTrace();
-        }
-
-        Assert.assertEquals("Must enter one and only one time!", 1, count.get());
-    }
-
     @Test
     public void testAnd()
     {
@@ -71,5 +53,35 @@ public class TestConditionChecker
             e.printStackTrace();
         }
         Assert.assertTrue(enter.get());
+    }
+
+    @Test
+    public void testHello()
+    {
+        Observable<Boolean> observable = new Observable<>(false);
+        AtomicInteger       count      = new AtomicInteger(0);
+
+        ConditionChecker.when(observable, bool ->
+        {
+            System.out.println("Hello!");
+            count.incrementAndGet();
+        });
+
+        observable.value(true);
+        observable.value(false);
+        observable.value(true);
+        observable.value(false);
+        observable.value(true);
+
+        try
+        {
+            Thread.sleep(16);
+        }
+        catch (InterruptedException e)
+        {
+            e.printStackTrace();
+        }
+
+        Assert.assertEquals("Must enter one and only one time!", 1, count.get());
     }
 }

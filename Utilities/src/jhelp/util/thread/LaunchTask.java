@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.thread;
 
 import com.sun.istack.internal.NotNull;
@@ -10,10 +22,6 @@ import java.util.Objects;
 final class LaunchTask<P, R> implements RunnableTask
 {
     /**
-     * Task to launch
-     */
-    private final Task<P, R> task;
-    /**
      * Task parameter
      */
     private final P          parameter;
@@ -21,6 +29,10 @@ final class LaunchTask<P, R> implements RunnableTask
      * Promise associated to the task
      */
     private final Promise<R> promise;
+    /**
+     * Task to launch
+     */
+    private final Task<P, R> task;
 
     /**
      * Crete the main task

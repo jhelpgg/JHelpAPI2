@@ -1,13 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.gui;
 
 import java.awt.Shape;
@@ -25,7 +27,9 @@ import jhelp.util.math.Math2;
 public class Path
         implements Iterable<Segment>
 {
-    /** List of segments */
+    /**
+     * List of segments
+     */
     private final List<Segment> segments;
 
     /**
@@ -33,22 +37,17 @@ public class Path
      */
     public Path()
     {
-        this.segments = new ArrayList<Segment>();
+        this.segments = new ArrayList<>();
     }
 
     /**
      * Draw path in image
      *
-     * @param parent
-     *           Image where draw (MUST be in draw mode)
-     * @param element
-     *           Image to repeat
-     * @param alphaMix
-     *           Indicates if mix alpha
-     * @param percentStart
-     *           Percent start
-     * @param percentEnd
-     *           Percent end
+     * @param parent       Image where draw (MUST be in draw mode)
+     * @param element      Image to repeat
+     * @param alphaMix     Indicates if mix alpha
+     * @param percentStart Percent start
+     * @param percentEnd   Percent end
      */
     void drawPath(
             final JHelpImage parent, final JHelpImage element, final boolean alphaMix, final double percentStart,
@@ -73,14 +72,10 @@ public class Path
     /**
      * Append one segment
      *
-     * @param x1
-     *           X start
-     * @param y1
-     *           Y start
-     * @param x2
-     *           X end
-     * @param y2
-     *           Y end
+     * @param x1 X start
+     * @param y1 Y start
+     * @param x2 X end
+     * @param y2 Y end
      */
     public void append(final double x1, final double y1, final double x2, final double y2)
     {
@@ -90,8 +85,7 @@ public class Path
     /**
      * Add an other path
      *
-     * @param path
-     *           Path to add
+     * @param path Path to add
      */
     public void append(final Path path)
     {
@@ -101,8 +95,7 @@ public class Path
     /**
      * Add a shape
      *
-     * @param shape
-     *           Shape to add
+     * @param shape Shape to add
      */
     public void append(final Shape shape)
     {
@@ -145,14 +138,10 @@ public class Path
     /**
      * Append a text
      *
-     * @param text
-     *           Text to write
-     * @param font
-     *           Font to use
-     * @param x
-     *           X
-     * @param y
-     *           Y
+     * @param text Text to write
+     * @param font Font to use
+     * @param x    X
+     * @param y    Y
      */
     public void appendText(final String text, final JHelpFont font, final int x, final int y)
     {
@@ -162,8 +151,7 @@ public class Path
     /**
      * Obtain one segment
      *
-     * @param index
-     *           Segment index
+     * @param index Segment index
      * @return Segment
      */
     public Segment getSegment(final int index)

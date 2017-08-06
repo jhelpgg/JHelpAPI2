@@ -1,13 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.image.gif;
 
 import java.io.IOException;
@@ -19,17 +21,23 @@ import jhelp.util.util.Utilities;
 /**
  * Application extension block <br>
  *
- * @see <a href="http://www.w3.org/Graphics/GIF/spec-gif89a.txt">GIF specification</a>
  * @author JHelp
+ * @see <a href="http://www.w3.org/Graphics/GIF/spec-gif89a.txt">GIF specification</a>
  */
 class ApplicationBlock
         extends BlockExtension
 {
-    /** Application code */
+    /**
+     * Application code
+     */
     private final byte[]    applicationCode;
-    /** Application specific data */
+    /**
+     * Application specific data
+     */
     private final ByteArray applicationData;
-    /** Application identifier */
+    /**
+     * Application identifier
+     */
     private       String    applicationIdentifier;
 
     /**
@@ -47,10 +55,8 @@ class ApplicationBlock
      * <b>Parent documentation:</b><br>
      * {@inheritDoc}
      *
-     * @param inputStream
-     *           Stream to read
-     * @throws IOException
-     *            If stream contains invalid data for Application extension block
+     * @param inputStream Stream to read
+     * @throws IOException If stream contains invalid data for Application extension block
      * @see Block#read(InputStream)
      */
     @Override

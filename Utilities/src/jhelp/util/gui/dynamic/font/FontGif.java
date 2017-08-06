@@ -1,14 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any
- * damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.gui.dynamic.font;
 
 import com.sun.istack.internal.NotNull;
@@ -35,22 +36,9 @@ import jhelp.util.thread.Pointer;
  */
 public final class FontGif
 {
-    /**
-     * List of available font GIF names
-     */
-    public static final  List<String> FONT_GIF_NAMES;
-    /**
-     * File that describe a font
-     */
-    private static final String       CHARACTERS;
-    /**
-     * Resources to access GIF images
-     */
-    private static final Resources    RESOURCES;
-
     static
     {
-        final List<String> names = new ArrayList<String>();
+        final List<String> names = new ArrayList<>();
         CHARACTERS = "characters.txt";
         RESOURCES = new Resources(FontGif.class);
 
@@ -91,17 +79,29 @@ public final class FontGif
     }
 
     /**
+     * File that describe a font
+     */
+    private static final String                  CHARACTERS;
+    /**
+     * Resources to access GIF images
+     */
+    private static final Resources               RESOURCES;
+    /**
+     * List of available font GIF names
+     */
+    public static final  List<String>            FONT_GIF_NAMES;
+    /**
      * List of association between a list of character and a GIF image
      */
-    private final List<Pair<String, GIF>> gifs;
+    private final        List<Pair<String, GIF>> gifs;
     /**
      * Font height
      */
-    private       int                     height;
+    private              int                     height;
     /**
      * Space size
      */
-    private       int                     space;
+    private              int                     space;
 
     /**
      * Create a new instance of FontGif
@@ -112,7 +112,7 @@ public final class FontGif
     public FontGif(final @NotNull String font)
             throws IOException
     {
-        this.gifs = new ArrayList<Pair<String, GIF>>();
+        this.gifs = new ArrayList<>();
         this.parseFont(font);
     }
 
@@ -161,7 +161,7 @@ public final class FontGif
                                              return;
                                          }
 
-                                         this.gifs.add(new Pair<String, GIF>(key, gif));
+                                         this.gifs.add(new Pair<>(key, gif));
                                          this.space = Math.min(this.space, gif.getWidth());
                                          this.height = Math.max(this.height, gif.getHeight());
                                      }
@@ -187,7 +187,7 @@ public final class FontGif
         int                     width        = 0;
         int                     y            = 0;
         int                     x, index;
-        final List<GifPosition> gifPositions = new ArrayList<GifPosition>();
+        final List<GifPosition> gifPositions = new ArrayList<>();
         final StringCutter      stringCutter = new StringCutter(text, '\n');
         String                  line         = stringCutter.next();
         char[]                  characters;

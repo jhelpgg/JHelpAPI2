@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.grammar;
 
 import com.sun.istack.internal.NotNull;
@@ -16,6 +28,11 @@ import jhelp.util.list.ForEach;
 public class Generator
 {
     private static final String SPACES = "   ";
+
+    private static void fillElementsType(JavaEnum elementTypes, Grammar grammar)
+    {
+        ForEach.sync(grammar, rule -> elementTypes.addChoice(rule.getName()));
+    }
 
     public static void generate(
             @NotNull String grammarName, @NotNull Grammar grammar, @NotNull File baseDirectory,
@@ -55,10 +72,5 @@ public class Generator
 
         elementTypes.write(baseDirectory, Generator.SPACES);
         parser.write(baseDirectory, Generator.SPACES);
-    }
-
-    private static void fillElementsType(JavaEnum elementTypes, Grammar grammar)
-    {
-        ForEach.sync(grammar, rule -> elementTypes.addChoice(rule.getName()));
     }
 }

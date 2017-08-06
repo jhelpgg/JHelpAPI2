@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.math.rational;
 
 import jhelp.util.math.Math2;
@@ -12,6 +24,10 @@ import jhelp.util.util.HashCode;
 public class Rational
         implements Comparable<Rational>
 {
+    /**
+     * Epsilon precision
+     */
+    private static final float    EPSILON          = Float.MIN_NORMAL;
     /**
      * Invalid rational. The rational have non meaning (like divide by 0)
      */
@@ -32,48 +48,36 @@ public class Rational
      * 0 rational
      */
     public static final  Rational ZERO             = new Rational(0, 1);
-    /**
-     * Epsilon precision
-     */
-    private static final float    EPSILON          = Float.MIN_NORMAL;
-    /**
-     * Denominator
-     */
-    private final int denominator;
-    /**
-     * Numerator
-     */
-    private final int numerator;
 
     /**
-     * Create a new instance of Rational
-     *
-     * @param numerator   Numerator
-     * @param denominator Denominator
-     */
-    private Rational(final int numerator, final int denominator)
-    {
-        this.numerator = numerator;
-        this.denominator = denominator;
-    }
-
-    /**
-     * Compute the rational just in the middle of 2 other rational
+     * Add 2 rational
      *
      * @param rational1 First rational
      * @param rational2 Second rational
-     * @return Middle computed
+     * @return Rational result
      */
-    public static Rational middle(final Rational rational1, final Rational rational2)
+    public static Rational addition(final Rational rational1, final Rational rational2)
     {
         if ((rational1 == Rational.INVALID) || (rational2 == Rational.INVALID))
         {
             return Rational.INVALID;
         }
 
+        if (rational1 == Rational.ZERO)
+        {
+            return rational2;
+        }
+
+        if (rational2 == Rational.ZERO)
+        {
+            return rational1;
+        }
+
+        final int lcm = Math2.lowerCommonMultiple(rational1.denominator, rational2.denominator);
         return Rational.createRational(
-                (rational1.numerator * rational2.denominator) + (rational2.numerator * rational1.denominator), //
-                rational1.denominator * rational2.denominator * 2);
+                (rational1.numerator * (lcm / rational2.denominator)) +
+                (rational2.numerator * (lcm / rational1.denominator)),
+                lcm);
     }
 
     /**
@@ -114,6 +118,175 @@ public class Rational
         final int gcd = Math2.greaterCommonDivider(numerator, denominator);
 
         return new Rational(numerator / gcd, denominator / gcd);
+    }
+
+    /**
+     * Create rational from integer
+     *
+     * @param integer Integer source
+     * @return Result rational
+     */
+    public static Rational createRational(final int integer)
+    {
+        return Rational.createRational(integer, 1);
+    }
+
+    /**
+     * Create rational from real.<br>
+     * It founds the nearest rational at epsilon precision
+     *
+     * @param f Real to found nearest rational
+     * @return Rational created
+     */
+    public static Rational createRational(float f)
+    {
+        if ((Float.isNaN(f)) || (Float.isInfinite(f)))
+        {
+            return Rational.INVALID;
+        }
+
+        final int sign = Math2.sign(f);
+
+        if (sign == 0)
+        {
+            return Rational.ZERO;
+        }
+
+        if (sign < 0)
+        {
+            f = -f;
+        }
+
+        int   numerator   = (int) f;
+        int   denominator = 1;
+        float value       = (float) numerator / (float) denominator;
+
+        while (!Rational.equals(value, f))
+        {
+            if (value < f)
+            {
+                numerator++;
+            }
+            else
+            {
+                denominator++;
+            }
+
+            value = (float) numerator / (float) denominator;
+        }
+
+        return Rational.createRational(numerator * sign, denominator);
+    }
+
+    /**
+     * Divide 2 rational
+     *
+     * @param rational1 First rational
+     * @param rational2 Second rational
+     * @return Rational result
+     */
+    public static Rational divide(final Rational rational1, final Rational rational2)
+    {
+        if ((rational1 == Rational.INVALID) || (rational2 == Rational.INVALID) || (rational2 == Rational.ZERO))
+        {
+            return Rational.INVALID;
+        }
+
+        if (rational1 == Rational.ZERO)
+        {
+            return Rational.ZERO;
+        }
+
+        if (rational2 == Rational.ONE)
+        {
+            return rational1;
+        }
+
+        if (rational1.equals(rational2))
+        {
+            return Rational.ONE;
+        }
+
+        final int gcd1 = Math2.greaterCommonDivider(rational1.numerator, rational2.numerator);
+        final int gcd2 = Math2.greaterCommonDivider(rational2.denominator, rational1.denominator);
+        return Rational.createRational((rational1.numerator / gcd1) * (rational2.denominator / gcd2),
+                                       (rational1.denominator / gcd2) * (rational2.numerator / gcd1));
+    }
+
+    /**
+     * Indicates if 2 reals are equals in epsilon precision
+     *
+     * @param f1 First real
+     * @param f2 Second real
+     * @return {@code true} if they are equals at epsilon precision
+     */
+    private static boolean equals(final float f1, final float f2)
+    {
+        return Math.abs(f1 - f2) <= Rational.EPSILON;
+    }
+
+    /**
+     * Compute the rational just in the middle of 2 other rational
+     *
+     * @param rational1 First rational
+     * @param rational2 Second rational
+     * @return Middle computed
+     */
+    public static Rational middle(final Rational rational1, final Rational rational2)
+    {
+        if ((rational1 == Rational.INVALID) || (rational2 == Rational.INVALID))
+        {
+            return Rational.INVALID;
+        }
+
+        return Rational.createRational(
+                (rational1.numerator * rational2.denominator) + (rational2.numerator * rational1.denominator), //
+                rational1.denominator * rational2.denominator * 2);
+    }
+
+    /**
+     * Multiply 2 rational
+     *
+     * @param rational1 First rational
+     * @param rational2 Second rational
+     * @return Rational result
+     */
+    public static Rational multiply(final Rational rational1, final Rational rational2)
+    {
+        if ((rational1 == Rational.INVALID) || (rational2 == Rational.INVALID))
+        {
+            return Rational.INVALID;
+        }
+
+        if ((rational1 == Rational.ZERO) || (rational2 == Rational.ZERO))
+        {
+            return Rational.ZERO;
+        }
+
+        if (rational1 == Rational.ONE)
+        {
+            return rational2;
+        }
+
+        if (rational2 == Rational.ONE)
+        {
+            return rational1;
+        }
+
+        if (rational1 == Rational.MINUS_ONE)
+        {
+            return rational2.opposite();
+        }
+
+        if (rational2 == Rational.MINUS_ONE)
+        {
+            return rational1.opposite();
+        }
+
+        final int gcd1 = Math2.greaterCommonDivider(rational1.numerator, rational2.denominator);
+        final int gcd2 = Math2.greaterCommonDivider(rational2.numerator, rational1.denominator);
+        return Rational.createRational((rational1.numerator / gcd1) * (rational2.numerator / gcd2),
+                                       (rational1.denominator / gcd2) * (rational2.denominator / gcd1));
     }
 
     /**
@@ -164,14 +337,72 @@ public class Rational
     }
 
     /**
-     * Create rational from integer
+     * Compute rational raise to power
      *
-     * @param integer Integer source
-     * @return Result rational
+     * @param rational Rational to raise to power
+     * @param power    Power to use (Warning not always accurate if power < 0)
+     * @return The result
      */
-    public static Rational createRational(final int integer)
+    public static Rational power(final Rational rational, final int power)
     {
-        return Rational.createRational(integer, 1);
+        if (rational == Rational.INVALID)
+        {
+            return Rational.INVALID;
+        }
+
+        if (power == 0)
+        {
+            return Rational.ONE;
+        }
+
+        if (power == 1)
+        {
+            return rational;
+        }
+
+        if (rational == Rational.ZERO)
+        {
+            return Rational.ZERO;
+        }
+
+        if (rational == Rational.ONE)
+        {
+            return Rational.ONE;
+        }
+
+        if (power > 0)
+        {
+            if (rational == Rational.MINUS_ONE)
+            {
+                if ((power % 2) == 0)
+                {
+                    return Rational.ONE;
+                }
+                else
+                {
+                    return Rational.MINUS_ONE;
+                }
+            }
+
+            int num = rational.numerator;
+            int den = rational.denominator;
+
+            for (int i = power - 1; i >= 0; i--)
+            {
+                num *= rational.numerator;
+                den *= rational.denominator;
+            }
+
+            return Rational.createRational(num, den);
+        }
+
+        if (rational.isNegative())
+        {
+            return Rational.INVALID;
+        }
+
+        final float value = (float) Math.pow((double) rational.numerator / (double) rational.denominator, power);
+        return Rational.createRational(value);
     }
 
     /**
@@ -224,23 +455,60 @@ public class Rational
     }
 
     /**
-     * Denominator
+     * Subtract 2 rational
      *
-     * @return Denominator
+     * @param rational1 First rational
+     * @param rational2 Second rational
+     * @return Rational result
      */
-    public int getDenominator()
+    public static Rational subtract(final Rational rational1, final Rational rational2)
     {
-        return this.denominator;
+        if ((rational1 == Rational.INVALID) || (rational2 == Rational.INVALID))
+        {
+            return Rational.INVALID;
+        }
+
+        if (rational1 == Rational.ZERO)
+        {
+            return rational2.opposite();
+        }
+
+        if (rational2 == Rational.ZERO)
+        {
+            return rational1;
+        }
+
+        if (rational1.equals(rational2))
+        {
+            return Rational.ZERO;
+        }
+
+        final int lcm = Math2.lowerCommonMultiple(rational1.denominator, rational2.denominator);
+        return Rational.createRational(
+                (rational1.numerator * (lcm / rational2.denominator)) -
+                (rational2.numerator * (lcm / rational1.denominator)),
+                lcm);
     }
 
     /**
-     * Numerator
-     *
-     * @return Numerator
+     * Denominator
      */
-    public int getNumerator()
+    private final int denominator;
+    /**
+     * Numerator
+     */
+    private final int numerator;
+
+    /**
+     * Create a new instance of Rational
+     *
+     * @param numerator   Numerator
+     * @param denominator Denominator
+     */
+    private Rational(final int numerator, final int denominator)
     {
-        return this.numerator;
+        this.numerator = numerator;
+        this.denominator = denominator;
     }
 
     /**
@@ -252,37 +520,6 @@ public class Rational
     public Rational addition(final Rational rational)
     {
         return Rational.addition(this, rational);
-    }
-
-    /**
-     * Add 2 rational
-     *
-     * @param rational1 First rational
-     * @param rational2 Second rational
-     * @return Rational result
-     */
-    public static Rational addition(final Rational rational1, final Rational rational2)
-    {
-        if ((rational1 == Rational.INVALID) || (rational2 == Rational.INVALID))
-        {
-            return Rational.INVALID;
-        }
-
-        if (rational1 == Rational.ZERO)
-        {
-            return rational2;
-        }
-
-        if (rational2 == Rational.ZERO)
-        {
-            return rational1;
-        }
-
-        final int lcm = Math2.lowerCommonMultiple(rational1.denominator, rational2.denominator);
-        return Rational.createRational(
-                (rational1.numerator * (lcm / rational2.denominator)) +
-                (rational2.numerator * (lcm / rational1.denominator)),
-                lcm);
     }
 
     /**
@@ -357,83 +594,6 @@ public class Rational
     }
 
     /**
-     * Subtract an other rational
-     *
-     * @param rational Rational to subtract
-     * @return Subtraction result
-     */
-    public Rational subtract(final Rational rational)
-    {
-        return Rational.subtract(this, rational);
-    }
-
-    /**
-     * Subtract 2 rational
-     *
-     * @param rational1 First rational
-     * @param rational2 Second rational
-     * @return Rational result
-     */
-    public static Rational subtract(final Rational rational1, final Rational rational2)
-    {
-        if ((rational1 == Rational.INVALID) || (rational2 == Rational.INVALID))
-        {
-            return Rational.INVALID;
-        }
-
-        if (rational1 == Rational.ZERO)
-        {
-            return rational2.opposite();
-        }
-
-        if (rational2 == Rational.ZERO)
-        {
-            return rational1;
-        }
-
-        if (rational1.equals(rational2))
-        {
-            return Rational.ZERO;
-        }
-
-        final int lcm = Math2.lowerCommonMultiple(rational1.denominator, rational2.denominator);
-        return Rational.createRational(
-                (rational1.numerator * (lcm / rational2.denominator)) -
-                (rational2.numerator * (lcm / rational1.denominator)),
-                lcm);
-    }
-
-    /**
-     * Rational opposite
-     *
-     * @return Opposite
-     */
-    public Rational opposite()
-    {
-        if (this.denominator == 0)
-        {
-            return Rational.INVALID;
-        }
-
-        if (this == Rational.ZERO)
-        {
-            return Rational.ZERO;
-        }
-
-        if (this == Rational.ONE)
-        {
-            return Rational.MINUS_ONE;
-        }
-
-        if (this == Rational.MINUS_ONE)
-        {
-            return Rational.ONE;
-        }
-
-        return Rational.createRational(-this.numerator, this.denominator);
-    }
-
-    /**
      * Divide an other rational
      *
      * @param rational Rational to divide
@@ -445,38 +605,23 @@ public class Rational
     }
 
     /**
-     * Divide 2 rational
+     * Denominator
      *
-     * @param rational1 First rational
-     * @param rational2 Second rational
-     * @return Rational result
+     * @return Denominator
      */
-    public static Rational divide(final Rational rational1, final Rational rational2)
+    public int getDenominator()
     {
-        if ((rational1 == Rational.INVALID) || (rational2 == Rational.INVALID) || (rational2 == Rational.ZERO))
-        {
-            return Rational.INVALID;
-        }
+        return this.denominator;
+    }
 
-        if (rational1 == Rational.ZERO)
-        {
-            return Rational.ZERO;
-        }
-
-        if (rational2 == Rational.ONE)
-        {
-            return rational1;
-        }
-
-        if (rational1.equals(rational2))
-        {
-            return Rational.ONE;
-        }
-
-        final int gcd1 = Math2.greaterCommonDivider(rational1.numerator, rational2.numerator);
-        final int gcd2 = Math2.greaterCommonDivider(rational2.denominator, rational1.denominator);
-        return Rational.createRational((rational1.numerator / gcd1) * (rational2.denominator / gcd2),
-                                       (rational1.denominator / gcd2) * (rational2.numerator / gcd1));
+    /**
+     * Numerator
+     *
+     * @return Numerator
+     */
+    public int getNumerator()
+    {
+        return this.numerator;
     }
 
     /**
@@ -579,6 +724,16 @@ public class Rational
     }
 
     /**
+     * Indicates if rational is strictly negative
+     *
+     * @return {@code true} if rational is strictly negative
+     */
+    public boolean isNegative()
+    {
+        return (this.numerator < 0) && (this.denominator != 0);
+    }
+
+    /**
      * Indicates if rational is strictly positive
      *
      * @return {@code true} if ration is strictly positive
@@ -600,48 +755,33 @@ public class Rational
     }
 
     /**
-     * Multiply 2 rational
+     * Rational opposite
      *
-     * @param rational1 First rational
-     * @param rational2 Second rational
-     * @return Rational result
+     * @return Opposite
      */
-    public static Rational multiply(final Rational rational1, final Rational rational2)
+    public Rational opposite()
     {
-        if ((rational1 == Rational.INVALID) || (rational2 == Rational.INVALID))
+        if (this.denominator == 0)
         {
             return Rational.INVALID;
         }
 
-        if ((rational1 == Rational.ZERO) || (rational2 == Rational.ZERO))
+        if (this == Rational.ZERO)
         {
             return Rational.ZERO;
         }
 
-        if (rational1 == Rational.ONE)
+        if (this == Rational.ONE)
         {
-            return rational2;
+            return Rational.MINUS_ONE;
         }
 
-        if (rational2 == Rational.ONE)
+        if (this == Rational.MINUS_ONE)
         {
-            return rational1;
+            return Rational.ONE;
         }
 
-        if (rational1 == Rational.MINUS_ONE)
-        {
-            return rational2.opposite();
-        }
-
-        if (rational2 == Rational.MINUS_ONE)
-        {
-            return rational1.opposite();
-        }
-
-        final int gcd1 = Math2.greaterCommonDivider(rational1.numerator, rational2.denominator);
-        final int gcd2 = Math2.greaterCommonDivider(rational2.numerator, rational1.denominator);
-        return Rational.createRational((rational1.numerator / gcd1) * (rational2.numerator / gcd2),
-                                       (rational1.denominator / gcd2) * (rational2.denominator / gcd1));
+        return Rational.createRational(-this.numerator, this.denominator);
     }
 
     /**
@@ -653,144 +793,6 @@ public class Rational
     public Rational power(final int power)
     {
         return Rational.power(this, power);
-    }
-
-    /**
-     * Compute rational raise to power
-     *
-     * @param rational Rational to raise to power
-     * @param power    Power to use (Warning not always accurate if power < 0)
-     * @return The result
-     */
-    public static Rational power(final Rational rational, final int power)
-    {
-        if (rational == Rational.INVALID)
-        {
-            return Rational.INVALID;
-        }
-
-        if (power == 0)
-        {
-            return Rational.ONE;
-        }
-
-        if (power == 1)
-        {
-            return rational;
-        }
-
-        if (rational == Rational.ZERO)
-        {
-            return Rational.ZERO;
-        }
-
-        if (rational == Rational.ONE)
-        {
-            return Rational.ONE;
-        }
-
-        if (power > 0)
-        {
-            if (rational == Rational.MINUS_ONE)
-            {
-                if ((power % 2) == 0)
-                {
-                    return Rational.ONE;
-                }
-                else
-                {
-                    return Rational.MINUS_ONE;
-                }
-            }
-
-            int num = rational.numerator;
-            int den = rational.denominator;
-
-            for (int i = power - 1; i >= 0; i--)
-            {
-                num *= rational.numerator;
-                den *= rational.denominator;
-            }
-
-            return Rational.createRational(num, den);
-        }
-
-        if (rational.isNegative())
-        {
-            return Rational.INVALID;
-        }
-
-        final float value = (float) Math.pow((double) rational.numerator / (double) rational.denominator, power);
-        return Rational.createRational(value);
-    }
-
-    /**
-     * Create rational from real.<br>
-     * It founds the nearest rational at epsilon precision
-     *
-     * @param f Real to found nearest rational
-     * @return Rational created
-     */
-    public static Rational createRational(float f)
-    {
-        if ((Float.isNaN(f)) || (Float.isInfinite(f)))
-        {
-            return Rational.INVALID;
-        }
-
-        final int sign = Math2.sign(f);
-
-        if (sign == 0)
-        {
-            return Rational.ZERO;
-        }
-
-        if (sign < 0)
-        {
-            f = -f;
-        }
-
-        int   numerator   = (int) f;
-        int   denominator = 1;
-        float value       = (float) numerator / (float) denominator;
-
-        while (!Rational.equals(value, f))
-        {
-            if (value < f)
-            {
-                numerator++;
-            }
-            else
-            {
-                denominator++;
-            }
-
-            value = (float) numerator / (float) denominator;
-        }
-
-        return Rational.createRational(numerator * sign, denominator);
-    }
-
-    /**
-     * Indicates if 2 reals are equals in epsilon precision
-     *
-     * @param f1 First real
-     * @param f2 Second real
-     * @return {@code true} if they are equals at epsilon precision
-     */
-    private static boolean equals(final float f1, final float f2)
-    {
-        return Math.abs(f1 - f2) <= Rational.EPSILON;
-    }
-
-    /**
-     * Indicates if rational is strictly negative
-     *
-     * @return {@code true} if rational is strictly negative
-     */
-    public boolean isNegative()
-    {
-        return (this.numerator < 0) && (this.denominator != 0);
     }
 
     /**
@@ -815,6 +817,17 @@ public class Rational
     public int sign()
     {
         return Math2.sign(this.numerator);
+    }
+
+    /**
+     * Subtract an other rational
+     *
+     * @param rational Rational to subtract
+     * @return Subtraction result
+     */
+    public Rational subtract(final Rational rational)
+    {
+        return Rational.subtract(this, rational);
     }
 
     /**

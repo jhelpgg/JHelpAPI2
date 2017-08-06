@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.game.data;
 
 import jhelp.util.math.Math2;
@@ -7,8 +19,8 @@ import jhelp.util.math.Math2;
  */
 public final class Zoom
 {
-    private final float zoomWidth;
     private final float zoomHeight;
+    private final float zoomWidth;
 
     public Zoom(final float zoomWidth, final float zoomHeight)
     {
@@ -21,16 +33,6 @@ public final class Zoom
 
         this.zoomWidth = zoomWidth;
         this.zoomHeight = zoomHeight;
-    }
-
-    public float zoomWidth()
-    {
-        return this.zoomWidth;
-    }
-
-    public float zoomHeight()
-    {
-        return this.zoomHeight;
     }
 
     @Override
@@ -53,5 +55,15 @@ public final class Zoom
 
         Zoom zoom = (Zoom) object;
         return Math2.equals(this.zoomWidth, zoom.zoomWidth) && Math2.equals(this.zoomHeight, zoom.zoomHeight);
+    }
+
+    public float zoomHeight()
+    {
+        return this.zoomHeight;
+    }
+
+    public float zoomWidth()
+    {
+        return this.zoomWidth;
     }
 }

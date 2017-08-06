@@ -1,14 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any
- * damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.gui.dynamic;
 
 import jhelp.util.gui.JHelpImage;
@@ -21,20 +22,27 @@ import jhelp.util.gui.JHelpImage;
 public class DrawImage
         extends ImmediateAnimation
 {
-    /** Indicates if image coordinate are center of image */
+    /**
+     * Indicates if image coordinate are center of image
+     */
     private final boolean    center;
-    /** Image to draw */
+    /**
+     * Image to draw
+     */
     private final JHelpImage image;
-    /** X */
+    /**
+     * X
+     */
     private final int        x;
-    /** Y */
+    /**
+     * Y
+     */
     private final int        y;
 
     /**
      * Create a new instance of DrawImage
      *
-     * @param image
-     *           Image to draw
+     * @param image Image to draw
      */
     public DrawImage(final JHelpImage image)
     {
@@ -52,12 +60,9 @@ public class DrawImage
     /**
      * Create a new instance of DrawImage
      *
-     * @param image
-     *           Image to draw
-     * @param x
-     *           X
-     * @param y
-     *           Y
+     * @param image Image to draw
+     * @param x     X
+     * @param y     Y
      */
     public DrawImage(final JHelpImage image, final int x, final int y)
     {
@@ -78,8 +83,7 @@ public class DrawImage
      * <b>Parent documentation:</b><br>
      * {@inheritDoc}
      *
-     * @param image
-     *           Image where draw
+     * @param image Image where draw
      * @see jhelp.util.gui.dynamic.ImmediateAnimation#doImmediately(jhelp.util.gui.JHelpImage)
      */
     @Override

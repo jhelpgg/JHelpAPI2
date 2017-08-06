@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.grammar;
 
 import java.io.BufferedReader;
@@ -13,14 +25,202 @@ import jhelp.util.text.UtilText;
  */
 public class GrammarParser
 {
-    private static final Pattern REGULAR_EXPRESSION       = Pattern.compile("\"(.*)\"");
+    private static final int     GROUP_QUANTITY_MAXIMUM   = 3;
+    private static final int     GROUP_QUANTITY_MINIMUM   = 1;
     private static final int     GROUP_REGULAR_EXPRESSION = 1;
     private static final Pattern QUANTITY                 = Pattern.compile("\\{([0-9]+)(\\s*,\\s*([0-9]+))?}");
-    private static final int     GROUP_QUANTITY_MINIMUM   = 1;
-    private static final int     GROUP_QUANTITY_MAXIMUM   = 3;
+    private static final Pattern REGULAR_EXPRESSION       = Pattern.compile("\"(.*)\"");
 
     public GrammarParser()
     {
+    }
+
+    private RuleDescription append(RuleDescription main, RuleDescription toAdd)
+    {
+        if (toAdd == null)
+        {
+            return main;
+        }
+
+        if (main == null)
+        {
+            return toAdd;
+        }
+
+        if (main.getDescriptionType() == DescriptionType.GROUP)
+        {
+            ((GroupDescription) main).addElement(toAdd);
+            return main;
+        }
+
+        GroupDescription groupDescription = new GroupDescription();
+        groupDescription.addElement(main);
+        groupDescription.addElement(toAdd);
+        return groupDescription;
+    }
+
+    private RuleDescription parseRuleDescription(int more, int start, int end, int lineNumber, String line)
+            throws GrammarParserException
+    {
+        StringExtractor stringExtractor = new StringExtractor(line.substring(start, end), " \t()*?{},", "'\"", "\\",
+                                                              true);
+        stringExtractor.setCanReturnEmptyString(false);
+        stringExtractor.setStopAtString(false);
+        String          word                = stringExtractor.next();
+        RuleDescription lastRuleDescription = null;
+        RuleDescription ruleDescription     = null;
+        Matcher         matcher;
+        int             index, minimum, maximum;
+        String          group;
+
+        try
+        {
+            while (word != null)
+            {
+                word = word.trim();
+
+                if (!word.isEmpty())
+                {
+                    matcher = GrammarParser.REGULAR_EXPRESSION.matcher(word);
+
+                    if (matcher.matches())
+                    {
+                        ruleDescription = this.append(ruleDescription, lastRuleDescription);
+                        lastRuleDescription = new RegularExpression(
+                                matcher.group(GrammarParser.GROUP_REGULAR_EXPRESSION));
+                    }
+                    else if ("(".equals(word))
+                    {
+                        ruleDescription = this.append(ruleDescription, lastRuleDescription);
+                        index = UtilText.indexOfIgnoreString(line, ')', stringExtractor.currentWordEnd() + start);
+
+                        if (index < 0)
+                        {
+                            throw new GrammarParserException(lineNumber, stringExtractor.currentWordStart() + more,
+                                                             end + more, "Corresponding ) not found");
+                        }
+
+                        lastRuleDescription = new GroupDescription();
+                        ((GroupDescription) lastRuleDescription).addElement(
+                                this.parseRuleDescription(more, stringExtractor.currentWordStart() + 1 + start,
+                                                          index,
+                                                          lineNumber, line));
+                        stringExtractor = new StringExtractor(
+                                line.substring(index + 1, Math.min(end + start, line.length())),
+                                " \t()*?{},", "'\"", "\\",
+                                true);
+                        start = index + 1;
+                    }
+                    else if ("{".equals(word))
+                    {
+                        if (lastRuleDescription == null)
+                        {
+                            throw new IllegalArgumentException("No rule to quantify!");
+                        }
+
+                        index = UtilText.indexOfIgnoreString(line, '}', stringExtractor.currentWordEnd() + start);
+
+                        if (index < 0)
+                        {
+                            throw new GrammarParserException(lineNumber, stringExtractor.currentWordStart() + more,
+                                                             end + more, "Corresponding } not found");
+                        }
+
+                        matcher = GrammarParser.QUANTITY.matcher(
+                                line.substring(stringExtractor.currentWordStart(), index + 1));
+
+                        if (matcher.matches())
+                        {
+                            minimum = Integer.parseInt(matcher.group(GrammarParser.GROUP_QUANTITY_MINIMUM));
+                            maximum = minimum;
+
+                            if (matcher.groupCount() > GrammarParser.GROUP_QUANTITY_MAXIMUM)
+                            {
+                                group = matcher.group(GrammarParser.GROUP_QUANTITY_MAXIMUM);
+
+                                if (group != null && !group.isEmpty())
+                                {
+                                    maximum = Integer.parseInt(group);
+                                }
+                            }
+
+                            if (minimum == maximum)
+                            {
+                                lastRuleDescription = QuantifiedDescription.exactly(lastRuleDescription, minimum);
+                            }
+                            else
+                            {
+                                lastRuleDescription = QuantifiedDescription.between(lastRuleDescription, minimum,
+                                                                                    maximum);
+                            }
+
+                            stringExtractor = new StringExtractor(
+                                    line.substring(index + 1, Math.min(end + start, line.length())),
+                                    " \t()*?{},", "'\"",
+                                    "\\",
+                                    true);
+                            start = index + 1;
+                        }
+                        else
+                        {
+                            throw new GrammarParserException(lineNumber, stringExtractor.currentWordStart() + more,
+                                                             index + more, "Invalid quantity specification");
+                        }
+                    }
+                    else if ("*".equals(word))
+                    {
+                        if (lastRuleDescription == null)
+                        {
+                            throw new IllegalArgumentException("No rule to quantify!");
+                        }
+
+                        lastRuleDescription = QuantifiedDescription.anyNumber(lastRuleDescription);
+                    }
+                    else if ("?".equals(word))
+                    {
+                        if (lastRuleDescription == null)
+                        {
+                            throw new IllegalArgumentException("No rule to quantify!");
+                        }
+
+                        lastRuleDescription = QuantifiedDescription.zeroOrOne(lastRuleDescription);
+                    }
+                    else if ("+".equals(word))
+                    {
+                        if (lastRuleDescription == null)
+                        {
+                            throw new IllegalArgumentException("No rule to quantify!");
+                        }
+
+                        lastRuleDescription = QuantifiedDescription.atLeastOne(lastRuleDescription);
+                    }
+                    else
+                    {
+                        ruleDescription = this.append(ruleDescription, lastRuleDescription);
+                        lastRuleDescription = new RuleReference(word);
+                    }
+                }
+
+                word = stringExtractor.next();
+            }
+        }
+        catch (GrammarParserException exception)
+        {
+            throw exception;
+        }
+        catch (Exception exception)
+        {
+            throw new GrammarParserException(lineNumber, start + more, end + more, exception);
+        }
+
+        ruleDescription = this.append(ruleDescription, lastRuleDescription);
+
+        if (ruleDescription == null)
+        {
+            throw new GrammarParserException(lineNumber, start + more, end + more, "Can't parse find a valid rule!");
+        }
+
+        return ruleDescription;
     }
 
     public Grammar parse(InputStream inputStream) throws GrammarParserException
@@ -124,193 +324,5 @@ public class GrammarParser
                 }
             }
         }
-    }
-
-    private RuleDescription append(RuleDescription main, RuleDescription toAdd)
-    {
-        if (toAdd == null)
-        {
-            return main;
-        }
-
-        if (main == null)
-        {
-            return toAdd;
-        }
-
-        if (main.getDescriptionType() == DescriptionType.GROUP)
-        {
-            ((GroupDescription) main).addElement(toAdd);
-            return main;
-        }
-
-        GroupDescription groupDescription = new GroupDescription();
-        groupDescription.addElement(main);
-        groupDescription.addElement(toAdd);
-        return groupDescription;
-    }
-
-    private RuleDescription parseRuleDescription(int more, int start, int end, int lineNumber, String line)
-            throws GrammarParserException
-    {
-        StringExtractor stringExtractor = new StringExtractor(line.substring(start, end), " \t()*?{},", "'\"", "\\",
-                                                              true);
-        stringExtractor.setCanReturnEmptyString(false);
-        stringExtractor.setStopAtString(false);
-        String          word                = stringExtractor.next();
-        RuleDescription lastRuleDescription = null;
-        RuleDescription ruleDescription     = null;
-        Matcher         matcher;
-        int             index, minimum, maximum;
-        String          group;
-
-        try
-        {
-            while (word != null)
-            {
-                word = word.trim();
-
-                if (!word.isEmpty())
-                {
-                    matcher = GrammarParser.REGULAR_EXPRESSION.matcher(word);
-
-                    if (matcher.matches())
-                    {
-                        ruleDescription = this.append(ruleDescription, lastRuleDescription);
-                        lastRuleDescription = new RegularExpression(
-                                matcher.group(GrammarParser.GROUP_REGULAR_EXPRESSION));
-                    }
-                    else if ("(".equals(word))
-                    {
-                        ruleDescription = this.append(ruleDescription, lastRuleDescription);
-                        index = UtilText.indexOfIgnoreString(line, ')', stringExtractor.currentWordEnd()+start);
-
-                        if (index < 0)
-                        {
-                            throw new GrammarParserException(lineNumber, stringExtractor.currentWordStart() + more,
-                                                             end + more, "Corresponding ) not found");
-                        }
-
-                        lastRuleDescription = new GroupDescription();
-                        ((GroupDescription) lastRuleDescription).addElement(
-                                this.parseRuleDescription(more, stringExtractor.currentWordStart() + 1 + start,
-                                                          index,
-                                                          lineNumber, line));
-                        stringExtractor = new StringExtractor(
-                                line.substring(index + 1, Math.min(end + start, line.length())),
-                                " \t()*?{},", "'\"", "\\",
-                                true);
-                        start = index + 1;
-                    }
-                    else if ("{".equals(word))
-                    {
-                        if (lastRuleDescription == null)
-                        {
-                            throw new IllegalArgumentException("No rule to quantify!");
-                        }
-
-                        index = UtilText.indexOfIgnoreString(line, '}', stringExtractor.currentWordEnd()+start);
-
-                        if (index < 0)
-                        {
-                            throw new GrammarParserException(lineNumber, stringExtractor.currentWordStart() + more,
-                                                             end + more, "Corresponding } not found");
-                        }
-
-                        matcher = GrammarParser.QUANTITY.matcher(
-                                line.substring(stringExtractor.currentWordStart(), index + 1));
-
-                        if (matcher.matches())
-                        {
-                            minimum = Integer.parseInt(matcher.group(GrammarParser.GROUP_QUANTITY_MINIMUM));
-                            maximum = minimum;
-
-                            if (matcher.groupCount() > GrammarParser.GROUP_QUANTITY_MAXIMUM)
-                            {
-                                group = matcher.group(GrammarParser.GROUP_QUANTITY_MAXIMUM);
-
-                                if (group != null && !group.isEmpty())
-                                {
-                                    maximum = Integer.parseInt(group);
-                                }
-                            }
-
-                            if (minimum == maximum)
-                            {
-                                lastRuleDescription = QuantifiedDescription.exactly(lastRuleDescription, minimum);
-                            }
-                            else
-                            {
-                                lastRuleDescription = QuantifiedDescription.between(lastRuleDescription, minimum,
-                                                                                    maximum);
-                            }
-
-                            stringExtractor = new StringExtractor(
-                                    line.substring(index + 1, Math.min(end + start, line.length())),
-                                    " \t()*?{},", "'\"",
-                                    "\\",
-                                    true);
-                            start = index + 1;
-                        }
-                        else
-                        {
-                            throw new GrammarParserException(lineNumber, stringExtractor.currentWordStart() + more,
-                                                             index + more, "Invalid quantity specification");
-                        }
-                    }
-                    else if ("*".equals(word))
-                    {
-                        if (lastRuleDescription == null)
-                        {
-                            throw new IllegalArgumentException("No rule to quantify!");
-                        }
-
-                        lastRuleDescription = QuantifiedDescription.anyNumber(lastRuleDescription);
-                    }
-                    else if ("?".equals(word))
-                    {
-                        if (lastRuleDescription == null)
-                        {
-                            throw new IllegalArgumentException("No rule to quantify!");
-                        }
-
-                        lastRuleDescription = QuantifiedDescription.zeroOrOne(lastRuleDescription);
-                    }
-                    else if ("+".equals(word))
-                    {
-                        if (lastRuleDescription == null)
-                        {
-                            throw new IllegalArgumentException("No rule to quantify!");
-                        }
-
-                        lastRuleDescription = QuantifiedDescription.atLeastOne(lastRuleDescription);
-                    }
-                    else
-                    {
-                        ruleDescription = this.append(ruleDescription, lastRuleDescription);
-                        lastRuleDescription = new RuleReference(word);
-                    }
-                }
-
-                word = stringExtractor.next();
-            }
-        }
-        catch (GrammarParserException exception)
-        {
-            throw exception;
-        }
-        catch (Exception exception)
-        {
-            throw new GrammarParserException(lineNumber, start + more, end + more, exception);
-        }
-
-        ruleDescription = this.append(ruleDescription, lastRuleDescription);
-
-        if (ruleDescription == null)
-        {
-            throw new GrammarParserException(lineNumber, start + more, end + more, "Can't parse find a valid rule!");
-        }
-
-        return ruleDescription;
     }
 }

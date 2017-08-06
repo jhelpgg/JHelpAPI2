@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.game.gui;
 
 import com.sun.istack.internal.NotNull;
@@ -20,24 +32,6 @@ public final class GameAnimationParallel extends GameAnimation
     }
 
     /**
-     * Called when animation start<br>
-     * The given image parent is locked in not draw mode, to let opportunity to create some sprites if animation need them
-     *
-     * @param parent Image parent to create sprites if need
-     */
-    @Override
-    protected void startAnimation(final JHelpImage parent)
-    {
-        synchronized (this.animations)
-        {
-            for (GameAnimation gameAnimation : this.animations)
-            {
-                gameAnimation.start(0, parent);
-            }
-        }
-    }
-
-    /**
      * Called when animation is terminated.<br>
      * The given image parent is locked in not draw mode, to remove properly sprites linked to this animation
      *
@@ -54,6 +48,24 @@ public final class GameAnimationParallel extends GameAnimation
                 {
                     gameAnimation.endAnimation(parent);
                 }
+            }
+        }
+    }
+
+    /**
+     * Called when animation start<br>
+     * The given image parent is locked in not draw mode, to let opportunity to create some sprites if animation need them
+     *
+     * @param parent Image parent to create sprites if need
+     */
+    @Override
+    protected void startAnimation(final JHelpImage parent)
+    {
+        synchronized (this.animations)
+        {
+            for (GameAnimation gameAnimation : this.animations)
+            {
+                gameAnimation.start(0, parent);
             }
         }
     }

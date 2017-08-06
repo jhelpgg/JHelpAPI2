@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.ia.expert;
 
 import com.sun.istack.internal.NotNull;
@@ -37,14 +49,6 @@ public final class ExpertAnd implements ExpertCondition, SizedIterable<ExpertCon
         }
     }
 
-    public void remove(@NotNull ExpertCondition expertCondition)
-    {
-        synchronized (this.andList)
-        {
-            this.andList.remove(expertCondition);
-        }
-    }
-
     /**
      * Returns an iterator over elements of type {@code T}.
      *
@@ -54,6 +58,14 @@ public final class ExpertAnd implements ExpertCondition, SizedIterable<ExpertCon
     public Iterator<ExpertCondition> iterator()
     {
         return new EnumerationIterator<>(this.andList.iterator());
+    }
+
+    public void remove(@NotNull ExpertCondition expertCondition)
+    {
+        synchronized (this.andList)
+        {
+            this.andList.remove(expertCondition);
+        }
     }
 
     /**

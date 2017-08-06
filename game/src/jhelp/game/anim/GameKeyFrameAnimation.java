@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.game.anim;
 
 import com.sun.istack.internal.NotNull;
@@ -20,13 +32,13 @@ import jhelp.util.math.Math2;
 public abstract class GameKeyFrameAnimation<O, V> extends GameAnimation
 {
     /**
-     * Object that a property change
-     */
-    private final O                     object;
-    /**
      * Key frames
      */
     private final SortedArray<KeyFrame> keyFrames;
+    /**
+     * Object that a property change
+     */
+    private final O                     object;
     /**
      * Start value
      */
@@ -45,57 +57,15 @@ public abstract class GameKeyFrameAnimation<O, V> extends GameAnimation
     }
 
     /**
-     * Define the value for a specific frame
+     * Called when animation is terminated.<br>
+     * The given image parent is locked in not draw mode, to remove properly sprites linked to this animation<br>
+     * Does nothing by default
      *
-     * @param frame Frame. Must be >= 0
-     * @param value Value at frame
+     * @param parent Image parent to remove properly animation sprites
      */
-    public final void setFrame(int frame, @NotNull V value)
+    protected void animationEnded(@NotNull final JHelpImage parent)
     {
-        this.setFrame(frame, value, Interpolations.COSINUS);
-    }
-
-    /**
-     * Define the value for a specific frame
-     *
-     * @param frame         Frame. Must be >= 0
-     * @param value         Value at frame
-     * @param interpolation Interpolation to use to go to this frame
-     */
-    public final void setFrame(int frame, @NotNull V value, @NotNull Interpolation interpolation)
-    {
-        Objects.requireNonNull(value, "value MUST NOT be null!");
-        Objects.requireNonNull(interpolation, "interpolation MUST NOT be null!");
-
-        if (frame < 0)
-        {
-            throw new IllegalArgumentException("frame MUST be >=0 not " + frame);
-        }
-
-        final KeyFrame<V> keyFrame = new KeyFrame<>(frame, value, interpolation);
-        this.keyFrames.remove(keyFrame);
-        this.keyFrames.add(keyFrame);
-    }
-
-    /**
-     * compute current value for given object
-     *
-     * @param object Object to get current value
-     * @return Current value
-     */
-    protected abstract @NotNull V obtainValue(@NotNull O object);
-
-    /**
-     * Called when animation start<br>
-     * The given image parent is locked in not draw mode, to let opportunity to create some sprites if animation need them
-     *
-     * @param parent Image parent to create sprites if need
-     */
-    @Override
-    protected final void startAnimation(@NotNull final JHelpImage parent)
-    {
-        this.startValue = this.obtainValue(this.object);
-        this.animationStarted(parent);
+        //Does nothing by default
     }
 
     /**
@@ -111,6 +81,15 @@ public abstract class GameKeyFrameAnimation<O, V> extends GameAnimation
     }
 
     /**
+     * Apply a value to given object
+     *
+     * @param value  Value to give
+     * @param object Object where apply the value
+     * @param parent Image parent lovked in draw mode to draw something if need
+     */
+    protected abstract void apply(@NotNull V value, @NotNull O object, @NotNull JHelpImage parent);
+
+    /**
      * Called when animation is terminated.<br>
      * The given image parent is locked in not draw mode, to remove properly sprites linked to this animation
      *
@@ -124,18 +103,6 @@ public abstract class GameKeyFrameAnimation<O, V> extends GameAnimation
     }
 
     /**
-     * Called when animation is terminated.<br>
-     * The given image parent is locked in not draw mode, to remove properly sprites linked to this animation<br>
-     * Does nothing by default
-     *
-     * @param parent Image parent to remove properly animation sprites
-     */
-    protected void animationEnded(@NotNull final JHelpImage parent)
-    {
-        //Does nothing by default
-    }
-
-    /**
      * Compute interpolation value between two values
      *
      * @param value1  Start value
@@ -144,15 +111,6 @@ public abstract class GameKeyFrameAnimation<O, V> extends GameAnimation
      * @return Interpolated value
      */
     protected abstract @NotNull V interpolate(@NotNull V value1, @NotNull V value2, float percent);
-
-    /**
-     * Apply a value to given object
-     *
-     * @param value  Value to give
-     * @param object Object where apply the value
-     * @param parent Image parent lovked in draw mode to draw something if need
-     */
-    protected abstract void apply(@NotNull V value, @NotNull O object, @NotNull JHelpImage parent);
 
     /**
      * Called to update the animation
@@ -217,5 +175,59 @@ public abstract class GameKeyFrameAnimation<O, V> extends GameAnimation
 
         this.apply(value, this.object, parent);
         return oneMoreTurn;
+    }
+
+    /**
+     * compute current value for given object
+     *
+     * @param object Object to get current value
+     * @return Current value
+     */
+    protected abstract @NotNull V obtainValue(@NotNull O object);
+
+    /**
+     * Called when animation start<br>
+     * The given image parent is locked in not draw mode, to let opportunity to create some sprites if animation need them
+     *
+     * @param parent Image parent to create sprites if need
+     */
+    @Override
+    protected final void startAnimation(@NotNull final JHelpImage parent)
+    {
+        this.startValue = this.obtainValue(this.object);
+        this.animationStarted(parent);
+    }
+
+    /**
+     * Define the value for a specific frame
+     *
+     * @param frame Frame. Must be >= 0
+     * @param value Value at frame
+     */
+    public final void setFrame(int frame, @NotNull V value)
+    {
+        this.setFrame(frame, value, Interpolations.COSINUS);
+    }
+
+    /**
+     * Define the value for a specific frame
+     *
+     * @param frame         Frame. Must be >= 0
+     * @param value         Value at frame
+     * @param interpolation Interpolation to use to go to this frame
+     */
+    public final void setFrame(int frame, @NotNull V value, @NotNull Interpolation interpolation)
+    {
+        Objects.requireNonNull(value, "value MUST NOT be null!");
+        Objects.requireNonNull(interpolation, "interpolation MUST NOT be null!");
+
+        if (frame < 0)
+        {
+            throw new IllegalArgumentException("frame MUST be >=0 not " + frame);
+        }
+
+        final KeyFrame<V> keyFrame = new KeyFrame<>(frame, value, interpolation);
+        this.keyFrames.remove(keyFrame);
+        this.keyFrames.add(keyFrame);
     }
 }

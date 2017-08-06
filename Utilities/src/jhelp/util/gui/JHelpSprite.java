@@ -1,14 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any
- * damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.gui;
 
 import jhelp.util.gui.dynamic.Position;
@@ -23,17 +24,13 @@ import jhelp.util.gui.dynamic.Positionable;
 public final class JHelpSprite implements Positionable
 {
     /**
-     * Sprite height
-     */
-    private final int        height;
-    /**
-     * Sprite width
-     */
-    private final int        width;
-    /**
      * Back image before show the sprite
      */
     private       JHelpImage back;
+    /**
+     * Sprite height
+     */
+    private final int        height;
     /**
      * Image draw on the sprite
      */
@@ -50,6 +47,10 @@ public final class JHelpSprite implements Positionable
      * Indicates actual visibility
      */
     private       boolean    visible;
+    /**
+     * Sprite width
+     */
+    private final int        width;
     /**
      * Sprite X
      */
@@ -258,6 +259,16 @@ public final class JHelpSprite implements Positionable
     }
 
     /**
+     * Change sprite visibility
+     *
+     * @param visible New visible state
+     */
+    public void setVisible(final boolean visible)
+    {
+        this.parent.changeSpriteVisibility(this.spriteIndex, visible);
+    }
+
+    /**
      * Current position
      *
      * @return Current position
@@ -277,27 +288,6 @@ public final class JHelpSprite implements Positionable
     public void position(final Position position)
     {
         this.setPosition(position.getX(), position.getY());
-    }
-
-    /**
-     * Change sprite visibility
-     *
-     * @param visible New visible state
-     */
-    public void setVisible(final boolean visible)
-    {
-        this.parent.changeSpriteVisibility(this.spriteIndex, visible);
-    }
-
-    /**
-     * Translate the sprite
-     *
-     * @param vx X of translation vector
-     * @param vy Y of translation vector
-     */
-    public void translate(final int vx, final int vy)
-    {
-        this.setPosition(vx + this.x, vy + this.y);
     }
 
     /**
@@ -325,5 +315,16 @@ public final class JHelpSprite implements Positionable
                 this.setVisible(true);
             }
         }
+    }
+
+    /**
+     * Translate the sprite
+     *
+     * @param vx X of translation vector
+     * @param vy Y of translation vector
+     */
+    public void translate(final int vx, final int vy)
+    {
+        this.setPosition(vx + this.x, vy + this.y);
     }
 }

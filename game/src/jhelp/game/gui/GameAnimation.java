@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.game.gui;
 
 import jhelp.game.anim.AnimationStatus;
@@ -9,13 +21,13 @@ import jhelp.util.gui.JHelpImage;
 public abstract class GameAnimation
 {
     /**
-     * Absolute frame where animation started
-     */
-    private float           startAbsoluteFrame;
-    /**
      * Animation status
      */
     private AnimationStatus animationStatus;
+    /**
+     * Absolute frame where animation started
+     */
+    private float           startAbsoluteFrame;
 
     /**
      * Create animation
@@ -23,16 +35,6 @@ public abstract class GameAnimation
     public GameAnimation()
     {
         this.animationStatus = AnimationStatus.NOT_LAUNCHED;
-    }
-
-    /**
-     * Animation status
-     *
-     * @return Animation status
-     */
-    public final AnimationStatus animationStatus()
-    {
-        return this.animationStatus;
     }
 
     /**
@@ -48,22 +50,6 @@ public abstract class GameAnimation
         this.startAbsoluteFrame = startAbsoluteFrame;
         this.startAnimation(parent);
     }
-
-    /**
-     * Called when animation start<br>
-     * The given image parent is locked in not draw mode, to let opportunity to create some sprites if animation need them
-     *
-     * @param parent Image parent to create sprites if need
-     */
-    protected abstract void startAnimation(JHelpImage parent);
-
-    /**
-     * Called when animation is terminated.<br>
-     * The given image parent is locked in not draw mode, to remove properly sprites linked to this animation
-     *
-     * @param parent Image parent to remove properly animation sprites
-     */
-    protected abstract void endAnimation(JHelpImage parent);
 
     /**
      * Called by system to update the animation
@@ -85,6 +71,22 @@ public abstract class GameAnimation
     }
 
     /**
+     * Called when animation is terminated.<br>
+     * The given image parent is locked in not draw mode, to remove properly sprites linked to this animation
+     *
+     * @param parent Image parent to remove properly animation sprites
+     */
+    protected abstract void endAnimation(JHelpImage parent);
+
+    /**
+     * Called when animation start<br>
+     * The given image parent is locked in not draw mode, to let opportunity to create some sprites if animation need them
+     *
+     * @param parent Image parent to create sprites if need
+     */
+    protected abstract void startAnimation(JHelpImage parent);
+
+    /**
      * Called to update the animation
      *
      * @param frame  Animation frame
@@ -92,4 +94,14 @@ public abstract class GameAnimation
      * @return {@code true} to indicates animation continue. {@code false} to indicates animation is finished
      */
     protected abstract boolean updateAnimation(float frame, JHelpImage parent);
+
+    /**
+     * Animation status
+     *
+     * @return Animation status
+     */
+    public final AnimationStatus animationStatus()
+    {
+        return this.animationStatus;
+    }
 }

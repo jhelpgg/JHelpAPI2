@@ -1,13 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.image.ani;
 
 import java.io.IOException;
@@ -144,7 +146,7 @@ public class AniImage
     {
         super(inputStream);
 
-        this.images = new ArrayList<AniImageInformation>();
+        this.images = new ArrayList<>();
         this.fps = 25;
         this.imageDuration = 1000;
         this.sequences = new ArrayInt();
@@ -446,6 +448,23 @@ public class AniImage
     }
 
     /**
+     * Called when animation start <br>
+     * <br>
+     * <b>Parent documentation:</b><br>
+     * {@inheritDoc}
+     *
+     * @param startAbsoluteFrame Start absolute frame
+     * @param image              Image parent
+     * @see DynamicAnimation#startAnimation(float, JHelpImage)
+     */
+    @Override
+    public void startAnimation(final float startAbsoluteFrame, final JHelpImage image)
+    {
+        this.startAbsoluteFrame = startAbsoluteFrame;
+        this.relativeFrame = this.startAbsoluteFrame;
+    }
+
+    /**
      * Ani FPS
      *
      * @return Ani FPS
@@ -505,22 +524,5 @@ public class AniImage
     {
         this.x = x;
         this.y = y;
-    }
-
-    /**
-     * Called when animation start <br>
-     * <br>
-     * <b>Parent documentation:</b><br>
-     * {@inheritDoc}
-     *
-     * @param startAbsoluteFrame Start absolute frame
-     * @param image              Image parent
-     * @see DynamicAnimation#startAnimation(float, JHelpImage)
-     */
-    @Override
-    public void startAnimation(final float startAbsoluteFrame, final JHelpImage image)
-    {
-        this.startAbsoluteFrame = startAbsoluteFrame;
-        this.relativeFrame = this.startAbsoluteFrame;
     }
 }

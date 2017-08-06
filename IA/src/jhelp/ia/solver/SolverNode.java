@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.ia.solver;
 
 /**
@@ -16,6 +28,31 @@ public abstract class SolverNode<T>
         this.solver = solver;
     }
 
+    protected TaskSolve<T> createTask()
+    {
+        return new TaskSolve<>(this.solver);
+    }
+
+    protected final void giveSolver(SolverNode<T> solverNode)
+    {
+        solverNode.solver = this.solver;
+    }
+
+    protected final boolean haveSolution()
+    {
+        return this.solver != null && this.solver.haveSolution();
+    }
+
+    protected final void solutionFound(Solution<T> solution)
+    {
+        if (this.solver != null)
+        {
+            this.solver.solutionFound(solution);
+        }
+    }
+
+    protected abstract SolverNode<T> solveInternal();
+
     public final SolverNode<T> solve()
     {
         if (this.haveSolution())
@@ -33,29 +70,4 @@ public abstract class SolverNode<T>
 
         return solverNode;
     }
-
-    protected TaskSolve<T> createTask()
-    {
-        return new TaskSolve<>(this.solver);
-    }
-
-    protected final boolean haveSolution()
-    {
-        return this.solver != null && this.solver.haveSolution();
-    }
-
-    protected final void solutionFound(Solution<T> solution)
-    {
-        if (this.solver != null)
-        {
-            this.solver.solutionFound(solution);
-        }
-    }
-
-    protected final void giveSolver(SolverNode<T> solverNode)
-    {
-        solverNode.solver = this.solver;
-    }
-
-    protected abstract SolverNode<T> solveInternal();
 }

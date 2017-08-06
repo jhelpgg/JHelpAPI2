@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.thread;
 
 import com.sun.istack.internal.NotNull;
@@ -11,6 +23,10 @@ import jhelp.util.list.Pair;
 public final class CallbackTask<P, R> implements Task<P, R>
 {
     /**
+     * Call back to alert
+     */
+    private final ConsumerTask<Pair<String, R>> callback;
+    /**
      * Callback task name
      */
     private final String                        name;
@@ -18,10 +34,6 @@ public final class CallbackTask<P, R> implements Task<P, R>
      * Task to execute
      */
     private final Task<P, R>                    task;
-    /**
-     * Call back to alert
-     */
-    private final ConsumerTask<Pair<String, R>> callback;
 
     /**
      * Create the callback task
@@ -55,17 +67,6 @@ public final class CallbackTask<P, R> implements Task<P, R>
     }
 
     /**
-     * Called when result is computed
-     *
-     * @param result Task result
-     */
-    @Override
-    public void taskResult(final @Nullable R result)
-    {
-        this.callback.consume(new Pair<>(this.name, result));
-    }
-
-    /**
      * Called if task execution failed
      *
      * @param taskException Exception happen
@@ -74,5 +75,16 @@ public final class CallbackTask<P, R> implements Task<P, R>
     public void taskError(final @NotNull TaskException taskException)
     {
         this.callback.taskError(taskException);
+    }
+
+    /**
+     * Called when result is computed
+     *
+     * @param result Task result
+     */
+    @Override
+    public void taskResult(final @Nullable R result)
+    {
+        this.callback.consume(new Pair<>(this.name, result));
     }
 }

@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.ia.solver;
 
 /**
@@ -6,11 +18,8 @@ package jhelp.ia.solver;
 public class World
 {
     public static final World WORLD = new World();
-    private final boolean[][] world;
-    private final int         width;
-    private final int         height;
 
-    private static final char characterFor(int index)
+    private static char characterFor(int index)
     {
         if (index < 0)
         {
@@ -33,6 +42,10 @@ public class World
         return (char) ('A' + index);
     }
 
+    private final int         height;
+    private final int         width;
+    private final boolean[][] world;
+
     private World()
     {
         this.width = 3 + (int) (Math.random() * 5);
@@ -52,14 +65,14 @@ public class World
         this.print(null);
     }
 
-    public boolean canGo(int x, int y)
-    {
-        return x >= 0 && x < this.width && y >= 0 && y < this.height && this.world[x][y];
-    }
-
     public boolean arrived(int x, int y)
     {
         return x == this.width - 1 && y == this.height - 1;
+    }
+
+    public boolean canGo(int x, int y)
+    {
+        return x >= 0 && x < this.width && y >= 0 && y < this.height && this.world[x][y];
     }
 
     public synchronized void print(Path path)

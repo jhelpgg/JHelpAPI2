@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.antology;
 
 import com.sun.istack.internal.NotNull;
@@ -31,18 +43,17 @@ public class Rule
 
         return rule;
     }
-
-    private final Node                        firstSubject;
-    private final Node                        firstPredicate;
     private final Node                        firstInformation;
-    private final Node                        secondSubject;
-    private final Node                        secondPredicate;
-    private final Node                        secondInformation;
-    private final RuleResult                  resultSubject;
-    private final RuleResult                  resultPredicate;
-    private final RuleResult                  resultInformation;
-    private final ArrayObject<RuleConstraint> ruleConstraints;
+    private final Node                        firstPredicate;
+    private final Node                        firstSubject;
     private       boolean                     mutable;
+    private final RuleResult                  resultInformation;
+    private final RuleResult                  resultPredicate;
+    private final RuleResult                  resultSubject;
+    private final ArrayObject<RuleConstraint> ruleConstraints;
+    private final Node                        secondInformation;
+    private final Node                        secondPredicate;
+    private final Node                        secondSubject;
 
     public Rule(
             @NotNull final Node firstSubject,
@@ -77,85 +88,6 @@ public class Rule
         this.ruleConstraints = new ArrayObject<>();
     }
 
-    public @NotNull Node firstSubject()
-    {
-        return this.firstSubject;
-    }
-
-    public @NotNull Node firstPredicate()
-    {
-        return this.firstPredicate;
-    }
-
-    public @NotNull Node firstInformation()
-    {
-        return this.firstInformation;
-    }
-
-    public @NotNull Node secondSubject()
-    {
-        return this.secondSubject;
-    }
-
-    public @NotNull Node secondPredicate()
-    {
-        return this.secondPredicate;
-    }
-
-    public @NotNull Node secondInformation()
-    {
-        return this.secondInformation;
-    }
-
-    public @NotNull RuleResult resultSubject()
-    {
-        return this.resultSubject;
-    }
-
-    public @NotNull RuleResult resultPredicate()
-    {
-        return this.resultPredicate;
-    }
-
-    public @NotNull RuleResult resultInformation()
-    {
-        return this.resultInformation;
-    }
-
-    public void addConstraint(RuleConstraint ruleConstraint)
-    {
-        if (!this.mutable)
-        {
-            throw new IllegalStateException("Rule is immutable");
-        }
-
-        if (ruleConstraint != null)
-        {
-            synchronized (this.ruleConstraints)
-            {
-                if (!this.ruleConstraints.contains(ruleConstraint))
-                {
-                    this.ruleConstraints.add(ruleConstraint);
-                }
-            }
-        }
-    }
-
-    public void serialize(ByteArray byteArray)
-    {
-        this.firstSubject.serialize(byteArray);
-        this.firstPredicate.serialize(byteArray);
-        this.firstInformation.serialize(byteArray);
-        this.secondSubject.serialize(byteArray);
-        this.secondPredicate.serialize(byteArray);
-        this.secondInformation.serialize(byteArray);
-        this.resultSubject.serialize(byteArray);
-        this.resultPredicate.serialize(byteArray);
-        this.resultInformation.serialize(byteArray);
-        byteArray.writeInteger(this.ruleConstraints.size());
-        this.ruleConstraints.consume(byteArray::writeEnum);
-    }
-
     private Node computeNode(
             RuleResult ruleResult,
             @NotNull final Node firstSubject,
@@ -188,6 +120,30 @@ public class Rule
                 return secondInformation;
             default:
                 throw new RuntimeException("Should never goes here! Unknown result type: " + ruleResult.result());
+        }
+    }
+
+    void makeImmutable()
+    {
+        this.mutable = false;
+    }
+
+    public void addConstraint(RuleConstraint ruleConstraint)
+    {
+        if (!this.mutable)
+        {
+            throw new IllegalStateException("Rule is immutable");
+        }
+
+        if (ruleConstraint != null)
+        {
+            synchronized (this.ruleConstraints)
+            {
+                if (!this.ruleConstraints.contains(ruleConstraint))
+                {
+                    this.ruleConstraints.add(ruleConstraint);
+                }
+            }
         }
     }
 
@@ -349,13 +305,68 @@ public class Rule
                rule.ruleConstraints.containsAll(this.ruleConstraints);
     }
 
-    void makeImmutable()
+    public @NotNull Node firstInformation()
     {
-        this.mutable = false;
+        return this.firstInformation;
+    }
+
+    public @NotNull Node firstPredicate()
+    {
+        return this.firstPredicate;
+    }
+
+    public @NotNull Node firstSubject()
+    {
+        return this.firstSubject;
     }
 
     public boolean mutable()
     {
         return this.mutable;
+    }
+
+    public @NotNull RuleResult resultInformation()
+    {
+        return this.resultInformation;
+    }
+
+    public @NotNull RuleResult resultPredicate()
+    {
+        return this.resultPredicate;
+    }
+
+    public @NotNull RuleResult resultSubject()
+    {
+        return this.resultSubject;
+    }
+
+    public @NotNull Node secondInformation()
+    {
+        return this.secondInformation;
+    }
+
+    public @NotNull Node secondPredicate()
+    {
+        return this.secondPredicate;
+    }
+
+    public @NotNull Node secondSubject()
+    {
+        return this.secondSubject;
+    }
+
+    public void serialize(ByteArray byteArray)
+    {
+        this.firstSubject.serialize(byteArray);
+        this.firstPredicate.serialize(byteArray);
+        this.firstInformation.serialize(byteArray);
+        this.secondSubject.serialize(byteArray);
+        this.secondPredicate.serialize(byteArray);
+        this.secondInformation.serialize(byteArray);
+        this.resultSubject.serialize(byteArray);
+        this.resultPredicate.serialize(byteArray);
+        this.resultInformation.serialize(byteArray);
+        byteArray.writeInteger(this.ruleConstraints.size());
+        this.ruleConstraints.consume(byteArray::writeEnum);
     }
 }

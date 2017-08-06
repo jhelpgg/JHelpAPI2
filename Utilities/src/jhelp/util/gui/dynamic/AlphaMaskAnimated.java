@@ -1,14 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any
- * damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.gui.dynamic;
 
 import java.awt.Dimension;
@@ -29,6 +30,33 @@ import jhelp.util.list.Pair;
 public final class AlphaMaskAnimated
         implements JHelpDynamicImageListener
 {
+    /**
+     * Create an alpha masked animated with alpha mask based on text
+     *
+     * @param text            Text used for alpha mask
+     * @param font            Text font
+     * @param textAlign       Text alignment
+     * @param colorBackground Background color
+     * @return Created alpha masked
+     */
+    public static AlphaMaskAnimated createTextAnimated(
+            final String text, final JHelpFont font,
+            final JHelpTextAlign textAlign, final int colorBackground)
+    {
+        final Pair<List<JHelpTextLineAlpha>, Dimension> pair = font.computeTextLinesAlpha(text, textAlign);
+        final JHelpImage alphaMask = new JHelpImage(pair.second.width,
+                                                    pair.second.height);
+        alphaMask.startDrawMode();
+
+        for (final JHelpTextLineAlpha textLine : pair.first)
+        {
+            alphaMask.paintAlphaMask(textLine.getX(), textLine.getY(), textLine.getMask(), 0xFFFFFFFF, 0, false);
+        }
+
+        alphaMask.endDrawMode();
+        return new AlphaMaskAnimated(alphaMask, colorBackground);
+    }
+
     /**
      * Alpha mask to use
      */
@@ -67,33 +95,6 @@ public final class AlphaMaskAnimated
         this.resultImage.startDrawMode();
         this.resultImage.paintAlphaMask(0, 0, this.alphaMask, this.dynamicImage.getImage());
         this.resultImage.endDrawMode();
-    }
-
-    /**
-     * Create an alpha masked animated with alpha mask based on text
-     *
-     * @param text            Text used for alpha mask
-     * @param font            Text font
-     * @param textAlign       Text alignment
-     * @param colorBackground Background color
-     * @return Created alpha masked
-     */
-    public static AlphaMaskAnimated createTextAnimated(
-            final String text, final JHelpFont font,
-            final JHelpTextAlign textAlign, final int colorBackground)
-    {
-        final Pair<List<JHelpTextLineAlpha>, Dimension> pair = font.computeTextLinesAlpha(text, textAlign);
-        final JHelpImage alphaMask = new JHelpImage(pair.second.width,
-                                                    pair.second.height);
-        alphaMask.startDrawMode();
-
-        for (final JHelpTextLineAlpha textLine : pair.first)
-        {
-            alphaMask.paintAlphaMask(textLine.getX(), textLine.getY(), textLine.getMask(), 0xFFFFFFFF, 0, false);
-        }
-
-        alphaMask.endDrawMode();
-        return new AlphaMaskAnimated(alphaMask, colorBackground);
     }
 
     /**

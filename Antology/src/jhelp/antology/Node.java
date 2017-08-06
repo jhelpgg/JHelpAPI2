@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.antology;
 
 import com.sun.istack.internal.NotNull;
@@ -13,6 +25,28 @@ import jhelp.util.math.Math2;
 public final class Node implements Comparable<Node>
 {
     public static final Node WILDCARD = new Node();
+
+    public static Node createNode(int value)
+    {
+        return new Node(NodeType.INT, value);
+    }
+
+    public static Node createNode(double value)
+    {
+        return new Node(NodeType.DOUBLE, value);
+    }
+
+    public static Node createNode(String string)
+    {
+        Objects.requireNonNull(string, "string MUST NOT be null!");
+        return new Node(NodeType.STRING, string);
+    }
+
+    public static <B extends Binarizable> Node createNode(B binarizable)
+    {
+        Objects.requireNonNull(binarizable, "binarizable MUST NOT be null!");
+        return new Node(NodeType.BINARIZABLE, binarizable);
+    }
 
     public static Node parse(ByteArray byteArray) throws Exception
     {
@@ -50,31 +84,9 @@ public final class Node implements Comparable<Node>
         return node;
     }
 
-    public static Node createNode(int value)
-    {
-        return new Node(NodeType.INT, value);
-    }
-
-    public static Node createNode(double value)
-    {
-        return new Node(NodeType.DOUBLE, value);
-    }
-
-    public static Node createNode(String string)
-    {
-        Objects.requireNonNull(string, "string MUST NOT be null!");
-        return new Node(NodeType.STRING, string);
-    }
-
-    public static <B extends Binarizable> Node createNode(B binarizable)
-    {
-        Objects.requireNonNull(binarizable, "binarizable MUST NOT be null!");
-        return new Node(NodeType.BINARIZABLE, binarizable);
-    }
-
+    private final SortedArray<Node> children;
     private final NodeType          type;
     private final Object            value;
-    private final SortedArray<Node> children;
 
     private Node()
     {
@@ -88,6 +100,66 @@ public final class Node implements Comparable<Node>
         this.children = new SortedArray<>(Node.class, true);
         this.type = type;
         this.value = value;
+    }
+
+    private void check(NodeType nodeType)
+    {
+        if (this.type != nodeType)
+        {
+            throw new IllegalStateException("The current node type is " + this.type + " not " + nodeType);
+        }
+    }
+
+    void addChild(Node child)
+    {
+        Objects.requireNonNull(child, "child MUST NOT be null!");
+        this.children.add(child);
+    }
+
+    Node child(int index)
+    {
+        return this.children.get(index);
+    }
+
+    Node duplicate()
+    {
+        return new Node(this.type, this.value);
+    }
+
+    int indexOf(Node child)
+    {
+        return this.children.indexOf(child);
+    }
+
+    int numberChildren()
+    {
+        return this.children.size();
+    }
+
+    void removeChild(Node child)
+    {
+        this.children.remove(child);
+    }
+
+    SortedArray<Node> search(NodeTest nodeTest)
+    {
+        return this.children.seekElements(nodeTest);
+    }
+
+    void visit(@NotNull GraphVisitor graphVisitor)
+    {
+        this.children.consume(node ->
+                              {
+                                  graphVisitor.enterNode(node);
+                                  node.visit(graphVisitor);
+                                  graphVisitor.exitNode(node);
+                              });
+    }
+
+    public <B extends Binarizable> B binarizableValue()
+    {
+        this.check(NodeType.BINARIZABLE);
+        return (B) this.value;
     }
 
     /**
@@ -171,67 +243,10 @@ public final class Node implements Comparable<Node>
         return this.value.hashCode() - node.value.hashCode();
     }
 
-    public NodeType type()
-    {
-        return this.type;
-    }
-
-    private void check(NodeType nodeType)
-    {
-        if (this.type != nodeType)
-        {
-            throw new IllegalStateException("The current node type is " + this.type + " not " + nodeType);
-        }
-    }
-
-    public int intValue()
-    {
-        this.check(NodeType.INT);
-        return (Integer) this.value;
-    }
-
     public double doubleValue()
     {
         this.check(NodeType.DOUBLE);
         return (Double) this.value;
-    }
-
-    public String stringValue()
-    {
-        this.check(NodeType.STRING);
-        return (String) this.value;
-    }
-
-    public <B extends Binarizable> B binarizableValue()
-    {
-        this.check(NodeType.BINARIZABLE);
-        return (B) this.value;
-    }
-
-    public void serialize(ByteArray byteArray)
-    {
-        byteArray.writeEnum(this.type);
-
-        switch (this.type)
-        {
-            case BINARIZABLE:
-                byteArray.writeBinarizableNamed((Binarizable) this.value);
-                break;
-            case DOUBLE:
-                byteArray.writeDouble((Double) this.value);
-                break;
-            case INT:
-                byteArray.writeInteger((Integer) this.value);
-                break;
-            case STRING:
-                byteArray.writeString((String) this.value);
-                break;
-            case WILDCARD:
-                return;
-        }
-
-        byteArray.writeInteger(this.children.size());
-        this.children.consume(node -> node.serialize(byteArray));
     }
 
     @Override
@@ -273,47 +288,6 @@ public final class Node implements Comparable<Node>
         }
     }
 
-    void addChild(Node child)
-    {
-        Objects.requireNonNull(child, "child MUST NOT be null!");
-        this.children.add(child);
-    }
-
-    void removeChild(Node child)
-    {
-        this.children.remove(child);
-    }
-
-    int numberChildren()
-    {
-        return this.children.size();
-    }
-
-    Node child(int index)
-    {
-        return this.children.get(index);
-    }
-
-    int indexOf(Node child)
-    {
-        return this.children.indexOf(child);
-    }
-
-    SortedArray<Node> search(NodeTest nodeTest)
-    {
-        return this.children.seekElements(nodeTest);
-    }
-
-    void visit(@NotNull GraphVisitor graphVisitor)
-    {
-        this.children.consume(node ->
-                              {
-                                  graphVisitor.enterNode(node);
-                                  node.visit(graphVisitor);
-                                  graphVisitor.exitNode(node);
-                              });
-    }
-
     @Override
     public String toString()
     {
@@ -325,8 +299,46 @@ public final class Node implements Comparable<Node>
         return this.value.toString();
     }
 
-    Node duplicate()
+    public int intValue()
     {
-        return new Node(this.type, this.value);
+        this.check(NodeType.INT);
+        return (Integer) this.value;
+    }
+
+    public void serialize(ByteArray byteArray)
+    {
+        byteArray.writeEnum(this.type);
+
+        switch (this.type)
+        {
+            case BINARIZABLE:
+                byteArray.writeBinarizableNamed((Binarizable) this.value);
+                break;
+            case DOUBLE:
+                byteArray.writeDouble((Double) this.value);
+                break;
+            case INT:
+                byteArray.writeInteger((Integer) this.value);
+                break;
+            case STRING:
+                byteArray.writeString((String) this.value);
+                break;
+            case WILDCARD:
+                return;
+        }
+
+        byteArray.writeInteger(this.children.size());
+        this.children.consume(node -> node.serialize(byteArray));
+    }
+
+    public String stringValue()
+    {
+        this.check(NodeType.STRING);
+        return (String) this.value;
+    }
+
+    public NodeType type()
+    {
+        return this.type;
     }
 }

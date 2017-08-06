@@ -1,25 +1,25 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.grammar;
 
 import com.sun.istack.internal.NotNull;
 import java.util.Objects;
-import jhelp.util.io.ByteArray;
 
 /**
  * Created by jhelp on 21/06/17.
  */
 public class QuantifiedDescription extends RuleDescription
 {
-    private static void checkDescriptionType(@NotNull RuleDescription ruleDescription)
-    {
-        if (ruleDescription.getDescriptionType() == DescriptionType.ALTERNATIVE
-            || ruleDescription.getDescriptionType() == DescriptionType.REGULAR_EXPRESSION
-            || ruleDescription.getDescriptionType() == DescriptionType.QUANTIFIED)
-        {
-            throw new IllegalArgumentException(
-                    ruleDescription.getDescriptionType() + " expression can't be quantified!");
-        }
-    }
-
     public static @NotNull RuleDescription anyNumber(@NotNull RuleDescription ruleDescription)
     {
         Objects.requireNonNull(ruleDescription, "ruleDescription MUST NOT be null!");
@@ -32,26 +32,6 @@ public class QuantifiedDescription extends RuleDescription
         Objects.requireNonNull(ruleDescription, "ruleDescription MUST NOT be null!");
         QuantifiedDescription.checkDescriptionType(ruleDescription);
         return new QuantifiedDescription(1, Integer.MAX_VALUE, ruleDescription);
-    }
-
-    public static @NotNull RuleDescription zeroOrOne(@NotNull RuleDescription ruleDescription)
-    {
-        Objects.requireNonNull(ruleDescription, "ruleDescription MUST NOT be null!");
-        QuantifiedDescription.checkDescriptionType(ruleDescription);
-        return new QuantifiedDescription(0, 1, ruleDescription);
-    }
-
-    public static @NotNull RuleDescription exactly(@NotNull RuleDescription ruleDescription, int number)
-    {
-        Objects.requireNonNull(ruleDescription, "ruleDescription MUST NOT be null!");
-        QuantifiedDescription.checkDescriptionType(ruleDescription);
-
-        if (number <= 0)
-        {
-            throw new IllegalArgumentException("number MUST be at least 1, not " + number);
-        }
-
-        return new QuantifiedDescription(number, number, ruleDescription);
     }
 
     public static @NotNull RuleDescription between(@NotNull RuleDescription ruleDescription, int minimum, int maximum)
@@ -78,8 +58,38 @@ public class QuantifiedDescription extends RuleDescription
         return new QuantifiedDescription(minimum, maximum, ruleDescription);
     }
 
-    private final int             minimum;
+    private static void checkDescriptionType(@NotNull RuleDescription ruleDescription)
+    {
+        if (ruleDescription.getDescriptionType() == DescriptionType.ALTERNATIVE
+            || ruleDescription.getDescriptionType() == DescriptionType.REGULAR_EXPRESSION
+            || ruleDescription.getDescriptionType() == DescriptionType.QUANTIFIED)
+        {
+            throw new IllegalArgumentException(
+                    ruleDescription.getDescriptionType() + " expression can't be quantified!");
+        }
+    }
+
+    public static @NotNull RuleDescription exactly(@NotNull RuleDescription ruleDescription, int number)
+    {
+        Objects.requireNonNull(ruleDescription, "ruleDescription MUST NOT be null!");
+        QuantifiedDescription.checkDescriptionType(ruleDescription);
+
+        if (number <= 0)
+        {
+            throw new IllegalArgumentException("number MUST be at least 1, not " + number);
+        }
+
+        return new QuantifiedDescription(number, number, ruleDescription);
+    }
+
+    public static @NotNull RuleDescription zeroOrOne(@NotNull RuleDescription ruleDescription)
+    {
+        Objects.requireNonNull(ruleDescription, "ruleDescription MUST NOT be null!");
+        QuantifiedDescription.checkDescriptionType(ruleDescription);
+        return new QuantifiedDescription(0, 1, ruleDescription);
+    }
     private final int             maximum;
+    private final int             minimum;
     private final RuleDescription quantifiedRule;
 
     private QuantifiedDescription(int minimum, int maximum, @NotNull RuleDescription quantifiedRule)
@@ -90,14 +100,14 @@ public class QuantifiedDescription extends RuleDescription
         this.quantifiedRule = quantifiedRule;
     }
 
-    public int getMinimum()
-    {
-        return this.minimum;
-    }
-
     public int getMaximum()
     {
         return this.maximum;
+    }
+
+    public int getMinimum()
+    {
+        return this.minimum;
     }
 
     public @NotNull RuleDescription getQuantifiedRule()

@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.debug;
 
 import java.io.PrintStream;
@@ -11,10 +23,10 @@ import org.junit.Test;
  */
 public class TestDebug
 {
-    private static PrintStream out;
     private static PrintStream err;
-    private static PrintSpy    spyOut;
+    private static PrintStream out;
     private static PrintSpy    spyErr;
+    private static PrintSpy    spyOut;
 
     @BeforeClass
     public static void initialize()
@@ -32,35 +44,6 @@ public class TestDebug
     {
         System.setOut(TestDebug.out);
         System.setErr(TestDebug.err);
-    }
-
-    @Test
-    public void testDebugType()
-    {
-        Debug.debug("Debug message");
-        String message = TestDebug.spyOut.popLastWrote();
-        Assert.assertTrue(message + " NOT CONTAINS Debug message", message.contains("Debug message"));
-        Debug.error("Error message");
-        message = TestDebug.spyErr.popLastWrote();
-        Assert.assertTrue(message + " NOT CONTAINS Error message", message.contains("Error message"));
-        Debug.exception(new Throwable("Exception test"), "Exception message");
-        message = TestDebug.spyErr.popLastWrote();
-        Assert.assertTrue(message + " NOT CONTAINS Exception message", message.contains("Exception message"));
-        Debug.information("Information message");
-        message = TestDebug.spyOut.popLastWrote();
-        Assert.assertTrue(message + " NOT CONTAINS Information message", message.contains("Information message"));
-        Debug.mark("Mark message");
-        message = TestDebug.spyOut.popLastWrote();
-        Assert.assertTrue(message + " NOT CONTAINS Mark message", message.contains("Mark message"));
-        Debug.trace("Trace message");
-        message = TestDebug.spyOut.popLastWrote();
-        Assert.assertTrue(message + " NOT CONTAINS Trace message", message.contains("Trace message"));
-        Debug.verbose("Verbose message");
-        message = TestDebug.spyOut.popLastWrote();
-        Assert.assertTrue(message + " NOT CONTAINS Verbose message", message.contains("Verbose message"));
-        Debug.warning("Warning message");
-        message = TestDebug.spyErr.popLastWrote();
-        Assert.assertTrue(message + " NOT CONTAINS Warning message", message.contains("Warning message"));
     }
 
     @Test
@@ -130,5 +113,34 @@ public class TestDebug
         Assert.assertFalse("ERROR:Error: Something should be write", TestDebug.spyErr.popLastWrote().isEmpty());
 
         Debug.setLevel(debugLevel);
+    }
+
+    @Test
+    public void testDebugType()
+    {
+        Debug.debug("Debug message");
+        String message = TestDebug.spyOut.popLastWrote();
+        Assert.assertTrue(message + " NOT CONTAINS Debug message", message.contains("Debug message"));
+        Debug.error("Error message");
+        message = TestDebug.spyErr.popLastWrote();
+        Assert.assertTrue(message + " NOT CONTAINS Error message", message.contains("Error message"));
+        Debug.exception(new Throwable("Exception test"), "Exception message");
+        message = TestDebug.spyErr.popLastWrote();
+        Assert.assertTrue(message + " NOT CONTAINS Exception message", message.contains("Exception message"));
+        Debug.information("Information message");
+        message = TestDebug.spyOut.popLastWrote();
+        Assert.assertTrue(message + " NOT CONTAINS Information message", message.contains("Information message"));
+        Debug.mark("Mark message");
+        message = TestDebug.spyOut.popLastWrote();
+        Assert.assertTrue(message + " NOT CONTAINS Mark message", message.contains("Mark message"));
+        Debug.trace("Trace message");
+        message = TestDebug.spyOut.popLastWrote();
+        Assert.assertTrue(message + " NOT CONTAINS Trace message", message.contains("Trace message"));
+        Debug.verbose("Verbose message");
+        message = TestDebug.spyOut.popLastWrote();
+        Assert.assertTrue(message + " NOT CONTAINS Verbose message", message.contains("Verbose message"));
+        Debug.warning("Warning message");
+        message = TestDebug.spyErr.popLastWrote();
+        Assert.assertTrue(message + " NOT CONTAINS Warning message", message.contains("Warning message"));
     }
 }

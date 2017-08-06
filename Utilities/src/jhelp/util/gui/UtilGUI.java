@@ -1,4 +1,16 @@
 /*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
+/*
  * License :
  * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any damage it may cause.
  * You can use, modify, the code as your need for any usage.
@@ -57,51 +69,6 @@ import jhelp.util.util.Utilities;
  */
 public final class UtilGUI
 {
-    /**
-     * Special character for delete
-     */
-    public static final char CHARACTER_DELETE = '\b';
-    /**
-     * Special character for escape
-     */
-    public static final char CHARACTER_ESCAPE = (char) 0x1B;
-    /**
-     * Current graphics environment
-     */
-    public static final GraphicsEnvironment GRAPHICS_ENVIRONMENT;
-    /**
-     * Current screen resolution
-     */
-    public static final Resolution          SCREEN_RESOLUTION;
-    /**
-     * Font use for sub title
-     */
-    public static final Font SUB_TITLE_FONT = new Font("Arial", Font.PLAIN, 22);
-    /**
-     * Font use for title
-     */
-    public static final Font TITLE_FONT     = new Font("Arial", Font.BOLD, 24);
-    /**
-     * Current toolkit
-     */
-    public static final  Toolkit          TOOLKIT;
-    /**
-     * List of graphics devices
-     */
-    private static final GraphicsDevice[] GRAPHICS_DEVICES;
-    /**
-     * Robot for simulate keyboard and mouse events
-     */
-    private final static Robot            ROBOT;
-    /**
-     * Empty image
-     */
-    private static       BufferedImage    EMPTY_IMAGE;
-    /**
-     * Invisible cursor
-     */
-    private static       Cursor           INVISIBLE_CURSOR;
-
     static
     {
         Robot robot = null;
@@ -130,11 +97,49 @@ public final class UtilGUI
     }
 
     /**
-     * For avoid instance
+     * Empty image
      */
-    private UtilGUI()
-    {
-    }
+    private static       BufferedImage    EMPTY_IMAGE;
+    /**
+     * List of graphics devices
+     */
+    private static final GraphicsDevice[] GRAPHICS_DEVICES;
+    /**
+     * Invisible cursor
+     */
+    private static       Cursor           INVISIBLE_CURSOR;
+    /**
+     * Robot for simulate keyboard and mouse events
+     */
+    private final static Robot            ROBOT;
+    /**
+     * Special character for delete
+     */
+    public static final char CHARACTER_DELETE = '\b';
+    /**
+     * Special character for escape
+     */
+    public static final char CHARACTER_ESCAPE = (char) 0x1B;
+    /**
+     * Current graphics environment
+     */
+    public static final GraphicsEnvironment GRAPHICS_ENVIRONMENT;
+    /**
+     * Current screen resolution
+     */
+    public static final Resolution          SCREEN_RESOLUTION;
+    /**
+     * Font use for sub title
+     */
+    public static final Font SUB_TITLE_FONT = new Font("Arial", Font.PLAIN, 22);
+    /**
+     * Font use for title
+     */
+    public static final Font TITLE_FONT     = new Font("Arial", Font.BOLD, 24);
+    /**
+     * Current toolkit
+     */
+    public static final  Toolkit          TOOLKIT;
 
     /**
      * Add sub-title to component to have a title but visually less important than title add with
@@ -190,54 +195,6 @@ public final class UtilGUI
     }
 
     /**
-     * Compute the rectangle of the screen where is a window
-     *
-     * @param window Window we looking for its screen
-     * @return Screen's rectangle
-     */
-    public static Rectangle computeScreenRectangle(final Window window)
-    {
-        final Rectangle windowBounds = window.getBounds();
-
-        GraphicsConfiguration graphicsConfiguration = UtilGUI.GRAPHICS_DEVICES[0].getDefaultConfiguration();
-        Rectangle             screenBounds          = graphicsConfiguration.getBounds();
-        int                   areaMax               = Math2.computeIntersectedArea(windowBounds, screenBounds);
-
-        int totalWidth  = screenBounds.x + screenBounds.width;
-        int totalHeight = screenBounds.y + screenBounds.height;
-
-        Rectangle             bounds;
-        int                   area;
-        GraphicsConfiguration cg;
-        for (int i = 1; i < UtilGUI.GRAPHICS_DEVICES.length; i++)
-        {
-            cg = UtilGUI.GRAPHICS_DEVICES[i].getDefaultConfiguration();
-            bounds = cg.getBounds();
-            area = Math2.computeIntersectedArea(windowBounds, bounds);
-
-            totalWidth = Math.max(totalWidth, bounds.x + bounds.width);
-            totalHeight = Math.max(totalHeight, bounds.y + bounds.height);
-
-            if (area > areaMax)
-            {
-                graphicsConfiguration = cg;
-                screenBounds = bounds;
-                areaMax = area;
-            }
-        }
-
-        final Insets margin = UtilGUI.TOOLKIT.getScreenInsets(graphicsConfiguration);
-
-        final Rectangle screenRectangle = new Rectangle(screenBounds);
-        screenRectangle.x = margin.left;
-        screenRectangle.y = margin.top;
-        screenRectangle.width = totalWidth - margin.left - margin.right;
-        screenRectangle.height = totalHeight - margin.top - margin.bottom;
-
-        return screenRectangle;
-    }
-
-    /**
      * Change a window of screen
      *
      * @param window      Widow to translate
@@ -258,6 +215,59 @@ public final class UtilGUI
 
         window.setLocation(x + destinationScreen.x + insets.left, //
                            y + destinationScreen.y + insets.top);
+    }
+
+    /**
+     * Compute the key code to use for short cut that use a given character.<br>
+     * It is possible to use {@link #CHARACTER_DELETE} or {@link #CHARACTER_ESCAPE} character if you want build short cut
+     * for respectively delete key, escape key
+     *
+     * @param character Character to compute the key code to use
+     * @return Computed key code
+     */
+    public static int charToKeyCodeForShortCut(final char character)
+    {
+        switch (character)
+        {
+            case '0':
+                return KeyEvent.VK_NUMPAD0;
+            case '1':
+                return KeyEvent.VK_NUMPAD1;
+            case '2':
+                return KeyEvent.VK_NUMPAD2;
+            case '3':
+                return KeyEvent.VK_NUMPAD3;
+            case '4':
+                return KeyEvent.VK_NUMPAD4;
+            case '5':
+                return KeyEvent.VK_NUMPAD5;
+            case '6':
+                return KeyEvent.VK_NUMPAD6;
+            case '7':
+                return KeyEvent.VK_NUMPAD7;
+            case '8':
+                return KeyEvent.VK_NUMPAD8;
+            case '9':
+                return KeyEvent.VK_NUMPAD9;
+            case '+':
+                return KeyEvent.VK_ADD;
+            case '-':
+                return KeyEvent.VK_SUBTRACT;
+            case '*':
+                return KeyEvent.VK_MULTIPLY;
+            case '/':
+                return KeyEvent.VK_DIVIDE;
+            case '.':
+                return KeyEvent.VK_PERIOD;
+            case UtilGUI.CHARACTER_ESCAPE:
+                return KeyEvent.VK_ESCAPE;
+            case UtilGUI.CHARACTER_DELETE:
+                return KeyEvent.VK_BACK_SPACE;
+            case '\n':
+                return KeyEvent.VK_ENTER;
+            default:
+                return KeyEvent.getExtendedKeyCodeForChar(character);
+        }
     }
 
     /**
@@ -403,6 +413,98 @@ public final class UtilGUI
     }
 
     /**
+     * Compute the rectangle of the screen where is a window
+     *
+     * @param window Window we looking for its screen
+     * @return Screen's rectangle
+     */
+    public static Rectangle computeScreenRectangle(final Window window)
+    {
+        final Rectangle windowBounds = window.getBounds();
+
+        GraphicsConfiguration graphicsConfiguration = UtilGUI.GRAPHICS_DEVICES[0].getDefaultConfiguration();
+        Rectangle             screenBounds          = graphicsConfiguration.getBounds();
+        int                   areaMax               = Math2.computeIntersectedArea(windowBounds, screenBounds);
+
+        int totalWidth  = screenBounds.x + screenBounds.width;
+        int totalHeight = screenBounds.y + screenBounds.height;
+
+        Rectangle             bounds;
+        int                   area;
+        GraphicsConfiguration cg;
+        for (int i = 1; i < UtilGUI.GRAPHICS_DEVICES.length; i++)
+        {
+            cg = UtilGUI.GRAPHICS_DEVICES[i].getDefaultConfiguration();
+            bounds = cg.getBounds();
+            area = Math2.computeIntersectedArea(windowBounds, bounds);
+
+            totalWidth = Math.max(totalWidth, bounds.x + bounds.width);
+            totalHeight = Math.max(totalHeight, bounds.y + bounds.height);
+
+            if (area > areaMax)
+            {
+                graphicsConfiguration = cg;
+                screenBounds = bounds;
+                areaMax = area;
+            }
+        }
+
+        final Insets margin = UtilGUI.TOOLKIT.getScreenInsets(graphicsConfiguration);
+
+        final Rectangle screenRectangle = new Rectangle(screenBounds);
+        screenRectangle.x = margin.left;
+        screenRectangle.y = margin.top;
+        screenRectangle.width = totalWidth - margin.left - margin.right;
+        screenRectangle.height = totalHeight - margin.top - margin.bottom;
+
+        return screenRectangle;
+    }
+
+    /**
+     * Create, if possible, a custom cursor from given image.<br>
+     * If current system not support custom cursor, the default cursor is return.<br>
+     * It is recommended to give image that fit standard cursor dimensions.
+     * If image dimensions not supported by the system,
+     * it will be resized to fit the nearest supported dimensions
+     *
+     * @param image Cursor image
+     * @param x     X on image for click point
+     * @param y     Y  on image for click point
+     * @param name  Cursor name
+     * @return Created cursor
+     */
+    public static Cursor createCursor(@NotNull JHelpImage image, int x, int y, @NotNull String name)
+    {
+        int width  = image.getWidth();
+        int height = image.getHeight();
+
+        if (x < 0 || x >= width || y < 0 || y >= height)
+        {
+            x = width >> 1;
+            y = height >> 1;
+        }
+
+        Dimension dimension = Toolkit.getDefaultToolkit()
+                                     .getBestCursorSize(width, height);
+
+        if ((dimension == null) || (dimension.width < 1) || (dimension.height < 1))
+        {
+            return Cursor.getDefaultCursor();
+        }
+
+        x = (x * dimension.width) / width;
+        y = (y * dimension.height) / height;
+
+        if (dimension.width != width || dimension.height != height)
+        {
+            image = JHelpImage.createResizedImage(image, dimension.width, dimension.height);
+        }
+
+        return Toolkit.getDefaultToolkit()
+                      .createCustomCursor(image.getImage(), new Point(x, y), name);
+    }
+
+    /**
      * Create key stroke short cut for a character type without any special key like shift, control, ...
      *
      * @param character Character short cut
@@ -457,59 +559,6 @@ public final class UtilGUI
         }
 
         return KeyStroke.getKeyStroke(UtilGUI.charToKeyCodeForShortCut(character), modifiers);
-    }
-
-    /**
-     * Compute the key code to use for short cut that use a given character.<br>
-     * It is possible to use {@link #CHARACTER_DELETE} or {@link #CHARACTER_ESCAPE} character if you want build short cut
-     * for respectively delete key, escape key
-     *
-     * @param character Character to compute the key code to use
-     * @return Computed key code
-     */
-    public static int charToKeyCodeForShortCut(final char character)
-    {
-        switch (character)
-        {
-            case '0':
-                return KeyEvent.VK_NUMPAD0;
-            case '1':
-                return KeyEvent.VK_NUMPAD1;
-            case '2':
-                return KeyEvent.VK_NUMPAD2;
-            case '3':
-                return KeyEvent.VK_NUMPAD3;
-            case '4':
-                return KeyEvent.VK_NUMPAD4;
-            case '5':
-                return KeyEvent.VK_NUMPAD5;
-            case '6':
-                return KeyEvent.VK_NUMPAD6;
-            case '7':
-                return KeyEvent.VK_NUMPAD7;
-            case '8':
-                return KeyEvent.VK_NUMPAD8;
-            case '9':
-                return KeyEvent.VK_NUMPAD9;
-            case '+':
-                return KeyEvent.VK_ADD;
-            case '-':
-                return KeyEvent.VK_SUBTRACT;
-            case '*':
-                return KeyEvent.VK_MULTIPLY;
-            case '/':
-                return KeyEvent.VK_DIVIDE;
-            case '.':
-                return KeyEvent.VK_PERIOD;
-            case UtilGUI.CHARACTER_ESCAPE:
-                return KeyEvent.VK_ESCAPE;
-            case UtilGUI.CHARACTER_DELETE:
-                return KeyEvent.VK_BACK_SPACE;
-            case '\n':
-                return KeyEvent.VK_ENTER;
-            default:
-                return KeyEvent.getExtendedKeyCodeForChar(character);
-        }
     }
 
     /**
@@ -679,6 +728,22 @@ public final class UtilGUI
     }
 
     /**
+     * Place the mouse on a location on the screen
+     *
+     * @param x X screen position
+     * @param y Y screen position
+     */
+    public static void locateMouseAt(final int x, final int y)
+    {
+        if (UtilGUI.ROBOT == null)
+        {
+            return;
+        }
+
+        UtilGUI.ROBOT.mouseMove(x, y);
+    }
+
+    /**
      * Place the mouse over the middle of a component
      *
      * @param component Component mouse go over
@@ -725,22 +790,6 @@ public final class UtilGUI
     }
 
     /**
-     * Place the mouse on a location on the screen
-     *
-     * @param x X screen position
-     * @param y Y screen position
-     */
-    public static void locateMouseAt(final int x, final int y)
-    {
-        if (UtilGUI.ROBOT == null)
-        {
-            return;
-        }
-
-        UtilGUI.ROBOT.mouseMove(x, y);
-    }
-
-    /**
      * Number of screen
      *
      * @return Number of screen
@@ -782,50 +831,6 @@ public final class UtilGUI
         }
 
         return UtilGUI.INVISIBLE_CURSOR;
-    }
-
-    /**
-     * Create, if possible, a custom cursor from given image.<br>
-     * If current system not support custom cursor, the default cursor is return.<br>
-     * It is recommended to give image that fit standard cursor dimensions.
-     * If image dimensions not supported by the system,
-     * it will be resized to fit the nearest supported dimensions
-     *
-     * @param image Cursor image
-     * @param x     X on image for click point
-     * @param y     Y  on image for click point
-     * @param name  Cursor name
-     * @return Created cursor
-     */
-    public static Cursor createCursor(@NotNull JHelpImage image, int x, int y, @NotNull String name)
-    {
-        int width  = image.getWidth();
-        int height = image.getHeight();
-
-        if (x < 0 || x >= width || y < 0 || y >= height)
-        {
-            x = width >> 1;
-            y = height >> 1;
-        }
-
-        Dimension dimension = Toolkit.getDefaultToolkit()
-                                     .getBestCursorSize(width, height);
-
-        if ((dimension == null) || (dimension.width < 1) || (dimension.height < 1))
-        {
-            return Cursor.getDefaultCursor();
-        }
-
-        x = (x * dimension.width) / width;
-        y = (y * dimension.height) / height;
-
-        if (dimension.width != width || dimension.height != height)
-        {
-            image = JHelpImage.createResizedImage(image, dimension.width, dimension.height);
-        }
-
-        return Toolkit.getDefaultToolkit()
-                      .createCustomCursor(image.getImage(), new Point(x, y), name);
     }
 
     /**
@@ -886,16 +891,6 @@ public final class UtilGUI
     }
 
     /**
-     * Create a screen shot on JHelpImage
-     *
-     * @return JHelpImage with screen shot
-     */
-    public static JHelpImage screenShotJHelpImage()
-    {
-        return JHelpImage.createImage(UtilGUI.screenShot());
-    }
-
-    /**
      * Make a screen shot
      *
      * @return Screen shot
@@ -941,7 +936,7 @@ public final class UtilGUI
 
         if (xMin < 0)
         {
-          //  width -= xMin;
+            //  width -= xMin;
             xMin = 0;
         }
 
@@ -952,6 +947,16 @@ public final class UtilGUI
         }
 
         return UtilGUI.ROBOT.createScreenCapture(new Rectangle(xMin, yMin, width, height));
+    }
+
+    /**
+     * Create a screen shot on JHelpImage
+     *
+     * @return JHelpImage with screen shot
+     */
+    public static JHelpImage screenShotJHelpImage()
+    {
+        return JHelpImage.createImage(UtilGUI.screenShot());
     }
 
     /**
@@ -1101,5 +1106,12 @@ public final class UtilGUI
     {
         final Rectangle screen = UtilGUI.computeScreenRectangle(window);
         window.setBounds(screen);
+    }
+
+    /**
+     * For avoid instance
+     */
+    private UtilGUI()
+    {
     }
 }

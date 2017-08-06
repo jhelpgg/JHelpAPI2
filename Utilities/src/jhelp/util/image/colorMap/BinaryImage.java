@@ -1,20 +1,20 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any
- * damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.image.colorMap;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
 import jhelp.util.gui.JHelpImage;
 import jhelp.util.io.UtilIO;
 
@@ -25,21 +25,42 @@ import jhelp.util.io.UtilIO;
  */
 public class BinaryImage
 {
-    /** Image data */
+    /**
+     * Read binary image from stream.<br>
+     * Stream not close by the method
+     *
+     * @param inputStream Stream to read
+     * @return Read binary image
+     * @throws IOException On reading issue
+     */
+    public static BinaryImage read(final InputStream inputStream) throws IOException
+    {
+        final int    width  = UtilIO.readInteger(inputStream);
+        final int    height = UtilIO.readInteger(inputStream);
+        final byte[] data   = new byte[(width * height) >> 3];
+        UtilIO.readStream(inputStream, data);
+        return new BinaryImage(width, height, data);
+    }
+
+    /**
+     * Image data
+     */
     private final byte[] data;
-    /** Image height */
+    /**
+     * Image height
+     */
     private final int    height;
-    /** Image width */
+    /**
+     * Image width
+     */
     private final int    width;
+
     /**
      * Create a new instance of BinaryImage
      *
-     * @param width
-     *           Width
-     * @param height
-     *           Height
-     * @param data
-     *           Data
+     * @param width  Width
+     * @param height Height
+     * @param data   Data
      */
     private BinaryImage(final int width, final int height, final byte[] data)
     {
@@ -52,8 +73,7 @@ public class BinaryImage
      * Create a new instance of BinaryImage based on JHelp image.<br>
      * Every "white" color will be consider as bit 1, and "black" consider as 0
      *
-     * @param image
-     *           Image to convert
+     * @param image Image to convert
      */
     public BinaryImage(final JHelpImage image)
     {
@@ -76,8 +96,7 @@ public class BinaryImage
     /**
      * Indicates if image has alpha
      *
-     * @param pixels
-     *           Image pixels
+     * @param pixels Image pixels
      * @return {@code true} if image has alpha
      */
     private boolean asAlpha(final int[] pixels)
@@ -96,10 +115,8 @@ public class BinaryImage
     /**
      * Create binary image using image alphas
      *
-     * @param pixels
-     *           Image pixels
-     * @param length
-     *           Data length
+     * @param pixels Image pixels
+     * @param length Data length
      */
     private void extractByAlpha(final int[] pixels, final int length)
     {
@@ -132,10 +149,8 @@ public class BinaryImage
     /**
      * Create binary image using image colors
      *
-     * @param pixels
-     *           Image pixels
-     * @param length
-     *           Data length
+     * @param pixels Image pixels
+     * @param length Data length
      */
     private void extractByColors(final int[] pixels, final int length)
     {
@@ -168,25 +183,6 @@ public class BinaryImage
     }
 
     /**
-     * Read binary image from stream.<br>
-     * Stream not close by the method
-     *
-     * @param inputStream
-     *           Stream to read
-     * @return Read binary image
-     * @throws IOException
-     *            On reading issue
-     */
-    public static BinaryImage read(final InputStream inputStream) throws IOException
-    {
-        final int    width  = UtilIO.readInteger(inputStream);
-        final int    height = UtilIO.readInteger(inputStream);
-        final byte[] data   = new byte[(width * height) >> 3];
-        UtilIO.readStream(inputStream, data);
-        return new BinaryImage(width, height, data);
-    }
-
-    /**
      * Image height
      *
      * @return Image height
@@ -209,10 +205,8 @@ public class BinaryImage
     /**
      * Convert to JHelp image on using given color map
      *
-     * @param color0
-     *           Color for bit 0
-     * @param color1
-     *           Color for bit 1
+     * @param color0 Color for bit 0
+     * @param color1 Color for bit 1
      * @return Converted image
      */
     public JHelpImage toJHelpImage(final int color0, final int color1)
@@ -251,10 +245,8 @@ public class BinaryImage
      * Write image to stream.<br>
      * Stream not close by the method
      *
-     * @param outputStream
-     *           Stream where write
-     * @throws IOException
-     *            On writing issue
+     * @param outputStream Stream where write
+     * @throws IOException On writing issue
      */
     public void write(final OutputStream outputStream) throws IOException
     {

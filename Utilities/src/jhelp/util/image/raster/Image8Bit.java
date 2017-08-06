@@ -1,13 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.image.raster;
 
 import java.io.IOException;
@@ -23,24 +25,32 @@ import jhelp.util.io.UtilIO;
 public class Image8Bit
         implements RasterImage
 {
-    /** Color table size */
+    /**
+     * Color table size
+     */
     public static final int COLOR_TABLE_SIZE = 256;
-    /** Color table */
+    /**
+     * Color table
+     */
     private final int[]  colorTable;
-    /** Image data */
+    /**
+     * Image data
+     */
     private final byte[] data;
-    /** Image height */
+    /**
+     * Image height
+     */
     private final int    height;
-    /** Image width */
+    /**
+     * Image width
+     */
     private final int    width;
 
     /**
      * Create a new instance of Image8Bit
      *
-     * @param width
-     *           Width
-     * @param height
-     *           Height
+     * @param width  Width
+     * @param height Height
      */
     public Image8Bit(final int width, final int height)
     {
@@ -72,39 +82,6 @@ public class Image8Bit
         {
             this.data[i] = (byte) 0;
         }
-    }
-
-    /**
-     * Get color from color table
-     *
-     * @param colorIndex
-     *           Color table index
-     * @return Color
-     */
-    public int getColor(final int colorIndex)
-    {
-        return this.colorTable[colorIndex];
-    }
-
-    /**
-     * Get color table index of a pixel
-     *
-     * @param x
-     *           X
-     * @param y
-     *           Y
-     * @return Color table index
-     */
-    public int getColorIndex(final int x, final int y)
-    {
-        if ((x < 0) || (x >= this.width) || (y < 0) || (y >= this.height))
-        {
-            throw new IllegalArgumentException(
-                    "x must be in [0, " + this.width + "[ and y in [0, " + this.height + "[ but specified point (" + x +
-                    ", " + y + ")");
-        }
-
-        return this.data[x + (y * this.width)] & 0xFF;
     }
 
     /**
@@ -149,12 +126,40 @@ public class Image8Bit
     }
 
     /**
+     * Get color from color table
+     *
+     * @param colorIndex Color table index
+     * @return Color
+     */
+    public int getColor(final int colorIndex)
+    {
+        return this.colorTable[colorIndex];
+    }
+
+    /**
+     * Get color table index of a pixel
+     *
+     * @param x X
+     * @param y Y
+     * @return Color table index
+     */
+    public int getColorIndex(final int x, final int y)
+    {
+        if ((x < 0) || (x >= this.width) || (y < 0) || (y >= this.height))
+        {
+            throw new IllegalArgumentException(
+                    "x must be in [0, " + this.width + "[ and y in [0, " + this.height + "[ but specified point (" + x +
+                    ", " + y + ")");
+        }
+
+        return this.data[x + (y * this.width)] & 0xFF;
+    }
+
+    /**
      * Parse bitmap stream to image data
      *
-     * @param inputStream
-     *           Stream to parse
-     * @throws IOException
-     *            On reading issue
+     * @param inputStream Stream to parse
+     * @throws IOException On reading issue
      */
     public void parseBitmapStream(final InputStream inputStream) throws IOException
     {
@@ -188,10 +193,8 @@ public class Image8Bit
     /**
      * Parse bitmap compressed stream to data image
      *
-     * @param inputStream
-     *           Stream to parse
-     * @throws IOException
-     *            On reading issue
+     * @param inputStream Stream to parse
+     * @throws IOException On reading issue
      */
     public void parseBitmapStreamCompressed(final InputStream inputStream) throws IOException
     {
@@ -321,10 +324,8 @@ public class Image8Bit
     /**
      * Change color table color
      *
-     * @param colorIndex
-     *           Color table index
-     * @param color
-     *           Color to set
+     * @param colorIndex Color table index
+     * @param color      Color to set
      */
     public void setColor(final int colorIndex, final int color)
     {
@@ -334,12 +335,9 @@ public class Image8Bit
     /**
      * Change color table index of one pixel
      *
-     * @param x
-     *           X
-     * @param y
-     *           Y
-     * @param colorIndex
-     *           Color table index
+     * @param x          X
+     * @param y          Y
+     * @param colorIndex Color table index
      */
     public void setColorIndex(final int x, final int y, final int colorIndex)
     {
@@ -361,27 +359,14 @@ public class Image8Bit
     /**
      * Change several colors in color table
      *
-     * @param colorIndexStart
-     *           Color table index where start write
-     * @param colors
-     *           Colors to write
+     * @param colorIndexStart Color table index where start write
+     * @param colors          Colors to write
      */
     public void setColors(final int colorIndexStart, final int... colors)
     {
         final int limit = Math.min(256 - colorIndexStart, colors.length);
 
         System.arraycopy(colors, 0, this.colorTable, colorIndexStart, limit);
-    }
-
-    /**
-     * Convert color table to gray table
-     */
-    public void toGrayColorTable()
-    {
-        for (int i = 0; i < 256; i++)
-        {
-            this.colorTable[i] = 0xFF000000 | (i << 16) | (i << 8) | i;
-        }
     }
 
     /**
@@ -405,5 +390,16 @@ public class Image8Bit
         }
 
         return new JHelpImage(this.width, this.height, pixels);
+    }
+
+    /**
+     * Convert color table to gray table
+     */
+    public void toGrayColorTable()
+    {
+        for (int i = 0; i < 256; i++)
+        {
+            this.colorTable[i] = 0xFF000000 | (i << 16) | (i << 8) | i;
+        }
     }
 }

@@ -1,14 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any
- * damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.gui.alphabet;
 
 import com.sun.istack.internal.Nullable;
@@ -25,17 +26,21 @@ public final class AlphabetGraffiti
         extends Alphabet
 {
     /**
+     * Graffiti letters images
+     */
+    private static final GIF              BASE   = AlphabetResources.RESOURCES.obtainGIF("alphabetGraphitti.gif");
+    /**
      * Graffiti letters alphabet with big size (64 pixels width and height)
      */
-    public static final  AlphabetGraffiti BIG        = new AlphabetGraffiti(64);
+    public static final  AlphabetGraffiti BIG    = new AlphabetGraffiti(64);
     /**
      * Graffiti letters alphabet with normal size (32 pixels width and height)
      */
-    public static final  AlphabetGraffiti NORMAL     = new AlphabetGraffiti(32);
+    public static final  AlphabetGraffiti NORMAL = new AlphabetGraffiti(32);
     /**
      * Graffiti letters alphabet with small size (16 pixels width and height)
      */
-    public static final  AlphabetGraffiti SMALL      = new AlphabetGraffiti(16);
+    public static final  AlphabetGraffiti SMALL  = new AlphabetGraffiti(16);
     /**
      * Graffiti letters alphabet with very big size (128 pixels width and height)
      */
@@ -44,10 +49,6 @@ public final class AlphabetGraffiti
      * Graffiti letters alphabet with very small size (8 pixels width and height)
      */
     public static final  AlphabetGraffiti VERY_SMALL = new AlphabetGraffiti(8);
-    /**
-     * Graffiti letters images
-     */
-    private static final GIF              BASE       = AlphabetResources.RESOURCES.obtainGIF("alphabetGraphitti.gif");
 
     /**
      * Create a new instance of AlphabetGraffiti

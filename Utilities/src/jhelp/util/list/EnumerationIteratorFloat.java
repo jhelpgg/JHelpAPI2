@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.list;
 
 import com.sun.istack.internal.NotNull;
@@ -16,21 +28,21 @@ public final class EnumerationIteratorFloat
         implements Iterable<Float>, Enumeration<Float>, Iterator<Float>
 {
     /**
-     * Embed enumeration
-     */
-    private final Enumeration<Float> enumeration;
-    /**
-     * Embed iterator
-     */
-    private final Iterator<Float>    iterator;
-    /**
      * Embed array
      */
     private       float[]            array;
     /**
+     * Embed enumeration
+     */
+    private final Enumeration<Float> enumeration;
+    /**
      * Read index in array
      */
     private       int                index;
+    /**
+     * Embed iterator
+     */
+    private final Iterator<Float>    iterator;
     /**
      * Indicates if remove is allowed
      */
@@ -114,6 +126,23 @@ public final class EnumerationIteratorFloat
     }
 
     /**
+     * {@inheritDoc}
+     *
+     * @param action
+     * @implSpec If the action is an instance of {@code FloatConsumer} then it is
+     * cast to {@code FloatConsumer} and passed to
+     * {@link #forEachRemaining}; otherwise the action is adapted to
+     * an instance of {@code FloatConsumer}, by boxing the argument of
+     * {@code FloatConsumer}, and then passed to
+     * {@link #forEachRemaining}.
+     */
+    @Override
+    public void forEachRemaining(final Consumer<? super Float> action)
+    {
+        this.forEach(action);
+    }
+
+    /**
      * Returns {@code true} if the iteration has more elements.
      * (In other words, returns {@code true} if {@link #next} would
      * return an element rather than throwing an exception.)
@@ -124,17 +153,6 @@ public final class EnumerationIteratorFloat
     public boolean hasNext()
     {
         return this.hasMoreElements();
-    }
-
-    /**
-     * Returns the next {@code float} element in the iteration.
-     *
-     * @return the next {@code float} element in the iteration
-     * @throws NoSuchElementException if the iteration has no more elements
-     */
-    public float nextFloat()
-    {
-        return this.next();
     }
 
     /**
@@ -164,23 +182,6 @@ public final class EnumerationIteratorFloat
         float value = this.array[this.index];
         this.index++;
         return value;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @param action
-     * @implSpec If the action is an instance of {@code FloatConsumer} then it is
-     * cast to {@code FloatConsumer} and passed to
-     * {@link #forEachRemaining}; otherwise the action is adapted to
-     * an instance of {@code FloatConsumer}, by boxing the argument of
-     * {@code FloatConsumer}, and then passed to
-     * {@link #forEachRemaining}.
-     */
-    @Override
-    public void forEachRemaining(final Consumer<? super Float> action)
-    {
-        this.forEach(action);
     }
 
     /**
@@ -257,5 +258,16 @@ public final class EnumerationIteratorFloat
     public void forEach(final Consumer<? super Float> action)
     {
         ForEach.forEach((Iterable<Float>) this, action::accept);
+    }
+
+    /**
+     * Returns the next {@code float} element in the iteration.
+     *
+     * @return the next {@code float} element in the iteration
+     * @throws NoSuchElementException if the iteration has no more elements
+     */
+    public float nextFloat()
+    {
+        return this.next();
     }
 }

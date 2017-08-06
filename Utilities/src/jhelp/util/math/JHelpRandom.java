@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.math;
 
 import java.util.ArrayList;
@@ -56,28 +68,6 @@ public final class JHelpRandom<CHOICE>
      * Random instance to use on static methods to avoid any influence of other "random"
      */
     private static final Random RANDOM = new Random();
-    /**
-     * Registered limits
-     */
-    private final ArrayList<Limit<CHOICE>> limits;
-    /**
-     * Random instance to use, link to this instance
-     */
-    private final Random                   random;
-    /**
-     * Actual maximum
-     */
-    private       int                      maximum;
-
-    /**
-     * Create a new instance of JHelpRandom
-     */
-    public JHelpRandom()
-    {
-        this.random = new Random();
-        this.limits = new ArrayList<Limit<CHOICE>>();
-        this.maximum = 0;
-    }
 
     /**
      * Take randomly a element of the array.<br>
@@ -277,53 +267,6 @@ public final class JHelpRandom<CHOICE>
     }
 
     /**
-     * Add a choice
-     *
-     * @param number Frequency of the choice (Can't be < 1)
-     * @param choice The choice
-     */
-    public void addChoice(final int number, final CHOICE choice)
-    {
-        if (number <= 0)
-        {
-            throw new IllegalArgumentException("number MUST be > 0, not " + number);
-        }
-
-        this.limits.add(new Limit<CHOICE>((this.maximum + number) - 1, choice));
-
-        this.maximum += number;
-    }
-
-    /**
-     * Choose a value randomly
-     *
-     * @return Chosen value
-     */
-    public CHOICE choose()
-    {
-        if (this.maximum == 0)
-        {
-            Debug.warning("You have to add at least something to be able have a result");
-
-            return null;
-        }
-
-        final int random = this.random.nextInt(this.maximum);
-
-        for (final Limit<CHOICE> limit : this.limits)
-        {
-            if (random <= limit.maximum)
-            {
-                return limit.element;
-            }
-        }
-
-        Debug.error("Shouldn't arrive here !!! random=", random, " maximum=", this.maximum, " limits=",
-                    this.limits);
-        return null;
-    }
-
-    /**
      * A registered limit.<br>
      * This is a couple of value maximum and element
      *
@@ -367,6 +310,76 @@ public final class JHelpRandom<CHOICE>
         {
             return UtilText.concatenate("Limit (", this.maximum, " : ", this.element, ")");
         }
+    }
+
+    /**
+     * Registered limits
+     */
+    private final ArrayList<Limit<CHOICE>> limits;
+    /**
+     * Actual maximum
+     */
+    private       int                      maximum;
+    /**
+     * Random instance to use, link to this instance
+     */
+    private final Random                   random;
+
+    /**
+     * Create a new instance of JHelpRandom
+     */
+    public JHelpRandom()
+    {
+        this.random = new Random();
+        this.limits = new ArrayList<>();
+        this.maximum = 0;
+    }
+
+    /**
+     * Add a choice
+     *
+     * @param number Frequency of the choice (Can't be < 1)
+     * @param choice The choice
+     */
+    public void addChoice(final int number, final CHOICE choice)
+    {
+        if (number <= 0)
+        {
+            throw new IllegalArgumentException("number MUST be > 0, not " + number);
+        }
+
+        this.limits.add(new Limit<>((this.maximum + number) - 1, choice));
+
+        this.maximum += number;
+    }
+
+    /**
+     * Choose a value randomly
+     *
+     * @return Chosen value
+     */
+    public CHOICE choose()
+    {
+        if (this.maximum == 0)
+        {
+            Debug.warning("You have to add at least something to be able have a result");
+
+            return null;
+        }
+
+        final int random = this.random.nextInt(this.maximum);
+
+        for (final Limit<CHOICE> limit : this.limits)
+        {
+            if (random <= limit.maximum)
+            {
+                return limit.element;
+            }
+        }
+
+        Debug.error("Shouldn't arrive here !!! random=", random, " maximum=", this.maximum, " limits=",
+                    this.limits);
+        return null;
     }
 
     /**

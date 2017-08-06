@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.game.gui;
 
 import com.sun.istack.internal.NotNull;
@@ -17,21 +29,6 @@ public final class GameWindow
         this.gameFrame = new GameFrame(gameName, screen);
     }
 
-    public void show()
-    {
-        this.gameFrame.setVisible(true);
-    }
-
-    public void exit()
-    {
-        this.gameFrame.exitGame();
-    }
-
-    public Preferences preferences()
-    {
-        return this.gameFrame.preferences();
-    }
-
     public Future<JHelpSprite> createSprite(int x, int y, int width, int height)
     {
         return this.gameFrame.gameScreen().createSprite(x, y, width, height);
@@ -42,9 +39,14 @@ public final class GameWindow
         return this.gameFrame.gameScreen().createSprite(width, height);
     }
 
-    public void removeSprite(JHelpSprite sprite)
+    public void exit()
     {
-        this.gameFrame.gameScreen().removeSprite(sprite);
+        this.gameFrame.exitGame();
+    }
+
+    public KeyMap keyMap()
+    {
+        return this.gameFrame.keyMap();
     }
 
     public void playAnimation(GameAnimation gameAnimation)
@@ -52,8 +54,18 @@ public final class GameWindow
         this.gameFrame.gameScreen().playAnimation(gameAnimation);
     }
 
-    public KeyMap keyMap()
+    public Preferences preferences()
     {
-        return this.gameFrame.keyMap();
+        return this.gameFrame.preferences();
+    }
+
+    public void removeSprite(JHelpSprite sprite)
+    {
+        this.gameFrame.gameScreen().removeSprite(sprite);
+    }
+
+    public void show()
+    {
+        this.gameFrame.setVisible(true);
     }
 }

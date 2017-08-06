@@ -1,14 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any
- * damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.image.gif;
 
 import java.io.IOException;
@@ -17,13 +18,15 @@ import java.io.InputStream;
 /**
  * Comment extension block<br>
  *
- * @see <a href="http://www.w3.org/Graphics/GIF/spec-gif89a.txt">GIF specification</a>
  * @author JHelp
+ * @see <a href="http://www.w3.org/Graphics/GIF/spec-gif89a.txt">GIF specification</a>
  */
 class CommentBlock
         extends BlockExtension
 {
-    /** Embed comment */
+    /**
+     * Embed comment
+     */
     private String comment;
 
     /**
@@ -39,10 +42,8 @@ class CommentBlock
      * <b>Parent documentation:</b><br>
      * {@inheritDoc}
      *
-     * @param inputStream
-     *           Stream to read
-     * @throws IOException
-     *            If stream contains invalid comment block extension data
+     * @param inputStream Stream to read
+     * @throws IOException If stream contains invalid comment block extension data
      * @see Block#read(InputStream)
      */
     @Override

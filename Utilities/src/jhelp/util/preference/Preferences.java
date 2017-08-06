@@ -1,14 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any
- * damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.preference;
 
 import java.io.File;
@@ -29,51 +30,6 @@ import jhelp.util.util.Utilities;
  */
 public class Preferences
 {
-    /**
-     * Preferences map
-     */
-    private final HashMap<String, Pair<PreferenceType, Object>> preferences;
-    /**
-     * File where store preferences
-     */
-    private final File                                          preferencesFile;
-    /**
-     * Preferences serializer to save them
-     */
-    private final PreferencesSerializer                         preferencesSerializer;
-
-    /**
-     * Create a new instance of Preferences
-     *
-     * @param preferencesFile File where read/write preferences may not actually exists
-     */
-    public Preferences(final File preferencesFile)
-    {
-        if (preferencesFile == null)
-        {
-            throw new NullPointerException("preferencesFile MUST NOT be null");
-        }
-
-        this.preferencesFile = preferencesFile;
-        this.preferences = new HashMap<>();
-
-        this.preferencesSerializer = new PreferencesSerializer(preferencesFile, this.preferences);
-
-        this.loadPreferences();
-    }
-
-    /**
-     * Load preferences
-     */
-    @SuppressWarnings("unused")
-    private void loadPreferences()
-    {
-        if (this.preferencesFile.exists())
-        {
-            new PreferencesParser(this.preferencesFile, this.preferences);
-        }
-    }
-
     /**
      * Parse a serialized value to the real value depends on {@link PreferenceType}
      *
@@ -130,7 +86,7 @@ public class Preferences
                 return Base64Common.toBase64((byte[]) value);
             }
             case BOOLEAN:
-                return ((Boolean) value).booleanValue()
+                return (Boolean) value
                        ? "TRUE"
                        : "FALSE";
             case FILE:
@@ -144,6 +100,59 @@ public class Preferences
         }
 
         return null;
+    }
+
+    /**
+     * Preferences map
+     */
+    private final HashMap<String, Pair<PreferenceType, Object>> preferences;
+    /**
+     * File where store preferences
+     */
+    private final File                                          preferencesFile;
+    /**
+     * Preferences serializer to save them
+     */
+    private final PreferencesSerializer                         preferencesSerializer;
+
+    /**
+     * Create a new instance of Preferences
+     *
+     * @param preferencesFile File where read/write preferences may not actually exists
+     */
+    public Preferences(final File preferencesFile)
+    {
+        if (preferencesFile == null)
+        {
+            throw new NullPointerException("preferencesFile MUST NOT be null");
+        }
+
+        this.preferencesFile = preferencesFile;
+        this.preferences = new HashMap<>();
+
+        this.preferencesSerializer = new PreferencesSerializer(preferencesFile, this.preferences);
+
+        this.loadPreferences();
+    }
+
+    /**
+     * Load preferences
+     */
+    @SuppressWarnings("unused")
+    private void loadPreferences()
+    {
+        if (this.preferencesFile.exists())
+        {
+            new PreferencesParser(this.preferencesFile, this.preferences);
+        }
+    }
+
+    /**
+     * Save preferences
+     */
+    private void savePreferences()
+    {
+        this.preferencesSerializer.serialize();
     }
 
     /**
@@ -255,50 +264,6 @@ public class Preferences
     }
 
     /**
-     * Define/change a boolean value
-     *
-     * @param name  Preference name
-     * @param value New value
-     */
-    public void setValue(final String name, final boolean value)
-    {
-        if (name == null)
-        {
-            throw new NullPointerException("name MUST NOT be null");
-        }
-
-        Pair<PreferenceType, Object> pair = this.preferences.get(name);
-
-        if (pair == null)
-        {
-            pair = new Pair<PreferenceType, Object>(PreferenceType.BOOLEAN, value);
-
-            this.preferences.put(name, pair);
-
-            this.savePreferences();
-
-            return;
-        }
-
-        if (pair.first != PreferenceType.BOOLEAN)
-        {
-            throw new IllegalArgumentException(
-                    "The preference " + name + " is not a " + PreferenceType.BOOLEAN + " but a " + pair.first);
-        }
-
-        this.preferences.put(name, new Pair<>(pair.first, value));
-        this.savePreferences();
-    }
-
-    /**
-     * Save preferences
-     */
-    private void savePreferences()
-    {
-        this.preferencesSerializer.serialize();
-    }
-
-    /**
      * Get a int value from preferences
      *
      * @param name         Preference name
@@ -328,42 +293,6 @@ public class Preferences
         }
 
         return (Integer) pair.second;
-    }
-
-    /**
-     * Define/change a int value
-     *
-     * @param name  Preference name
-     * @param value New value
-     */
-    public void setValue(final String name, final int value)
-    {
-        if (name == null)
-        {
-            throw new NullPointerException("name MUST NOT be null");
-        }
-
-        Pair<PreferenceType, Object> pair = this.preferences.get(name);
-
-        if (pair == null)
-        {
-            pair = new Pair<PreferenceType, Object>(PreferenceType.INTEGER, value);
-
-            this.preferences.put(name, pair);
-
-            this.savePreferences();
-
-            return;
-        }
-
-        if (pair.first != PreferenceType.INTEGER)
-        {
-            throw new IllegalArgumentException(
-                    "The preference " + name + " is not a " + PreferenceType.INTEGER + " but a " + pair.first);
-        }
-
-        this.preferences.put(name, new Pair<>(pair.first, value));
-        this.savePreferences();
     }
 
     /**
@@ -399,47 +328,6 @@ public class Preferences
     }
 
     /**
-     * Define/change a locale value
-     *
-     * @param name  Preference name
-     * @param value New value
-     */
-    public void setValue(final String name, final Locale value)
-    {
-        if (name == null)
-        {
-            throw new NullPointerException("name MUST NOT be null");
-        }
-
-        if (value == null)
-        {
-            throw new NullPointerException("value MUST NOT be null");
-        }
-
-        Pair<PreferenceType, Object> pair = this.preferences.get(name);
-
-        if (pair == null)
-        {
-            pair = new Pair<PreferenceType, Object>(PreferenceType.LOCALE, value);
-
-            this.preferences.put(name, pair);
-
-            this.savePreferences();
-
-            return;
-        }
-
-        if (pair.first != PreferenceType.LOCALE)
-        {
-            throw new IllegalArgumentException(
-                    "The preference " + name + " is not a " + PreferenceType.LOCALE + " but a " + pair.first);
-        }
-
-        this.preferences.put(name, new Pair<>(pair.first, value));
-        this.savePreferences();
-    }
-
-    /**
      * Get a String value from preferences
      *
      * @param name         Preference name
@@ -472,6 +360,132 @@ public class Preferences
     }
 
     /**
+     * Remove a preference
+     *
+     * @param name Preference name to remove
+     */
+    public void removePreference(final String name)
+    {
+        if (this.preferences.remove(name) != null)
+        {
+            this.savePreferences();
+        }
+    }
+
+    /**
+     * Define/change a boolean value
+     *
+     * @param name  Preference name
+     * @param value New value
+     */
+    public void setValue(final String name, final boolean value)
+    {
+        if (name == null)
+        {
+            throw new NullPointerException("name MUST NOT be null");
+        }
+
+        Pair<PreferenceType, Object> pair = this.preferences.get(name);
+
+        if (pair == null)
+        {
+            pair = new Pair<>(PreferenceType.BOOLEAN, value);
+
+            this.preferences.put(name, pair);
+
+            this.savePreferences();
+
+            return;
+        }
+
+        if (pair.first != PreferenceType.BOOLEAN)
+        {
+            throw new IllegalArgumentException(
+                    "The preference " + name + " is not a " + PreferenceType.BOOLEAN + " but a " + pair.first);
+        }
+
+        this.preferences.put(name, new Pair<>(pair.first, value));
+        this.savePreferences();
+    }
+
+    /**
+     * Define/change a int value
+     *
+     * @param name  Preference name
+     * @param value New value
+     */
+    public void setValue(final String name, final int value)
+    {
+        if (name == null)
+        {
+            throw new NullPointerException("name MUST NOT be null");
+        }
+
+        Pair<PreferenceType, Object> pair = this.preferences.get(name);
+
+        if (pair == null)
+        {
+            pair = new Pair<>(PreferenceType.INTEGER, value);
+
+            this.preferences.put(name, pair);
+
+            this.savePreferences();
+
+            return;
+        }
+
+        if (pair.first != PreferenceType.INTEGER)
+        {
+            throw new IllegalArgumentException(
+                    "The preference " + name + " is not a " + PreferenceType.INTEGER + " but a " + pair.first);
+        }
+
+        this.preferences.put(name, new Pair<>(pair.first, value));
+        this.savePreferences();
+    }
+
+    /**
+     * Define/change a locale value
+     *
+     * @param name  Preference name
+     * @param value New value
+     */
+    public void setValue(final String name, final Locale value)
+    {
+        if (name == null)
+        {
+            throw new NullPointerException("name MUST NOT be null");
+        }
+
+        if (value == null)
+        {
+            throw new NullPointerException("value MUST NOT be null");
+        }
+
+        Pair<PreferenceType, Object> pair = this.preferences.get(name);
+
+        if (pair == null)
+        {
+            pair = new Pair<>(PreferenceType.LOCALE, value);
+
+            this.preferences.put(name, pair);
+
+            this.savePreferences();
+
+            return;
+        }
+
+        if (pair.first != PreferenceType.LOCALE)
+        {
+            throw new IllegalArgumentException(
+                    "The preference " + name + " is not a " + PreferenceType.LOCALE + " but a " + pair.first);
+        }
+
+        this.preferences.put(name, new Pair<>(pair.first, value));
+        this.savePreferences();
+    }
+
+    /**
      * Define/change a String value
      *
      * @param name  Preference name
@@ -493,7 +507,7 @@ public class Preferences
 
         if (pair == null)
         {
-            pair = new Pair<PreferenceType, Object>(PreferenceType.STRING, value);
+            pair = new Pair<>(PreferenceType.STRING, value);
 
             this.preferences.put(name, pair);
 
@@ -510,19 +524,6 @@ public class Preferences
 
         this.preferences.put(name, new Pair<>(pair.first, value));
         this.savePreferences();
-    }
-
-    /**
-     * Remove a preference
-     *
-     * @param name Preference name to remove
-     */
-    public void removePreference(final String name)
-    {
-        if (this.preferences.remove(name) != null)
-        {
-            this.savePreferences();
-        }
     }
 
     /**
@@ -547,7 +548,7 @@ public class Preferences
 
         if (pair == null)
         {
-            pair = new Pair<PreferenceType, Object>(PreferenceType.ARRAY, value);
+            pair = new Pair<>(PreferenceType.ARRAY, value);
 
             this.preferences.put(name, pair);
 
@@ -588,7 +589,7 @@ public class Preferences
 
         if (pair == null)
         {
-            pair = new Pair<PreferenceType, Object>(PreferenceType.FILE, value);
+            pair = new Pair<>(PreferenceType.FILE, value);
 
             this.preferences.put(name, pair);
 

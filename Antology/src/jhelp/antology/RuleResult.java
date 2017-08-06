@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.antology;
 
 import jhelp.util.cache.Cache;
@@ -9,8 +21,6 @@ import jhelp.util.io.ByteArray;
  */
 public class RuleResult implements Comparable<RuleResult>
 {
-    private static final Cache<RuleResult> CACHE = new Cache<>();
-
     private static class RuleResultElement extends CacheElement<RuleResult>
     {
         private final Result result;
@@ -32,9 +42,16 @@ public class RuleResult implements Comparable<RuleResult>
         }
     }
 
-    public static RuleResult ruleResult(Result result)
+    private static final Cache<RuleResult> CACHE = new Cache<>();
+
+    public static RuleResult parse(ByteArray byteArray) throws Exception
     {
-        return RuleResult.CACHE.get(result.name(), new RuleResultElement(result));
+        if (byteArray.readBoolean())
+        {
+            return RuleResult.ruleResult(byteArray.readEnum(Result.class));
+        }
+
+        return RuleResult.ruleResult(Node.parse(byteArray));
     }
 
     public static RuleResult ruleResult(Node node)
@@ -47,18 +64,12 @@ public class RuleResult implements Comparable<RuleResult>
         return new RuleResult(null, node.duplicate());
     }
 
-    public static RuleResult parse(ByteArray byteArray) throws Exception
+    public static RuleResult ruleResult(Result result)
     {
-        if (byteArray.readBoolean())
-        {
-            return RuleResult.ruleResult(byteArray.readEnum(Result.class));
-        }
-
-        return RuleResult.ruleResult(Node.parse(byteArray));
+        return RuleResult.CACHE.get(result.name(), new RuleResultElement(result));
     }
-
-    private final Result result;
     private final Node   fixNode;
+    private final Result result;
 
     private RuleResult(final Result result, final Node fixNode)
     {
@@ -158,6 +169,16 @@ public class RuleResult implements Comparable<RuleResult>
         return this.fixNode.equals(ruleResult.fixNode);
     }
 
+    public Node fixNode()
+    {
+        return this.fixNode;
+    }
+
+    public Result result()
+    {
+        return this.result;
+    }
+
     public void serialize(ByteArray byteArray)
     {
         byteArray.writeBoolean(this.result != null);
@@ -170,15 +191,5 @@ public class RuleResult implements Comparable<RuleResult>
         {
             this.fixNode.serialize(byteArray);
         }
-    }
-
-    public Result result()
-    {
-        return this.result;
-    }
-
-    public Node fixNode()
-    {
-        return this.fixNode;
     }
 }

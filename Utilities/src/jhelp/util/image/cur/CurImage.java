@@ -1,19 +1,19 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any
- * damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.image.cur;
 
 import java.io.IOException;
 import java.io.InputStream;
-
 import jhelp.util.image.bmp.BitmapHeader;
 import jhelp.util.io.UtilIO;
 
@@ -24,16 +24,16 @@ import jhelp.util.io.UtilIO;
  */
 public class CurImage
 {
-    /** Cursor image elements */
+    /**
+     * Cursor image elements
+     */
     private final CurElementImage[] curElementImages;
 
     /**
      * Create a new instance of CurImage
      *
-     * @param inputStream
-     *           Stream to parse
-     * @throws IOException
-     *            On reading issue
+     * @param inputStream Stream to parse
+     * @throws IOException On reading issue
      */
     public CurImage(final InputStream inputStream)
             throws IOException
@@ -62,8 +62,7 @@ public class CurImage
     /**
      * One cursor element
      *
-     * @param index
-     *           Element index
+     * @param index Element index
      * @return Element
      */
     public CurElementImage getElement(final int index)

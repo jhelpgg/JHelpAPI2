@@ -1,14 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any
- * damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.math.simplex;
 
 import java.util.ArrayList;
@@ -42,46 +43,6 @@ public class Condition
      * Symbol ≤. Tip : In my key board : AltGr+<
      */
     public static final char LOWER_OR_EQUAL_SYMBOL   = '≤';
-    /**
-     * Type of condition : ≤, ≥, =
-     */
-    private final ConditionType                 conditionType;
-    /**
-     * Pairs of coefficient, variable
-     */
-    private final SortedArray<ConditionElement> elements;
-    /**
-     * Limit value
-     */
-    private final int                           limit;
-
-    /**
-     * Create a new instance of Condition
-     *
-     * @param elements      Pairs of coefficient, variable
-     * @param conditionType Type of condition : ≤, ≥, =
-     * @param limit         Limit value
-     */
-    public Condition(final ConditionElement[] elements, final ConditionType conditionType, final int limit)
-    {
-        if (conditionType == null)
-        {
-            throw new NullPointerException("conditionType MUST NOT be null");
-        }
-
-        this.conditionType = conditionType;
-        this.elements = new SortedArray<ConditionElement>(ConditionElement.class, true);
-        this.limit = limit;
-
-        for (final ConditionElement conditionElement : elements)
-        {
-            if ((conditionElement.getCoefficient() != 0) && (!this.elements.add(conditionElement)))
-            {
-                throw new IllegalArgumentException(
-                        "Two elements refer to same variable : " + conditionElement.getSymbol());
-            }
-        }
-    }
 
     /**
      * Parse an inequality String like :
@@ -102,7 +63,7 @@ public class Condition
     {
         final char[]                 characters             = condition.toCharArray();
         final int                    length                 = characters.length;
-        final List<ConditionElement> elements               = new ArrayList<ConditionElement>();
+        final List<ConditionElement> elements               = new ArrayList<>();
         ConditionType                conditionType          = null;
         boolean                      beforeInequalitySymbol = true;
         boolean                      negative               = false;
@@ -209,6 +170,107 @@ public class Condition
     }
 
     /**
+     * Type of condition : ≤, ≥, =
+     */
+    private final ConditionType                 conditionType;
+    /**
+     * Pairs of coefficient, variable
+     */
+    private final SortedArray<ConditionElement> elements;
+    /**
+     * Limit value
+     */
+    private final int                           limit;
+
+    /**
+     * Create a new instance of Condition
+     *
+     * @param elements      Pairs of coefficient, variable
+     * @param conditionType Type of condition : ≤, ≥, =
+     * @param limit         Limit value
+     */
+    public Condition(final ConditionElement[] elements, final ConditionType conditionType, final int limit)
+    {
+        if (conditionType == null)
+        {
+            throw new NullPointerException("conditionType MUST NOT be null");
+        }
+
+        this.conditionType = conditionType;
+        this.elements = new SortedArray<>(ConditionElement.class, true);
+        this.limit = limit;
+
+        for (final ConditionElement conditionElement : elements)
+        {
+            if ((conditionElement.getCoefficient() != 0) && (!this.elements.add(conditionElement)))
+            {
+                throw new IllegalArgumentException(
+                        "Two elements refer to same variable : " + conditionElement.getSymbol());
+            }
+        }
+    }
+
+    /**
+     * Append complete string description inside a string builder
+     *
+     * @param stringBuilder String builder where append
+     */
+    void appendInside(final StringBuilder stringBuilder)
+    {
+        this.appendLeftPartInside(stringBuilder);
+        stringBuilder.append(' ');
+        stringBuilder.append(this.conditionType.getSymbol());
+        stringBuilder.append(' ');
+        stringBuilder.append(this.limit);
+    }
+
+    /**
+     * Append only left part description (Without inequality and limit) in string builder
+     *
+     * @param stringBuilder String builder where append
+     */
+    void appendLeftPartInside(final StringBuilder stringBuilder)
+    {
+        boolean first = true;
+        int     coefficient;
+
+        for (final ConditionElement conditionElement : this.elements)
+        {
+            coefficient = conditionElement.getCoefficient();
+
+            if (!first)
+            {
+                stringBuilder.append(' ');
+            }
+
+            if ((!first) || (coefficient < 0))
+            {
+                if (coefficient < 0)
+                {
+                    stringBuilder.append('-');
+                }
+                else
+                {
+                    stringBuilder.append('+');
+                }
+            }
+
+            if (!first)
+            {
+                stringBuilder.append(' ');
+            }
+
+            if ((coefficient > 1) || (coefficient < -1))
+            {
+                stringBuilder.append(Math.abs(coefficient));
+            }
+
+            stringBuilder.append(conditionElement.getSymbol());
+            first = false;
+        }
+    }
+
+    /**
      * Collect all variables names used by condition
      *
      * @param characters Array where store variables names
@@ -296,65 +358,5 @@ public class Condition
         final StringBuilder stringBuilder = new StringBuilder();
         this.appendInside(stringBuilder);
         return stringBuilder.toString();
-    }
-
-    /**
-     * Append complete string description inside a string builder
-     *
-     * @param stringBuilder String builder where append
-     */
-    void appendInside(final StringBuilder stringBuilder)
-    {
-        this.appendLeftPartInside(stringBuilder);
-        stringBuilder.append(' ');
-        stringBuilder.append(this.conditionType.getSymbol());
-        stringBuilder.append(' ');
-        stringBuilder.append(this.limit);
-    }
-
-    /**
-     * Append only left part description (Without inequality and limit) in string builder
-     *
-     * @param stringBuilder String builder where append
-     */
-    void appendLeftPartInside(final StringBuilder stringBuilder)
-    {
-        boolean first = true;
-        int     coefficient;
-
-        for (final ConditionElement conditionElement : this.elements)
-        {
-            coefficient = conditionElement.getCoefficient();
-
-            if (!first)
-            {
-                stringBuilder.append(' ');
-            }
-
-            if ((!first) || (coefficient < 0))
-            {
-                if (coefficient < 0)
-                {
-                    stringBuilder.append('-');
-                }
-                else
-                {
-                    stringBuilder.append('+');
-                }
-            }
-
-            if (!first)
-            {
-                stringBuilder.append(' ');
-            }
-
-            if ((coefficient > 1) || (coefficient < -1))
-            {
-                stringBuilder.append(Math.abs(coefficient));
-            }
-
-            stringBuilder.append(conditionElement.getSymbol());
-            first = false;
-        }
     }
 }

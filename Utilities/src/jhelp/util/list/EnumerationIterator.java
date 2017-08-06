@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.list;
 
 import com.sun.istack.internal.NotNull;
@@ -14,21 +26,21 @@ import java.util.Objects;
 public final class EnumerationIterator<T> implements Iterable<T>, Enumeration<T>, Iterator<T>
 {
     /**
-     * Embed enumeration
-     */
-    private final Enumeration<T> enumeration;
-    /**
-     * Embed iterator
-     */
-    private final Iterator<T>    iterator;
-    /**
      * Embed array
      */
     private final T[]            array;
     /**
+     * Embed enumeration
+     */
+    private final Enumeration<T> enumeration;
+    /**
      * Read index in array
      */
     private       int            index;
+    /**
+     * Embed iterator
+     */
+    private final Iterator<T>    iterator;
     /**
      * Indicates if remove is allowed
      */
@@ -112,6 +124,19 @@ public final class EnumerationIterator<T> implements Iterable<T>, Enumeration<T>
     }
 
     /**
+     * Returns the next element of this enumeration if this enumeration
+     * object has at least one more element to provide.
+     *
+     * @return the next element of this enumeration.
+     * @throws java.util.NoSuchElementException if no more elements exist.
+     */
+    @Override
+    public @Nullable T nextElement()
+    {
+        return this.next();
+    }
+
+    /**
      * Returns {@code true} if the iteration has more elements.
      * (In other words, returns {@code true} if {@link #next} would
      * return an element rather than throwing an exception.)
@@ -180,19 +205,6 @@ public final class EnumerationIterator<T> implements Iterable<T>, Enumeration<T>
 
         //"removeAllowed" is true only if initialized with iterator, so its sure that "iterator" is not null
         this.iterator.remove();
-    }
-
-    /**
-     * Returns the next element of this enumeration if this enumeration
-     * object has at least one more element to provide.
-     *
-     * @return the next element of this enumeration.
-     * @throws java.util.NoSuchElementException if no more elements exist.
-     */
-    @Override
-    public @Nullable T nextElement()
-    {
-        return this.next();
     }
 
     /**

@@ -1,15 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not
- * responsible about any damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that
- * avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.io.json;
 
 import java.util.Iterator;
@@ -26,15 +26,67 @@ import java.util.NoSuchElementException;
 public class JSONList<TYPE> implements Iterable<TYPE>
 {
     /**
-     * List size
+     * Iterator over
      */
-    @JSONElement
-    private int           size;
+    class ElementIterator implements Iterator<TYPE>
+    {
+        /**
+         * Current element
+         */
+        private Element<TYPE> current;
+
+        /**
+         * Create iterator
+         *
+         * @param start First element
+         */
+        ElementIterator(Element<TYPE> start)
+        {
+            this.current = start;
+        }
+
+        /**
+         * Returns {@code true} if the iteration has more elements.
+         * (In other words, returns {@code true} if {@link #next} would
+         * return an element rather than throwing an exception.)
+         *
+         * @return {@code true} if the iteration has more elements
+         */
+        @Override
+        public boolean hasNext()
+        {
+            return this.current != null;
+        }
+
+        /**
+         * Returns the next element in the iteration.
+         *
+         * @return the next element in the iteration
+         * @throws NoSuchElementException if the iteration has no more elements
+         */
+        @Override
+        public TYPE next()
+        {
+            if (this.current == null)
+            {
+                throw new NoSuchElementException("No more elements !");
+            }
+
+            TYPE element = this.current.element;
+            this.current = this.current.next;
+            return element;
+        }
+    }
     /**
      * Start of the list
      */
     @JSONElement
     private Element<TYPE> head;
+    /**
+     * List size
+     */
+    @JSONElement
+    private int           size;
 
     /**
      * Create an empty list
@@ -46,23 +98,36 @@ public class JSONList<TYPE> implements Iterable<TYPE>
     }
 
     /**
-     * Indicates if list is empty
+     * Check if an index is inside the list
      *
-     * @return {@code true} if list is empty
+     * @param index Index to check
+     * @throws IllegalArgumentException If given index not valid
      */
-    public boolean isEmpty()
+    private void checkIndex(int index)
     {
-        return this.size == 0;
+        if (index < 0 || index >= this.size)
+        {
+            throw new IllegalArgumentException(
+                    "index MUST be in [0, " + this.size + "[ not " + index);
+        }
     }
 
     /**
-     * List size
+     * Obtain element at given index (It suppose index valid)
      *
-     * @return List size
+     * @param index Element index
+     * @return Desired element
      */
-    public int size()
+    private Element<TYPE> obtainElement(int index)
     {
-        return this.size;
+        Element<TYPE> element = this.head;
+
+        for (; index > 0; index--)
+        {
+            element = element.next;
+        }
+
+        return element;
     }
 
     /**
@@ -84,7 +149,7 @@ public class JSONList<TYPE> implements Iterable<TYPE>
     public void add(TYPE element, int index)
     {
         this.size++;
-        Element<TYPE> elt = new Element<TYPE>();
+        Element<TYPE> elt = new Element<>();
         elt.element = element;
 
         if (this.head == null)
@@ -120,6 +185,66 @@ public class JSONList<TYPE> implements Iterable<TYPE>
 
         previous.next = elt;
         previous.next.next = current;
+    }
+
+    /**
+     * Obtain an element
+     *
+     * @param index Element index
+     * @return Desired element
+     * @throws IllegalArgumentException If given index not valid
+     */
+    public TYPE get(int index)
+    {
+        this.checkIndex(index);
+        return this.obtainElement(index).element;
+    }
+
+    /**
+     * Index of element
+     *
+     * @param element Element to have index
+     * @return Element index OR -1 if element not inside the list
+     */
+    public int indexOf(TYPE element)
+    {
+        int           index = 0;
+        Element<TYPE> elt   = this.head;
+
+        while (elt != null)
+        {
+            if ((element == null && elt.element == null)
+                || (element != null && element.equals(elt.element)))
+            {
+                return index;
+            }
+
+            elt = elt.next;
+            index++;
+        }
+
+        return -1;
+    }
+
+    /**
+     * Indicates if list is empty
+     *
+     * @return {@code true} if list is empty
+     */
+    public boolean isEmpty()
+    {
+        return this.size == 0;
+    }
+
+    /**
+     * Returns an iterator over elements of type {@code TYPE}.
+     *
+     * @return an Iterator.
+     */
+    @Override
+    public Iterator<TYPE> iterator()
+    {
+        return new ElementIterator(this.head);
     }
 
     /**
@@ -172,86 +297,13 @@ public class JSONList<TYPE> implements Iterable<TYPE>
     }
 
     /**
-     * Check if an index is inside the list
+     * List size
      *
-     * @param index Index to check
-     * @throws IllegalArgumentException If given index not valid
+     * @return List size
      */
-    private void checkIndex(int index)
+    public int size()
     {
-        if (index < 0 || index >= this.size)
-        {
-            throw new IllegalArgumentException(
-                    "index MUST be in [0, " + this.size + "[ not " + index);
-        }
-    }
-
-    /**
-     * Index of element
-     *
-     * @param element Element to have index
-     * @return Element index OR -1 if element not inside the list
-     */
-    public int indexOf(TYPE element)
-    {
-        int           index = 0;
-        Element<TYPE> elt   = this.head;
-
-        while (elt != null)
-        {
-            if ((element == null && elt.element == null)
-                    || (element != null && element.equals(elt.element)))
-            {
-                return index;
-            }
-
-            elt = elt.next;
-            index++;
-        }
-
-        return -1;
-    }
-
-    /**
-     * Obtain an element
-     *
-     * @param index Element index
-     * @return Desired element
-     * @throws IllegalArgumentException If given index not valid
-     */
-    public TYPE get(int index)
-    {
-        this.checkIndex(index);
-        return this.obtainElement(index).element;
-    }
-
-    /**
-     * Obtain element at given index (It suppose index valid)
-     *
-     * @param index Element index
-     * @return Desired element
-     */
-    private Element<TYPE> obtainElement(int index)
-    {
-        Element<TYPE> element = this.head;
-
-        for (; index > 0; index--)
-        {
-            element = element.next;
-        }
-
-        return element;
-    }
-
-    /**
-     * Returns an iterator over elements of type {@code TYPE}.
-     *
-     * @return an Iterator.
-     */
-    @Override
-    public Iterator<TYPE> iterator()
-    {
-        return new ElementIterator(this.head);
+        return this.size;
     }
 
     /**
@@ -279,58 +331,5 @@ public class JSONList<TYPE> implements Iterable<TYPE>
 
         stringBuilder.append(']');
         return stringBuilder.toString();
-    }
-
-    /**
-     * Iterator over
-     */
-    class ElementIterator implements Iterator<TYPE>
-    {
-        /**
-         * Current element
-         */
-        private Element<TYPE> current;
-
-        /**
-         * Create iterator
-         *
-         * @param start First element
-         */
-        ElementIterator(Element<TYPE> start)
-        {
-            this.current = start;
-        }
-
-        /**
-         * Returns {@code true} if the iteration has more elements.
-         * (In other words, returns {@code true} if {@link #next} would
-         * return an element rather than throwing an exception.)
-         *
-         * @return {@code true} if the iteration has more elements
-         */
-        @Override
-        public boolean hasNext()
-        {
-            return this.current != null;
-        }
-
-        /**
-         * Returns the next element in the iteration.
-         *
-         * @return the next element in the iteration
-         * @throws NoSuchElementException if the iteration has no more elements
-         */
-        @Override
-        public TYPE next()
-        {
-            if (this.current == null)
-            {
-                throw new NoSuchElementException("No more elements !");
-            }
-
-            TYPE element = this.current.element;
-            this.current = this.current.next;
-            return element;
-        }
     }
 }

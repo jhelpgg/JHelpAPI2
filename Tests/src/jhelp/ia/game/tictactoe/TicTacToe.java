@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.ia.game.tictactoe;
 
 import java.awt.BorderLayout;
@@ -5,6 +17,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
+import javax.swing.WindowConstants;
 import jhelp.ia.astar.AStarNode;
 import jhelp.ia.astar.AStarTree;
 import jhelp.util.gui.UtilGUI;
@@ -14,26 +27,6 @@ import jhelp.util.gui.UtilGUI;
  */
 public class TicTacToe
 {
-    public static void main(String[] arguments)
-    {
-        Board board = new Board();
-        QuantifierBoard.computer(false);
-        AStarTree<Board> tree           = TicTacToe.evaluate(board);
-        EvaluationTree   evaluationTree = new EvaluationTree(tree);
-        JTree            treeUI         = new JTree(evaluationTree);
-        treeUI.setCellRenderer(new NodeRenderer());
-        JFrame frame = new JFrame();
-        frame.setLayout(new BorderLayout());
-        frame.add(new JScrollPane(treeUI), BorderLayout.CENTER);
-        JButton button = new JButton("SORT");
-        button.addActionListener(event -> evaluationTree.sort());
-        frame.add(button, BorderLayout.SOUTH);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        UtilGUI.packedSize(frame);
-        UtilGUI.centerOnScreen(frame);
-        frame.setVisible(true);
-    }
-
     private static AStarTree<Board> evaluate(Board board)
     {
         AStarTree<Board> tree = new AStarTree<>(board.copy(), QuantifierBoard.QUANTIFIER_BOARD);
@@ -74,5 +67,25 @@ public class TicTacToe
                 }
             }
         }
+    }
+
+    public static void main(String[] arguments)
+    {
+        Board board = new Board();
+        QuantifierBoard.computer(false);
+        AStarTree<Board> tree           = TicTacToe.evaluate(board);
+        EvaluationTree   evaluationTree = new EvaluationTree(tree);
+        JTree            treeUI         = new JTree(evaluationTree);
+        treeUI.setCellRenderer(new NodeRenderer());
+        JFrame frame = new JFrame();
+        frame.setLayout(new BorderLayout());
+        frame.add(new JScrollPane(treeUI), BorderLayout.CENTER);
+        JButton button = new JButton("SORT");
+        button.addActionListener(event -> evaluationTree.sort());
+        frame.add(button, BorderLayout.SOUTH);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        UtilGUI.packedSize(frame);
+        UtilGUI.centerOnScreen(frame);
+        frame.setVisible(true);
     }
 }

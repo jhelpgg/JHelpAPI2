@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.preference;
 
 import java.io.File;
@@ -8,8 +20,8 @@ import jhelp.util.debug.Debug;
 import jhelp.util.io.UtilIO;
 import jhelp.util.list.Pair;
 import jhelp.util.thread.Mutex;
-import jhelp.util.thread.ThreadManager;
 import jhelp.util.thread.RunnableTask;
+import jhelp.util.thread.ThreadManager;
 import jhelp.util.xml.DynamicWriteXML;
 
 /**
@@ -123,6 +135,26 @@ class PreferencesSerializer
     }
 
     /**
+     * Serialize the preferences as soon as possible
+     */
+    public void serialize()
+    {
+        this.mutex.playInCriticalSectionVoid(() ->
+                                             {
+                                                 if (!this.serializing)
+                                                 {
+                                                     this.serializing = true;
+
+                                                     ThreadManager.parallel(this);
+                                                 }
+                                                 else
+                                                 {
+                                                     this.serializeAgain = true;
+                                                 }
+                                             });
+    }
+
+    /**
      * Call when serialization is finish <br>
      * <br>
      * <b>Parent documentation:</b><br>
@@ -143,26 +175,6 @@ class PreferencesSerializer
                                                      this.serializing = true;
 
                                                      ThreadManager.parallel(this);
-                                                 }
-                                             });
-    }
-
-    /**
-     * Serialize the preferences as soon as possible
-     */
-    public void serialize()
-    {
-        this.mutex.playInCriticalSectionVoid(() ->
-                                             {
-                                                 if (!this.serializing)
-                                                 {
-                                                     this.serializing = true;
-
-                                                     ThreadManager.parallel(this);
-                                                 }
-                                                 else
-                                                 {
-                                                     this.serializeAgain = true;
                                                  }
                                              });
     }

@@ -1,18 +1,18 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any
- * damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.io.json;
 
 import java.net.URL;
-
 import jhelp.util.io.net.ResponseReceiver;
 
 /**
@@ -23,18 +23,23 @@ import jhelp.util.io.net.ResponseReceiver;
 public class ResponseReceiverJSON
         implements ResponseReceiver
 {
-    /** Listener that received formatted response */
+    /**
+     * Listener that received formatted response
+     */
     private final ResponseReceiverJSONListener listener;
-    /** Synchronization lock */
+    /**
+     * Synchronization lock
+     */
     private final Object lock = new Object();
-    /** Actual response part */
+    /**
+     * Actual response part
+     */
     private StringBuilder stringBuilder;
 
     /**
      * Create a new instance of ResponseReceiverJSON
      *
-     * @param listener
-     *           Listener that received formatted response
+     * @param listener Listener that received formatted response
      */
     public ResponseReceiverJSON(final ResponseReceiverJSONListener listener)
     {
@@ -52,10 +57,8 @@ public class ResponseReceiverJSON
      * <b>Parent documentation:</b><br>
      * {@inheritDoc}
      *
-     * @param exception
-     *           Exception happen
-     * @param url
-     *           URL tried to reach
+     * @param exception Exception happen
+     * @param url       URL tried to reach
      * @see jhelp.util.io.net.ResponseReceiver#connectionFailed(Exception, URL)
      */
     @Override
@@ -88,8 +91,7 @@ public class ResponseReceiverJSON
      * <b>Parent documentation:</b><br>
      * {@inheritDoc}
      *
-     * @param message
-     *           Error message
+     * @param message Error message
      * @see jhelp.util.io.net.ResponseReceiver#serverError(String)
      */
     @Override
@@ -104,12 +106,9 @@ public class ResponseReceiverJSON
      * <b>Parent documentation:</b><br>
      * {@inheritDoc}
      *
-     * @param message
-     *           Message part data
-     * @param offset
-     *           Offset start read data
-     * @param length
-     *           Message size
+     * @param message Message part data
+     * @param offset  Offset start read data
+     * @param length  Message size
      * @see jhelp.util.io.net.ResponseReceiver#serverMessage(byte[], int, int)
      */
     @Override

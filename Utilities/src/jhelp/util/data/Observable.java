@@ -1,11 +1,23 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.data;
 
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
 import java.util.Objects;
 import jhelp.util.list.ArrayObject;
-import jhelp.util.thread.Task;
 import jhelp.util.thread.ConsumerTask;
+import jhelp.util.thread.Task;
 
 /**
  * Value that can be observe its changes.<br>
@@ -35,58 +47,6 @@ public class Observable<T>
     }
 
     /**
-     * Register an observer of value changes.<br>
-     * The observer will immediately receive the current value
-     *
-     * @param observer Observer to register
-     * @return This observable instance, convenient for chaining
-     */
-    public final Observable<T> startObserve(@NotNull Observer<T> observer)
-    {
-        if (observer == null)
-        {
-            return this;
-        }
-
-        synchronized (this.observers)
-        {
-            if (!this.observers.contains(observer))
-            {
-                this.observers.add(observer);
-            }
-        }
-
-        observer.valueChanged(this, this.data);
-        return this;
-    }
-
-    /**
-     * Unregister an observer to watch the changes
-     *
-     * @param observer Observer to unregister
-     * @return This observable instance, convenient for chaining
-     */
-    public final Observable<T> endObserve(@NotNull Observer<T> observer)
-    {
-        synchronized (this.observers)
-        {
-            this.observers.remove(observer);
-        }
-
-        return this;
-    }
-
-    /**
-     * Current value
-     *
-     * @return Current value
-     */
-    public final @NotNull T value()
-    {
-        return this.data;
-    }
-
-    /**
      * Check, before set the value, if given value is accepted.<br>
      * By default it accepts any value.
      *
@@ -96,44 +56,6 @@ public class Observable<T>
     protected boolean valueIsValid(@NotNull T value)
     {
         return true;
-    }
-
-    /**
-     * Modify, if possible, the value.<br>
-     * The modification can be refused if the given value is not valid.<br>
-     * The returned boolean indicates if a real change happen. It occurs if and only if given value is valid and not equals to current value.
-     *
-     * @param value New value to set
-     * @return {@code true} if value really change
-     */
-    public final boolean value(@NotNull T value)
-    {
-        Objects.requireNonNull(value);
-
-        synchronized (this.observers)
-        {
-            if (this.valueIsValid(value) && !this.data.equals(value))
-            {
-                this.data = value;
-                this.observers.forEach((ConsumerTask<Observer<T>>) observer -> observer.valueChanged(this, value));
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Create an observable that change value if this observable validate or not a given condition.<br>
-     * The returned observable is automatically updated when this observable value change
-     *
-     * @param condition Condition to validate
-     * @return Observable on result of full fill condition
-     */
-    public final @NotNull Observable<Boolean> validate(@NotNull Condition<T> condition)
-    {
-        Objects.requireNonNull(condition, "condition");
-        return new ObservableCondition<>(this, condition);
     }
 
     /**
@@ -176,11 +98,106 @@ public class Observable<T>
      * @param conditions Other conditions
      * @return Created observable
      */
-    public final @NotNull Observable<Boolean> and(@NotNull Condition<T> condition, @NotNull Condition<T>... conditions)
+    public final @SafeVarargs @NotNull Observable<Boolean> and(
+            @NotNull Condition<T> condition, @NotNull Condition<T>... conditions)
     {
         Objects.requireNonNull(condition, "condition1 MUST NOT be null!");
         Objects.requireNonNull(conditions, "conditions MUST NOT be null!");
         return this.validate(Condition.and(condition, conditions));
+    }
+
+    /**
+     * Combine this observable with an other one
+     *
+     * @param observable Observable to combine with
+     * @param combiner   Describe how transform the value of this observable and given one to obtain the value of returned observable
+     * @param <T1>       Observable to combine with data type
+     * @param <T2>       Returned observable data type
+     * @return Observable combination of this observable and given one
+     */
+    public final @NotNull <T1, T2> Observable<T2> combine(
+            @NotNull Observable<T1> observable, @NotNull Combiner<T, T1, T2> combiner)
+    {
+        Objects.requireNonNull(observable, "observable MUST NOT be null!");
+        Objects.requireNonNull(combiner, "combiner MUST NOT be null!");
+        return new ObservableBinary<>(this, observable, combiner);
+    }
+
+    /**
+     * Call a {@link Task} when this {@link Observable} full fill a {@link Condition}.<br>
+     * The task is called each time condition full fill
+     *
+     * @param condition {@link Condition} to validate
+     * @param task      {@link Task} task to do
+     * @return This observable instance, convenient for chaining
+     */
+    public final Observable<T> eachTime(@NotNull Condition<T> condition, @NotNull ConsumerTask<T> task)
+    {
+        Objects.requireNonNull(condition, "condition MUST NOT be null!");
+        Objects.requireNonNull(task, "task MUST NOT be null!");
+        ConditionChecker.eachTime(this, condition, task);
+        return this;
+    }
+
+    /**
+     * Unregister an observer to watch the changes
+     *
+     * @param observer Observer to unregister
+     * @return This observable instance, convenient for chaining
+     */
+    public final Observable<T> endObserve(@NotNull Observer<T> observer)
+    {
+        synchronized (this.observers)
+        {
+            this.observers.remove(observer);
+        }
+
+        return this;
+    }
+
+    /**
+     * Apply a task on this observable and create on observable of the result.<br>
+     * Each time this observable change, the task is play to compute the result observable value
+     *
+     * @param task Task for change the value
+     * @param <T1> New observable data type
+     * @return Mapped observable
+     */
+    public final @NotNull <T1> Observable<T1> flatMap(final @NotNull Task<T, Observable<T1>> task)
+    {
+        Objects.requireNonNull(task, "task MUST NOT be null!");
+        final Observable<T1> observable = new Observable<>(task.playTask(this.value()).value());
+        this.startObserve((ignored, value) -> observable.value(task.playTask(value).value()));
+        return observable;
+    }
+
+    /**
+     * Apply a task on this observable and create on observable of the result.<br>
+     * Each time this observable change, the task is play to compute the result observable value
+     *
+     * @param task Task for change the value
+     * @param <T1> New observable data type
+     * @return Mapped observable
+     */
+    public final @NotNull <T1> Observable<T1> map(final @NotNull Task<T, T1> task)
+    {
+        Objects.requireNonNull(task, "task MUST NOT be null!");
+        final Observable<T1> observable = new Observable<>(task.playTask(this.value()));
+        this.startObserve((ignored, value) -> observable.value(task.playTask(value)));
+        return observable;
+    }
+
+    /**
+     * Create an observable that change value if this observable invalidate or not a given condition.<br>
+     * The returned observable is automatically updated when this observable value change
+     *
+     * @param condition Condition to invalidate
+     * @return Observable on result of not validate condition
+     */
+    public final @NotNull Observable<Boolean> not(@NotNull Condition<T> condition)
+    {
+        Objects.requireNonNull(condition, "condition");
+        return this.validate(condition.negate());
     }
 
     /**
@@ -190,7 +207,8 @@ public class Observable<T>
      * @param conditions Other conditions
      * @return Created observable
      */
-    public final @NotNull Observable<Boolean> or(@NotNull Condition<T> condition, @NotNull Condition<T>... conditions)
+    public final @SafeVarargs @NotNull Observable<Boolean> or(
+            @NotNull Condition<T> condition, @NotNull Condition<T>... conditions)
     {
         Objects.requireNonNull(condition, "condition1 MUST NOT be null!");
         Objects.requireNonNull(conditions, "conditions MUST NOT be null!");
@@ -231,16 +249,77 @@ public class Observable<T>
     }
 
     /**
-     * Create an observable that change value if this observable invalidate or not a given condition.<br>
+     * Register an observer of value changes.<br>
+     * The observer will immediately receive the current value
+     *
+     * @param observer Observer to register
+     * @return This observable instance, convenient for chaining
+     */
+    public final Observable<T> startObserve(@NotNull Observer<T> observer)
+    {
+        if (observer == null)
+        {
+            return this;
+        }
+
+        synchronized (this.observers)
+        {
+            if (!this.observers.contains(observer))
+            {
+                this.observers.add(observer);
+            }
+        }
+
+        observer.valueChanged(this, this.data);
+        return this;
+    }
+
+    /**
+     * Create an observable that change value if this observable validate or not a given condition.<br>
      * The returned observable is automatically updated when this observable value change
      *
-     * @param condition Condition to invalidate
-     * @return Observable on result of not validate condition
+     * @param condition Condition to validate
+     * @return Observable on result of full fill condition
      */
-    public final @NotNull Observable<Boolean> not(@NotNull Condition<T> condition)
+    public final @NotNull Observable<Boolean> validate(@NotNull Condition<T> condition)
     {
         Objects.requireNonNull(condition, "condition");
-        return this.validate(condition.negate());
+        return new ObservableCondition<>(this, condition);
+    }
+
+    /**
+     * Current value
+     *
+     * @return Current value
+     */
+    public final @NotNull T value()
+    {
+        return this.data;
+    }
+
+    /**
+     * Modify, if possible, the value.<br>
+     * The modification can be refused if the given value is not valid.<br>
+     * The returned boolean indicates if a real change happen. It occurs if and only if given value is valid and not equals to current value.
+     *
+     * @param value New value to set
+     * @return {@code true} if value really change
+     */
+    public final boolean value(@NotNull T value)
+    {
+        Objects.requireNonNull(value);
+
+        synchronized (this.observers)
+        {
+            if (this.valueIsValid(value) && !this.data.equals(value))
+            {
+                this.data = value;
+                this.observers.forEach((ConsumerTask<Observer<T>>) observer -> observer.valueChanged(this, value));
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -280,70 +359,5 @@ public class Observable<T>
         Objects.requireNonNull(task, "task MUST NOT be null!");
         ConditionChecker.when(this, condition, task);
         return this;
-    }
-
-    /**
-     * Call a {@link Task} when this {@link Observable} full fill a {@link Condition}.<br>
-     * The task is called each time condition full fill
-     *
-     * @param condition {@link Condition} to validate
-     * @param task      {@link Task} task to do
-     * @return This observable instance, convenient for chaining
-     */
-    public final Observable<T> eachTime(@NotNull Condition<T> condition, @NotNull ConsumerTask<T> task)
-    {
-        Objects.requireNonNull(condition, "condition MUST NOT be null!");
-        Objects.requireNonNull(task, "task MUST NOT be null!");
-        ConditionChecker.eachTime(this, condition, task);
-        return this;
-    }
-
-    /**
-     * Combine this observable with an other one
-     *
-     * @param observable Observable to combine with
-     * @param combiner   Describe how transform the value of this observable and given one to obtain the value of returned observable
-     * @param <T1>       Observable to combine with data type
-     * @param <T2>       Returned observable data type
-     * @return Observable combination of this observable and given one
-     */
-    public final @NotNull <T1, T2> Observable<T2> combine(
-            @NotNull Observable<T1> observable, @NotNull Combiner<T, T1, T2> combiner)
-    {
-        Objects.requireNonNull(observable, "observable MUST NOT be null!");
-        Objects.requireNonNull(combiner, "combiner MUST NOT be null!");
-        return new ObservableBinary<>(this, observable, combiner);
-    }
-
-    /**
-     * Apply a task on this observable and create on observable of the result.<br>
-     * Each time this observable change, the task is play to compute the result observable value
-     *
-     * @param task Task for change the value
-     * @param <T1> New observable data type
-     * @return Mapped observable
-     */
-    public final @NotNull <T1> Observable<T1> map(final @NotNull Task<T, T1> task)
-    {
-        Objects.requireNonNull(task, "task MUST NOT be null!");
-        final Observable<T1> observable = new Observable<>(task.playTask(this.value()));
-        this.startObserve((ignored, value) -> observable.value(task.playTask(value)));
-        return observable;
-    }
-
-    /**
-     * Apply a task on this observable and create on observable of the result.<br>
-     * Each time this observable change, the task is play to compute the result observable value
-     *
-     * @param task Task for change the value
-     * @param <T1> New observable data type
-     * @return Mapped observable
-     */
-    public final @NotNull <T1> Observable<T1> flatMap(final @NotNull Task<T, Observable<T1>> task)
-    {
-        Objects.requireNonNull(task, "task MUST NOT be null!");
-        final Observable<T1> observable = new Observable<>(task.playTask(this.value()).value());
-        this.startObserve((ignored, value) -> observable.value(task.playTask(value).value()));
-        return observable;
     }
 }

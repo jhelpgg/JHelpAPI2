@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.antology;
 
 import java.io.File;
@@ -5,8 +17,8 @@ import java.io.IOException;
 import jhelp.util.debug.Debug;
 import jhelp.util.io.ByteArray;
 import jhelp.util.io.UtilIO;
-import jhelp.util.thread.ThreadManager;
 import jhelp.util.thread.RunnableTask;
+import jhelp.util.thread.ThreadManager;
 
 /**
  * Created by jhelp on 22/07/17.
@@ -30,9 +42,9 @@ final class AutomaticSaveGraph implements GraphListener
 
     private final File         file;
     private final Graph        graph;
-    private final RunnableTask taskSave;
-    private       boolean      saving;
     private       boolean      saveAgain;
+    private       boolean      saving;
+    private final RunnableTask taskSave;
 
     public AutomaticSaveGraph(final File file) throws IOException
     {
@@ -108,6 +120,11 @@ final class AutomaticSaveGraph implements GraphListener
         }
     }
 
+    public Graph graph()
+    {
+        return this.graph;
+    }
+
     @Override
     public void graphChanged(final Graph graph)
     {
@@ -128,10 +145,5 @@ final class AutomaticSaveGraph implements GraphListener
                 ThreadManager.parallel(this.taskSave);
             }
         }
-    }
-
-    public Graph graph()
-    {
-        return this.graph;
     }
 }

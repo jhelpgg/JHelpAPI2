@@ -1,13 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.image.raster;
 
 import java.io.IOException;
@@ -23,20 +25,24 @@ import jhelp.util.io.UtilIO;
 public class Image32Bit
         implements RasterImage
 {
-    /** Raster image data */
+    /**
+     * Raster image data
+     */
     private final int[] data;
-    /** Raster image height */
+    /**
+     * Raster image height
+     */
     private final int   height;
-    /** Raster image width */
+    /**
+     * Raster image width
+     */
     private final int   width;
 
     /**
      * Create a new instance of Image32Bit
      *
-     * @param width
-     *           Width
-     * @param height
-     *           Height
+     * @param width  Width
+     * @param height Height
      */
     public Image32Bit(final int width, final int height)
     {
@@ -71,10 +77,8 @@ public class Image32Bit
     /**
      * Obtain a color at given coordinate
      *
-     * @param x
-     *           X
-     * @param y
-     *           Y
+     * @param x X
+     * @param y Y
      * @return Color at given coordinate
      */
     public int getColor(final int x, final int y)
@@ -87,19 +91,6 @@ public class Image32Bit
         }
 
         return this.data[x + (y * this.width)];
-    }
-
-    /**
-     * Raster image height <br>
-     * <br>
-     * <b>Parent documentation:</b><br>
-     * {@inheritDoc}
-     *
-     * @return Raster image height
-     */
-    public int getHeight()
-    {
-        return this.height;
     }
 
     /**
@@ -131,12 +122,38 @@ public class Image32Bit
     }
 
     /**
+     * Raster image height <br>
+     * <br>
+     * <b>Parent documentation:</b><br>
+     * {@inheritDoc}
+     *
+     * @return Raster image height
+     */
+    public int getHeight()
+    {
+        return this.height;
+    }
+
+    /**
+     * Convert raster image to JHelpImage <br>
+     * <br>
+     * <b>Parent documentation:</b><br>
+     * {@inheritDoc}
+     *
+     * @return Converted image
+     * @see jhelp.util.image.raster.RasterImage#toJHelpImage()
+     */
+    @Override
+    public JHelpImage toJHelpImage()
+    {
+        return new JHelpImage(this.width, this.height, this.data);
+    }
+
+    /**
      * Parse bitmap stream to image data
      *
-     * @param inputStream
-     *           Stream to parse
-     * @throws IOException
-     *            On reading issue
+     * @param inputStream Stream to parse
+     * @throws IOException On reading issue
      */
     public void parseBitmapStream(final InputStream inputStream) throws IOException
     {
@@ -165,12 +182,9 @@ public class Image32Bit
     /**
      * Change an color of image
      *
-     * @param x
-     *           X
-     * @param y
-     *           Y
-     * @param color
-     *           New color
+     * @param x     X
+     * @param y     Y
+     * @param color New color
      */
     public void setColor(final int x, final int y, final int color)
     {
@@ -182,20 +196,5 @@ public class Image32Bit
         }
 
         this.data[x + (y * this.width)] = color;
-    }
-
-    /**
-     * Convert raster image to JHelpImage <br>
-     * <br>
-     * <b>Parent documentation:</b><br>
-     * {@inheritDoc}
-     *
-     * @return Converted image
-     * @see jhelp.util.image.raster.RasterImage#toJHelpImage()
-     */
-    @Override
-    public JHelpImage toJHelpImage()
-    {
-        return new JHelpImage(this.width, this.height, this.data);
     }
 }

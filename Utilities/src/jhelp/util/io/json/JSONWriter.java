@@ -1,15 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not
- * responsible about any damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that
- * avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.io.json;
 
 import java.io.BufferedWriter;
@@ -25,20 +25,18 @@ import java.lang.reflect.Field;
 public class JSONWriter
 {
     /**
-     * Write/serialize valid object annotated {@link JSONObject} into JSON
+     * Write the header
      *
-     * @param object       Object to serialize
-     * @param outputStream Stream where write. Note: stream is not close, it is caller responsibility
-     * @param compressed   Indicates if use compress mode or not.
-     * @throws IOException   On writing issue
-     * @throws JSONException If given object class is not a valid annotated {@link JSONObject}
+     * @param header         Header size
+     * @param bufferedWriter Stream where write
+     * @throws IOException On write issue
      */
-    public static void writeJSON(Object object, OutputStream outputStream, boolean compressed)
-            throws IOException, JSONException
+    private static void writeHeader(int header, BufferedWriter bufferedWriter) throws IOException
     {
-        JSONWriter.writeJSON(object,
-                             new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8")),
-                             compressed);
+        for (int i = 0; i < header; i++)
+        {
+            bufferedWriter.write("   ");
+        }
     }
 
     /**
@@ -63,10 +61,10 @@ public class JSONWriter
      *
      * @param header         Header to add
      * @param object         Object to serialize
-     * @param bufferedWriter
+     * @param bufferedWriter Writer where write serialized JSON
      * @throws IOException   On writing issue
      * @throws JSONException If given object class is not a valid annotated {@link JSONObject} AND not a primitive AND
-     * not an object represents a primitive AND not a String AND not an enum
+     *                       not an object represents a primitive AND not a String AND not an enum
      */
     private static void writeJSON(int header, Object object, BufferedWriter bufferedWriter)
             throws IOException, JSONException
@@ -77,27 +75,27 @@ public class JSONWriter
         if (jsonObject == null)
         {
             if (boolean.class.equals(clas)
-                    || byte.class.equals(clas)
-                    || short.class.equals(clas)
-                    || int.class.equals(clas)
-                    || long.class.equals(clas)
-                    || float.class.equals(clas)
-                    || double.class.equals(clas)
-                    || Boolean.class.equals(clas)
-                    || Byte.class.equals(clas)
-                    || Short.class.equals(clas)
-                    || Integer.class.equals(clas)
-                    || Long.class.equals(clas)
-                    || Float.class.equals(clas)
-                    || Double.class.equals(clas))
+                || byte.class.equals(clas)
+                || short.class.equals(clas)
+                || int.class.equals(clas)
+                || long.class.equals(clas)
+                || float.class.equals(clas)
+                || double.class.equals(clas)
+                || Boolean.class.equals(clas)
+                || Byte.class.equals(clas)
+                || Short.class.equals(clas)
+                || Integer.class.equals(clas)
+                || Long.class.equals(clas)
+                || Float.class.equals(clas)
+                || Double.class.equals(clas))
             {
                 bufferedWriter.write(object.toString());
                 return;
             }
 
             if (String.class.equals(clas)
-                    || Character.class.equals(clas)
-                    || char.class.equals(clas))
+                || Character.class.equals(clas)
+                || char.class.equals(clas))
             {
                 bufferedWriter.write("\"" + object.toString() + "\"");
                 return;
@@ -160,18 +158,20 @@ public class JSONWriter
     }
 
     /**
-     * Write the header
+     * Write/serialize valid object annotated {@link JSONObject} into JSON
      *
-     * @param header         Header size
-     * @param bufferedWriter Stream where write
-     * @throws IOException On write issue
+     * @param object       Object to serialize
+     * @param outputStream Stream where write. Note: stream is not close, it is caller responsibility
+     * @param compressed   Indicates if use compress mode or not.
+     * @throws IOException   On writing issue
+     * @throws JSONException If given object class is not a valid annotated {@link JSONObject}
      */
-    private static void writeHeader(int header, BufferedWriter bufferedWriter) throws IOException
+    public static void writeJSON(Object object, OutputStream outputStream, boolean compressed)
+            throws IOException, JSONException
     {
-        for (int i = 0; i < header; i++)
-        {
-            bufferedWriter.write("   ");
-        }
+        JSONWriter.writeJSON(object,
+                             new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8")),
+                             compressed);
     }
 
     /**
@@ -183,10 +183,11 @@ public class JSONWriter
      * @param field          Field to write
      * @throws IOException   On write issue
      * @throws JSONException If field class is not a valid annotated {@link JSONObject} AND not a primitive AND not an
-     * object represents a primitive AND not a String AND not an enum
+     *                       object represents a primitive AND not a String AND not an enum
      */
-    private static void writeValue(int header, BufferedWriter bufferedWriter, Object object,
-                                   Field field)
+    private static void writeValue(
+            int header, BufferedWriter bufferedWriter, Object object,
+            Field field)
             throws IOException, JSONException
     {
         field.setAccessible(true);
@@ -251,12 +252,12 @@ public class JSONWriter
             }
 
             if (Boolean.class.equals(clas)
-                    || Byte.class.equals(clas)
-                    || Short.class.equals(clas)
-                    || Integer.class.equals(clas)
-                    || Long.class.equals(clas)
-                    || Float.class.equals(clas)
-                    || Double.class.equals(clas))
+                || Byte.class.equals(clas)
+                || Short.class.equals(clas)
+                || Integer.class.equals(clas)
+                || Long.class.equals(clas)
+                || Float.class.equals(clas)
+                || Double.class.equals(clas))
             {
                 bufferedWriter.write(value.toString());
                 return;

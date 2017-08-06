@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.thread;
 
 import com.sun.istack.internal.NotNull;
@@ -70,43 +82,6 @@ public final class Mutex
      * If a task is already inside the critical section, the current thread will be enqueue and asleep.
      * It will be wake up when its turn comes to enter inside the critical section.
      *
-     * @param function  Task to play
-     * @param parameter Parameter to give to task when its turn comes
-     * @param <P>       Task parameter type
-     */
-    public <P> void playInCriticalSectionVoid(@NotNull ConsumerTask<P> function, @Nullable P parameter)
-    {
-        Objects.requireNonNull(function);
-        boolean locked = false;
-
-        try
-        {
-            this.mutex.acquire();
-            locked = true;
-        }
-        catch (Exception exception)
-        {
-            Debug.exception(exception, "Failed to acquire the mutex");
-        }
-
-        try
-        {
-            function.consume(parameter);
-        }
-        finally
-        {
-            if (locked)
-            {
-                this.mutex.release();
-            }
-        }
-    }
-
-    /**
-     * Play a task in critical section.<br>
-     * If a task is already inside the critical section, the current thread will be enqueue and asleep.
-     * It will be wake up when its turn comes to enter inside the critical section.
-     *
      * @param function Task to play
      * @param <R>      Task return type
      * @return Task result
@@ -129,6 +104,43 @@ public final class Mutex
         try
         {
             return function.produce();
+        }
+        finally
+        {
+            if (locked)
+            {
+                this.mutex.release();
+            }
+        }
+    }
+
+    /**
+     * Play a task in critical section.<br>
+     * If a task is already inside the critical section, the current thread will be enqueue and asleep.
+     * It will be wake up when its turn comes to enter inside the critical section.
+     *
+     * @param function  Task to play
+     * @param parameter Parameter to give to task when its turn comes
+     * @param <P>       Task parameter type
+     */
+    public <P> void playInCriticalSectionVoid(@NotNull ConsumerTask<P> function, @Nullable P parameter)
+    {
+        Objects.requireNonNull(function);
+        boolean locked = false;
+
+        try
+        {
+            this.mutex.acquire();
+            locked = true;
+        }
+        catch (Exception exception)
+        {
+            Debug.exception(exception, "Failed to acquire the mutex");
+        }
+
+        try
+        {
+            function.consume(parameter);
         }
         finally
         {

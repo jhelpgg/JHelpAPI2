@@ -1,10 +1,13 @@
 /*
+ * Copyright:
  * License :
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any damage it may cause.
- * You can use, modify, the code as your need for any usage.
- * But you can't do any action that avoid me or other person use, modify this code.
- * The code is free for usage and modification, you can't change that fact.
- * JHelp
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
  */
 
 package jhelp.util.resources;
@@ -19,7 +22,6 @@ import java.util.List;
 import java.util.TreeSet;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-
 import jhelp.util.io.UtilIO;
 import jhelp.util.list.EnumerationIterator;
 
@@ -213,22 +215,6 @@ public class ResourcesSystem
     }
 
     /**
-     * Obtain a input stram for read a resource file
-     *
-     * @param resourceFile Resource file to read
-     * @return Stream on the resource file
-     */
-    public InputStream obtainInputStream(final ResourceFile resourceFile)
-    {
-        if (resourceFile == null)
-        {
-            throw new NullPointerException("resourceFile MUST NOT be null");
-        }
-
-        return this.resources.obtainResourceStream(resourceFile.getPath());
-    }
-
-    /**
      * Obtain element at given path
      *
      * @param path Path element
@@ -255,6 +241,22 @@ public class ResourcesSystem
         }
 
         return resourceElement;
+    }
+
+    /**
+     * Obtain a input stram for read a resource file
+     *
+     * @param resourceFile Resource file to read
+     * @return Stream on the resource file
+     */
+    public InputStream obtainInputStream(final ResourceFile resourceFile)
+    {
+        if (resourceFile == null)
+        {
+            throw new NullPointerException("resourceFile MUST NOT be null");
+        }
+
+        return this.resources.obtainResourceStream(resourceFile.getPath());
     }
 
     /**
@@ -293,7 +295,7 @@ public class ResourcesSystem
         }
 
         final String                path = resourceDirectory.getPath();
-        final List<ResourceElement> list = new ArrayList<ResourceElement>();
+        final List<ResourceElement> list = new ArrayList<>();
 
         if (this.rootFile != null)
         {
@@ -346,10 +348,10 @@ public class ResourcesSystem
         final int             min         = start.length();
         int                   index;
         String                name;
-        final TreeSet<String> directories = new TreeSet<String>();
+        final TreeSet<String> directories = new TreeSet<>();
 
         assert this.jarFile != null;
-        for (final JarEntry entry : new EnumerationIterator<JarEntry>(this.jarFile.entries()))
+        for (final JarEntry entry : new EnumerationIterator<>(this.jarFile.entries()))
         {
             name = entry.getName();
 

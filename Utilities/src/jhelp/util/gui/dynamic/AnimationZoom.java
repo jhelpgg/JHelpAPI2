@@ -1,13 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.gui.dynamic;
 
 import jhelp.util.gui.JHelpImage;
@@ -21,50 +23,69 @@ import jhelp.util.gui.JHelpSprite;
 public final class AnimationZoom
         implements DynamicAnimation, Positionable
 {
-    /** Image height at animation end */
+    /**
+     * Image height at animation end
+     */
     private final int           endHeight;
-    /** Image width at animation end */
+    /**
+     * Image width at animation end
+     */
     private final int           endWidth;
-    /** Image original height */
+    /**
+     * Image original height
+     */
     private final int           imageHeight;
-    /** Image original width */
+    /**
+     * Image original width
+     */
     private final int           imageWidth;
-    /** Interpolation to use */
+    /**
+     * Interpolation to use
+     */
     private final Interpolation interpolation;
-    /** Original image */
+    /**
+     * Original image
+     */
     private final JHelpImage    maxZoomImage;
-    /** Number of frame to play animation */
+    /**
+     * Number of frame to play animation
+     */
     private final int           numberOfFrame;
-    /** Sprite where animation draw */
+    /**
+     * Sprite where animation draw
+     */
     private       JHelpSprite   sprite;
-    /** Start animation absolute frame */
+    /**
+     * Start animation absolute frame
+     */
     private       float         startAbsoluteFrame;
-    /** Image height at animation start */
+    /**
+     * Image height at animation start
+     */
     private final int           startHeight;
-    /** Image width at animation start */
+    /**
+     * Image width at animation start
+     */
     private final int           startWidth;
-    /** Animation position X */
+    /**
+     * Animation position X
+     */
     private       int           x;
-    /** Animation position Y */
+    /**
+     * Animation position Y
+     */
     private       int           y;
 
     /**
      * Create a new instance of AnimationZoom
      *
-     * @param maxZoomImage
-     *           Original image. It should have the maximum size (Recommended for nice effect)
-     * @param startWidth
-     *           Start animation width
-     * @param startHeight
-     *           Start animation height
-     * @param endWidth
-     *           End animation width
-     * @param endHeight
-     *           End animation height
-     * @param numberOfFrame
-     *           Number of frame for play animation
-     * @param interpolation
-     *           Interpolation to use
+     * @param maxZoomImage  Original image. It should have the maximum size (Recommended for nice effect)
+     * @param startWidth    Start animation width
+     * @param startHeight   Start animation height
+     * @param endWidth      End animation width
+     * @param endHeight     End animation height
+     * @param numberOfFrame Number of frame for play animation
+     * @param interpolation Interpolation to use
      */
     public AnimationZoom(
             final JHelpImage maxZoomImage, final int startWidth, final int startHeight, final int endWidth,
@@ -93,10 +114,8 @@ public final class AnimationZoom
      * <b>Parent documentation:</b><br>
      * {@inheritDoc}
      *
-     * @param absoluteFrame
-     *           Current absolute frame
-     * @param image
-     *           Image where draw animation
+     * @param absoluteFrame Current absolute frame
+     * @param image         Image where draw animation
      * @return {@code true} if animation continue OR {@code false} if animation finished
      * @see jhelp.util.gui.dynamic.DynamicAnimation#animate(float, jhelp.util.gui.JHelpImage)
      */
@@ -141,8 +160,7 @@ public final class AnimationZoom
      * <b>Parent documentation:</b><br>
      * {@inheritDoc}
      *
-     * @param image
-     *           Image parent
+     * @param image Image parent
      * @see jhelp.util.gui.dynamic.DynamicAnimation#endAnimation(jhelp.util.gui.JHelpImage)
      */
     @Override
@@ -153,6 +171,25 @@ public final class AnimationZoom
             image.removeSprite(this.sprite);
             this.sprite = null;
         }
+    }
+
+    /**
+     * Called when animation started <br>
+     * <br>
+     * <b>Parent documentation:</b><br>
+     * {@inheritDoc}
+     *
+     * @param startAbsoluteFrame Start absolute frame
+     * @param image              Image parent
+     * @see jhelp.util.gui.dynamic.DynamicAnimation#startAnimation(float, jhelp.util.gui.JHelpImage)
+     */
+    @Override
+    public void startAnimation(final float startAbsoluteFrame, final JHelpImage image)
+    {
+        this.startAbsoluteFrame = startAbsoluteFrame;
+        this.sprite = image.createSprite(this.x, this.y, this.imageWidth, this.imageHeight);
+        this.animate(this.startAbsoluteFrame, image);
+        this.sprite.setVisible(true);
     }
 
     /**
@@ -176,8 +213,7 @@ public final class AnimationZoom
      * <b>Parent documentation:</b><br>
      * {@inheritDoc}
      *
-     * @param position
-     *           New position
+     * @param position New position
      * @see Positionable#position(Position)
      */
     @Override
@@ -190,26 +226,5 @@ public final class AnimationZoom
         {
             this.sprite.setPosition(this.x, this.y);
         }
-    }
-
-    /**
-     * Called when animation started <br>
-     * <br>
-     * <b>Parent documentation:</b><br>
-     * {@inheritDoc}
-     *
-     * @param startAbsoluteFrame
-     *           Start absolute frame
-     * @param image
-     *           Image parent
-     * @see jhelp.util.gui.dynamic.DynamicAnimation#startAnimation(float, jhelp.util.gui.JHelpImage)
-     */
-    @Override
-    public void startAnimation(final float startAbsoluteFrame, final JHelpImage image)
-    {
-        this.startAbsoluteFrame = startAbsoluteFrame;
-        this.sprite = image.createSprite(this.x, this.y, this.imageWidth, this.imageHeight);
-        this.animate(this.startAbsoluteFrame, image);
-        this.sprite.setVisible(true);
     }
 }

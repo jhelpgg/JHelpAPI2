@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.list;
 
 import com.sun.istack.internal.NotNull;
@@ -5,10 +17,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Objects;
+import jhelp.util.thread.ConsumerTask;
 import jhelp.util.thread.Filter;
 import jhelp.util.thread.Future;
 import jhelp.util.thread.Task;
-import jhelp.util.thread.ConsumerTask;
 
 /**
  * Created by jhelp on 21/07/17.
@@ -36,6 +48,101 @@ public final class CollectionParallel<T> implements ParallelList<T, CollectionPa
     }
 
     /**
+     * Obtain an element from the list that match the given filter.<br>
+     * The result can be any element in list that match.<br>
+     * If no element found, the result future will be on error.<br>
+     * The search is do in separate thread
+     *
+     * @param filter Filter to use for search
+     * @return Future link to the search. It will contains the found element or be on error if no elements match
+     */
+    @Override
+    public Future<T> any(final Filter<T> filter)
+    {
+        return Future.firstMatch(this, filter);
+    }
+
+    /**
+     * Execute a task in parallel on each element (filtered gby given filter) of the list.<br>
+     * Tasks are launch, and method return immediately<br>
+     * Note:
+     * <ul>
+     * <li> Their no guarantee about the order of elements' list meet by the task. If order mandatory use {@link #consumeAsync(ConsumerTask, Filter)}</li>
+     * <li> Since order is not important, thread management is simplified, so it is faster than {@link #consumeAsync(ConsumerTask, Filter)} </li>
+     * </ul>
+     *
+     * @param task   Task to play
+     * @param filter Filter to select elements. If {@code null}, all elements are taken
+     * @return Future to track/link to the end of all parallel tasks
+     */
+    @Override
+    public Future<Void> async(final ConsumerTask<T> task, final Filter<T> filter)
+    {
+        return ForEach.async(this.collection, task, filter);
+    }
+
+    /**
+     * Execute task for each element (that respects the given filter) of the list
+     *
+     * @param task   Task to do
+     * @param filter Filter to select elements. If {@code null}, all elements are taken
+     * @return This list itself, convenient for chaining
+     */
+    @Override
+    public CollectionParallel<T> consume(final ConsumerTask<T> task, final Filter<T> filter)
+    {
+        for (T element : this)
+        {
+            if (filter == null || filter.isFiltered(element))
+            {
+                task.consume(element);
+            }
+        }
+
+        return this;
+    }
+
+    /**
+     * Create list composed of filtered elements of the list
+     *
+     * @param filter Filter to select elements
+     * @return List of filtered elements
+     */
+    @Override
+    public CollectionParallel<T> filter(final Filter<T> filter)
+    {
+        final Collection<T> collection = new ArrayList<>();
+        this.consume(collection::add, filter);
+        return new CollectionParallel<>(collection);
+    }
+
+    /**
+     * Execute task for each element (that respects the given filter) of the list and collect the result in other list
+     *
+     * @param task   Task to do
+     * @param filter Filter to select elements. If {@code null}, all elements are taken
+     * @param <R>    Result list element type
+     * @return List with transformed elements
+     */
+    @Override
+    public <R> ParallelList<R, ?> flatMap(
+            final Task<T, ParallelList<R, ?>> task, final Filter<T> filter)
+    {
+        final ArrayObject<R>   arrayObject = new ArrayObject<>();
+        final Task<R, Boolean> add         = arrayObject::add;
+
+        for (T element : this)
+        {
+            if (filter == null || filter.isFiltered(element))
+            {
+                task.playTask(element).map(add);
+            }
+        }
+
+        return arrayObject;
+    }
+
+    /**
      * Execute a task in parallel on each element (filtered gby given filter) of the list.<br>
      * Tasks are launch, and method return immediately<br>
      * Note:
@@ -51,7 +158,52 @@ public final class CollectionParallel<T> implements ParallelList<T, CollectionPa
     @Override
     public CollectionParallel<T> forEach(final ConsumerTask<T> task, final Filter<T> filter)
     {
-        ForEach.forEach(this.collection, task, filter);return this;
+        ForEach.forEach(this.collection, task, filter);
+        return this;
+    }
+
+    /**
+     * Execute task for each element (that respects the given filter) of the list and collect the result in other list
+     *
+     * @param task   Task to do
+     * @param filter Filter to select elements. If {@code null}, all elements are taken
+     * @param <R>    Result list element type
+     * @return List with transformed elements
+     */
+    @Override
+    public <R> ParallelList<R, ?> map(final Task<T, R> task, final Filter<T> filter)
+    {
+        final ArrayObject<R> arrayObject = new ArrayObject<>();
+
+        for (T element : this)
+        {
+            if (filter == null || filter.isFiltered(element))
+            {
+                arrayObject.add(task.playTask(element));
+            }
+        }
+
+        return arrayObject;
+    }
+
+    /**
+     * Execute a task in parallel on each element (filtered gby given filter) of the list.<br>
+     * The method will wait all parallel task finished before return<br>
+     * Note:
+     * <ul>
+     * <li> Their no guarantee about the order of elements' list meet by the task. If order mandatory use {@link #consumeAsync(ConsumerTask, Filter)} and {@link Future#waitFinish()}</li>
+     * <li> Since order is not important, thread management is simplified, so it is faster than {@link #consumeAsync(ConsumerTask, Filter)} and {@link Future#waitFinish()} </li>
+     * </ul>
+     *
+     * @param task   Task to play
+     * @param filter Filter to select elements. If {@code null}, all elements are taken
+     * @return The list itself, convenient for chaining
+     */
+    @Override
+    public CollectionParallel<T> sync(final ConsumerTask<T> task, final Filter<T> filter)
+    {
+        ForEach.sync(this.collection, task, filter);
+        return this;
     }
 
     /**
@@ -369,143 +521,6 @@ public final class CollectionParallel<T> implements ParallelList<T, CollectionPa
     public void clear()
     {
         this.collection.clear();
-    }
-
-    /**
-     * Execute a task in parallel on each element (filtered gby given filter) of the list.<br>
-     * The method will wait all parallel task finished before return<br>
-     * Note:
-     * <ul>
-     * <li> Their no guarantee about the order of elements' list meet by the task. If order mandatory use {@link #consumeAsync(ConsumerTask, Filter)} and {@link Future#waitFinish()}</li>
-     * <li> Since order is not important, thread management is simplified, so it is faster than {@link #consumeAsync(ConsumerTask, Filter)} and {@link Future#waitFinish()} </li>
-     * </ul>
-     *
-     * @param task   Task to play
-     * @param filter Filter to select elements. If {@code null}, all elements are taken
-     * @return The list itself, convenient for chaining
-     */
-    @Override
-    public CollectionParallel<T> sync(final ConsumerTask<T> task, final Filter<T> filter)
-    {
-        ForEach.sync(this.collection, task, filter);
-        return this;
-    }
-
-    /**
-     * Execute a task in parallel on each element (filtered gby given filter) of the list.<br>
-     * Tasks are launch, and method return immediately<br>
-     * Note:
-     * <ul>
-     * <li> Their no guarantee about the order of elements' list meet by the task. If order mandatory use {@link #consumeAsync(ConsumerTask, Filter)}</li>
-     * <li> Since order is not important, thread management is simplified, so it is faster than {@link #consumeAsync(ConsumerTask, Filter)} </li>
-     * </ul>
-     *
-     * @param task   Task to play
-     * @param filter Filter to select elements. If {@code null}, all elements are taken
-     * @return Future to track/link to the end of all parallel tasks
-     */
-    @Override
-    public Future<Void> async(final ConsumerTask<T> task, final Filter<T> filter)
-    {
-        return ForEach.async(this.collection, task, filter);
-    }
-
-    /**
-     * Create list composed of filtered elements of the list
-     *
-     * @param filter Filter to select elements
-     * @return List of filtered elements
-     */
-    @Override
-    public CollectionParallel<T> filter(final Filter<T> filter)
-    {
-        final Collection<T> collection = new ArrayList<>();
-        this.consume(collection::add, filter);
-        return new CollectionParallel<>(collection);
-    }
-
-    /**
-     * Obtain an element from the list that match the given filter.<br>
-     * The result can be any element in list that match.<br>
-     * If no element found, the result future will be on error.<br>
-     * The search is do in separate thread
-     *
-     * @param filter Filter to use for search
-     * @return Future link to the search. It will contains the found element or be on error if no elements match
-     */
-    @Override
-    public Future<T> any(final Filter<T> filter)
-    {
-        return Future.firstMatch(this, filter);
-    }
-    /**
-     * Execute task for each element (that respects the given filter) of the list and collect the result in other list
-     *
-     * @param task   Task to do
-     * @param filter Filter to select elements. If {@code null}, all elements are taken
-     * @param <R>    Result list element type
-     * @return List with transformed elements
-     */
-    @Override
-    public <R> ParallelList<R, ?> map(final Task<T, R> task, final Filter<T> filter)
-    {
-        final ArrayObject<R> arrayObject = new ArrayObject<>();
-
-        for (T element : this)
-        {
-            if (filter == null || filter.isFiltered(element))
-            {
-                arrayObject.add(task.playTask(element));
-            }
-        }
-
-        return arrayObject;
-    }
-    /**
-     * Execute task for each element (that respects the given filter) of the list
-     *
-     * @param task   Task to do
-     * @param filter Filter to select elements. If {@code null}, all elements are taken
-     * @return This list itself, convenient for chaining
-     */
-    @Override
-    public CollectionParallel<T> consume(final ConsumerTask<T> task, final Filter<T> filter)
-    {
-        for (T element : this)
-        {
-            if (filter == null || filter.isFiltered(element))
-            {
-                task.consume(element);
-            }
-        }
-
-        return this;
-    }
-
-    /**
-     * Execute task for each element (that respects the given filter) of the list and collect the result in other list
-     *
-     * @param task   Task to do
-     * @param filter Filter to select elements. If {@code null}, all elements are taken
-     * @param <R>    Result list element type
-     * @return List with transformed elements
-     */
-    @Override
-    public <R> ParallelList<R, ?> flatMap(
-            final Task<T, ParallelList<R, ?>> task, final Filter<T> filter)
-    {
-        final ArrayObject<R> arrayObject = new ArrayObject<>();
-        final Task<R, Boolean> add = arrayObject::add;
-
-        for (T element : this)
-        {
-            if (filter == null || filter.isFiltered(element))
-            {
-                task.playTask(element).map(add);
-            }
-        }
-
-        return arrayObject;
     }
 
 }

@@ -1,14 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any
- * damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.image.bmp;
 
 import java.awt.Dimension;
@@ -36,37 +37,6 @@ import jhelp.util.thread.Pointer;
 public class BitmapImage
 {
     /**
-     * Bitmap header
-     */
-    private final BitmapHeader bitmapHeader;
-    /**
-     * Image height
-     */
-    private final int          height;
-    /**
-     * Embed raster image
-     */
-    private final RasterImage  rasterImage;
-    /**
-     * Image width
-     */
-    private final int          width;
-
-    /**
-     * Create a new instance of BitmapImage
-     *
-     * @param bitmapHeader Bitmap header
-     * @param rasterImage  Raster image
-     */
-    private BitmapImage(final BitmapHeader bitmapHeader, final RasterImage rasterImage)
-    {
-        this.bitmapHeader = bitmapHeader;
-        this.rasterImage = rasterImage;
-        this.width = this.rasterImage.getWidth();
-        this.height = this.rasterImage.getHeight();
-    }
-
-    /**
      * Compute bitmap image size from file
      *
      * @param file File to parse
@@ -82,55 +52,6 @@ public class BitmapImage
         }
 
         return new Dimension(bitmapHeader.getWidth(), bitmapHeader.getHeight());
-    }
-
-    /**
-     * Read complete bitmap header from a file
-     *
-     * @param file File to read
-     * @return Bitmap header OR {@code null} if file not valid bitmap
-     */
-    public static BitmapHeader obtainBitmapHeader(final File file)
-    {
-        if ((file == null) || (!file.exists()) || (file.isDirectory()) || (!file.canRead()))
-        {
-            return null;
-        }
-
-        Pointer<BitmapHeader> pointer = new Pointer<>();
-        UtilIO.treatInputStream(() -> new FileInputStream(file),
-                                inputStream -> pointer.data(BitmapImage.readBitmapHeader(inputStream)));
-        return pointer.data();
-    }
-
-    /**
-     * Read complete bitmap header from stream.<br>
-     * Stream not close by this method
-     *
-     * @param inputStream Stream to read
-     * @return Bitmap header
-     * @throws IOException On reading issue
-     */
-    public static BitmapHeader readBitmapHeader(final InputStream inputStream) throws IOException
-    {
-        return BitmapImage.readBitmapHeader(inputStream, false);
-    }
-
-    /**
-     * Read complete or partial bitmap header from stream.<br>
-     * Stream not close by this method
-     *
-     * @param inputStream Stream to read
-     * @param jumpHeader  Indicates if have to read to first part ({@code false}) of header (so all header read) OR not read the
-     *                    first
-     *                    part of header ({@code true}) missing information complete by an other way
-     * @return Bitmap header
-     * @throws IOException On reading issue
-     */
-    public static BitmapHeader readBitmapHeader(final InputStream inputStream, final boolean jumpHeader)
-            throws IOException
-    {
-        return new BitmapHeader(inputStream, jumpHeader);
     }
 
     /**
@@ -160,6 +81,25 @@ public class BitmapImage
         Pointer<BitmapImage> pointer = new Pointer<>();
         UtilIO.treatInputStream(() -> new FileInputStream(file),
                                 inputStream -> pointer.data(BitmapImage.parse(inputStream)));
+        return pointer.data();
+    }
+
+    /**
+     * Read complete bitmap header from a file
+     *
+     * @param file File to read
+     * @return Bitmap header OR {@code null} if file not valid bitmap
+     */
+    public static BitmapHeader obtainBitmapHeader(final File file)
+    {
+        if ((file == null) || (!file.exists()) || (file.isDirectory()) || (!file.canRead()))
+        {
+            return null;
+        }
+
+        Pointer<BitmapHeader> pointer = new Pointer<>();
+        UtilIO.treatInputStream(() -> new FileInputStream(file),
+                                inputStream -> pointer.data(BitmapImage.readBitmapHeader(inputStream)));
         return pointer.data();
     }
 
@@ -232,6 +172,67 @@ public class BitmapImage
         }
 
         return new BitmapImage(bitmapHeader, rasterImage);
+    }
+
+    /**
+     * Read complete or partial bitmap header from stream.<br>
+     * Stream not close by this method
+     *
+     * @param inputStream Stream to read
+     * @param jumpHeader  Indicates if have to read to first part ({@code false}) of header (so all header read) OR not read the
+     *                    first
+     *                    part of header ({@code true}) missing information complete by an other way
+     * @return Bitmap header
+     * @throws IOException On reading issue
+     */
+    public static BitmapHeader readBitmapHeader(final InputStream inputStream, final boolean jumpHeader)
+            throws IOException
+    {
+        return new BitmapHeader(inputStream, jumpHeader);
+    }
+
+    /**
+     * Read complete bitmap header from stream.<br>
+     * Stream not close by this method
+     *
+     * @param inputStream Stream to read
+     * @return Bitmap header
+     * @throws IOException On reading issue
+     */
+    public static BitmapHeader readBitmapHeader(final InputStream inputStream) throws IOException
+    {
+        return BitmapImage.readBitmapHeader(inputStream, false);
+    }
+
+    /**
+     * Bitmap header
+     */
+    private final BitmapHeader bitmapHeader;
+    /**
+     * Image height
+     */
+    private final int          height;
+    /**
+     * Embed raster image
+     */
+    private final RasterImage  rasterImage;
+    /**
+     * Image width
+     */
+    private final int          width;
+
+    /**
+     * Create a new instance of BitmapImage
+     *
+     * @param bitmapHeader Bitmap header
+     * @param rasterImage  Raster image
+     */
+    private BitmapImage(final BitmapHeader bitmapHeader, final RasterImage rasterImage)
+    {
+        this.bitmapHeader = bitmapHeader;
+        this.rasterImage = rasterImage;
+        this.width = this.rasterImage.getWidth();
+        this.height = this.rasterImage.getHeight();
     }
 
     /**

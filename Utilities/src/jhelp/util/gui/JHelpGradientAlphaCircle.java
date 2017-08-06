@@ -1,13 +1,15 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.gui;
 
 import jhelp.util.math.Math2;
@@ -22,36 +24,56 @@ import jhelp.util.math.Math2;
 public class JHelpGradientAlphaCircle
         implements JHelpPaint
 {
-    /** Multiplier that give a normal impact */
+    /**
+     * Multiplier that give a normal impact
+     */
     public static final double MULTIPLIER_NORMAL     = 1;
-    /** Multiplier that give a thick impact */
+    /**
+     * Multiplier that give a thick impact
+     */
     public static final double MULTIPLIER_THICK      = 1.5;
-    /** Multiplier that give a thin impact */
+    /**
+     * Multiplier that give a thin impact
+     */
     public static final double MULTIPLIER_THIN       = 0.75;
-    /** Multiplier that give a very thick impact */
+    /**
+     * Multiplier that give a very thick impact
+     */
     public static final double MULTIPLIER_VERY_THICK = 2;
-    /** Multiplier that give a very thin impact */
+    /**
+     * Multiplier that give a very thin impact
+     */
     public static final double MULTIPLIER_VERY_THIN  = 0.5;
-    /** Color maximum alpha (At center) */
+    /**
+     * Color maximum alpha (At center)
+     */
     private final int    alpha;
-    /** Color part (without alpha) */
+    /**
+     * Color part (without alpha)
+     */
     private final int    colorPart;
-    /** Center X */
+    /**
+     * Center X
+     */
     private       double cx;
-    /** Center Y */
+    /**
+     * Center Y
+     */
     private       double cy;
-    /** Factor used for compute */
+    /**
+     * Factor used for compute
+     */
     private       double factor;
-    /** Multiplier for modify impact */
+    /**
+     * Multiplier for modify impact
+     */
     private final double multiplier;
 
     /**
      * Create a new instance of JHelpGradientAlphaCircle
      *
-     * @param color
-     *           Color on center
-     * @param multiplier
-     *           Multiplier for modify impact
+     * @param color      Color on center
+     * @param multiplier Multiplier for modify impact
      */
     public JHelpGradientAlphaCircle(final int color, final double multiplier)
     {
@@ -66,10 +88,8 @@ public class JHelpGradientAlphaCircle
      * <b>Parent documentation:</b><br>
      * {@inheritDoc}
      *
-     * @param width
-     *           Area width
-     * @param height
-     *           Area height
+     * @param width  Area width
+     * @param height Area height
      * @see jhelp.util.gui.JHelpPaint#initializePaint(int, int)
      */
     @Override
@@ -87,10 +107,8 @@ public class JHelpGradientAlphaCircle
      * <b>Parent documentation:</b><br>
      * {@inheritDoc}
      *
-     * @param x
-     *           X
-     * @param y
-     *           Y
+     * @param x X
+     * @param y Y
      * @return Color
      * @see jhelp.util.gui.JHelpPaint#obtainColor(int, int)
      */

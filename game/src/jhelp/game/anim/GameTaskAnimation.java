@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.game.anim;
 
 import com.sun.istack.internal.NotNull;
@@ -5,17 +17,17 @@ import com.sun.istack.internal.Nullable;
 import java.util.Objects;
 import jhelp.game.gui.GameAnimation;
 import jhelp.util.gui.JHelpImage;
-import jhelp.util.thread.ThreadManager;
 import jhelp.util.thread.ConsumerTask;
+import jhelp.util.thread.ThreadManager;
 
 /**
  * Created by jhelp on 14/07/17.
  */
 public class GameTaskAnimation<P> extends GameAnimation
 {
-    private final ConsumerTask<P> task;
-    private final P               parameter;
     private final int             atFrame;
+    private final P               parameter;
+    private final ConsumerTask<P> task;
 
     public GameTaskAnimation(@NotNull final ConsumerTask<P> task)
     {
@@ -41,18 +53,6 @@ public class GameTaskAnimation<P> extends GameAnimation
     }
 
     /**
-     * Called when animation start<br>
-     * The given image parent is locked in not draw mode, to let opportunity to create some sprites if animation need them
-     *
-     * @param parent Image parent to create sprites if need
-     */
-    @Override
-    protected void startAnimation(final JHelpImage parent)
-    {
-        //Nothing to do
-    }
-
-    /**
      * Called when animation is terminated.<br>
      * The given image parent is locked in not draw mode, to remove properly sprites linked to this animation
      *
@@ -60,6 +60,18 @@ public class GameTaskAnimation<P> extends GameAnimation
      */
     @Override
     protected void endAnimation(final JHelpImage parent)
+    {
+        //Nothing to do
+    }
+
+    /**
+     * Called when animation start<br>
+     * The given image parent is locked in not draw mode, to let opportunity to create some sprites if animation need them
+     *
+     * @param parent Image parent to create sprites if need
+     */
+    @Override
+    protected void startAnimation(final JHelpImage parent)
     {
         //Nothing to do
     }
