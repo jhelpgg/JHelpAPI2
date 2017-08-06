@@ -85,7 +85,7 @@ public abstract class GameKeyFrameAnimation<O, V> extends GameAnimation
      *
      * @param value  Value to give
      * @param object Object where apply the value
-     * @param parent Image parent lovked in draw mode to draw something if need
+     * @param parent Image parent locked in draw mode to draw something if need
      */
     protected abstract void apply(@NotNull V value, @NotNull O object, @NotNull JHelpImage parent);
 
@@ -178,14 +178,6 @@ public abstract class GameKeyFrameAnimation<O, V> extends GameAnimation
     }
 
     /**
-     * compute current value for given object
-     *
-     * @param object Object to get current value
-     * @return Current value
-     */
-    protected abstract @NotNull V obtainValue(@NotNull O object);
-
-    /**
      * Called when animation start<br>
      * The given image parent is locked in not draw mode, to let opportunity to create some sprites if animation need them
      *
@@ -197,6 +189,14 @@ public abstract class GameKeyFrameAnimation<O, V> extends GameAnimation
         this.startValue = this.obtainValue(this.object);
         this.animationStarted(parent);
     }
+
+    /**
+     * compute current value for given object
+     *
+     * @param object Object to get current value
+     * @return Current value
+     */
+    protected abstract @NotNull V obtainValue(@NotNull O object);
 
     /**
      * Define the value for a specific frame

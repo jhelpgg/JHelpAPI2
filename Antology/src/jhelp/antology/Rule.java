@@ -18,8 +18,20 @@ import java.util.Objects;
 import jhelp.util.io.ByteArray;
 import jhelp.util.list.ArrayObject;
 
-public class Rule
+/**
+ * Describe a {@link Graph} rule to apply.<br>
+ * When a rule is applied, it list all triplet match the first and second triplet,
+ * filter these two lists to match the constraints, and create new triplet on apply result rule.
+ */
+public final class Rule
 {
+    /**
+     * Parse byte array to have a Rule
+     *
+     * @param byteArray Byte array to parse
+     * @return Rule parsed
+     * @throws Exception If byte array not contains data for Rule
+     */
     public static Rule parse(ByteArray byteArray) throws Exception
     {
         Node       firstSubject      = Node.parse(byteArray);
@@ -43,18 +55,65 @@ public class Rule
 
         return rule;
     }
+
+    /**
+     * First information
+     */
     private final Node                        firstInformation;
+    /**
+     * First predicate
+     */
     private final Node                        firstPredicate;
+    /**
+     * First subject
+     */
     private final Node                        firstSubject;
+    /**
+     * Indicates if rule can be changed
+     */
     private       boolean                     mutable;
+    /**
+     * Result information
+     */
     private final RuleResult                  resultInformation;
+    /**
+     * Result predicate
+     */
     private final RuleResult                  resultPredicate;
+    /**
+     * Result subject
+     */
     private final RuleResult                  resultSubject;
+    /**
+     * Rule constraints
+     */
     private final ArrayObject<RuleConstraint> ruleConstraints;
+    /**
+     * Second information
+     */
     private final Node                        secondInformation;
+    /**
+     * Second predicate
+     */
     private final Node                        secondPredicate;
+    /**
+     * Second subject
+     */
     private final Node                        secondSubject;
 
+    /**
+     * Create a rule.
+     *
+     * @param firstSubject      First triple subject
+     * @param firstPredicate    First triplet predicate
+     * @param firstInformation  First triplet information
+     * @param secondSubject     Second triple subject
+     * @param secondPredicate   Second triplet predicate
+     * @param secondInformation Second triplet information
+     * @param resultSubject     How create result subject
+     * @param resultPredicate   How create result predicate
+     * @param resultInformation How create result information
+     */
     public Rule(
             @NotNull final Node firstSubject,
             @NotNull final Node firstPredicate,
@@ -88,6 +147,18 @@ public class Rule
         this.ruleConstraints = new ArrayObject<>();
     }
 
+    /**
+     * Compute node corresponding a node result
+     *
+     * @param ruleResult        How create result
+     * @param firstSubject      First triple subject
+     * @param firstPredicate    First triplet predicate
+     * @param firstInformation  First triplet information
+     * @param secondSubject     Second triple subject
+     * @param secondPredicate   Second triplet predicate
+     * @param secondInformation Second triplet information
+     * @return Result node
+     */
     private Node computeNode(
             RuleResult ruleResult,
             @NotNull final Node firstSubject,
@@ -123,11 +194,20 @@ public class Rule
         }
     }
 
+    /**
+     * Make the rule immutable
+     */
     void makeImmutable()
     {
         this.mutable = false;
     }
 
+    /**
+     * Add a rule constraints
+     *
+     * @param ruleConstraint Constraints to add
+     * @throws IllegalStateException If rule is immutable. See {@link #mutable()}
+     */
     public void addConstraint(RuleConstraint ruleConstraint)
     {
         if (!this.mutable)
@@ -147,6 +227,17 @@ public class Rule
         }
     }
 
+    /**
+     * Apply, if possible, the rule to given tripplets
+     *
+     * @param firstSubject      First triple subject
+     * @param firstPredicate    First triplet predicate
+     * @param firstInformation  First triplet information
+     * @param secondSubject     Second triple subject
+     * @param secondPredicate   Second triplet predicate
+     * @param secondInformation Second triplet information
+     * @return Node result. {@code null} if rule not apply to given triplets
+     */
     public @Nullable Triplet apply(
             @NotNull final Node firstSubject,
             @NotNull final Node firstPredicate,
@@ -268,6 +359,12 @@ public class Rule
         return new Triplet(subject, predicate, information);
     }
 
+    /**
+     * Indicates if given object equals to this Rule
+     *
+     * @param object Object to compare with
+     * @return {@code true} if given object equals to this Rule
+     */
     @Override
     public boolean equals(final Object object)
     {
@@ -305,56 +402,111 @@ public class Rule
                rule.ruleConstraints.containsAll(this.ruleConstraints);
     }
 
+    /**
+     * First triplet information
+     *
+     * @return First triplet information
+     */
     public @NotNull Node firstInformation()
     {
         return this.firstInformation;
     }
 
+    /**
+     * First triplet predicate
+     *
+     * @return First triplet predicate
+     */
     public @NotNull Node firstPredicate()
     {
         return this.firstPredicate;
     }
 
+    /**
+     * First triplet subject
+     *
+     * @return First triplet subject
+     */
     public @NotNull Node firstSubject()
     {
         return this.firstSubject;
     }
 
+    /**
+     * Indicates if rule is mutable
+     *
+     * @return {@code true} if rule is mutable
+     */
     public boolean mutable()
     {
         return this.mutable;
     }
 
+    /**
+     * How create result information
+     *
+     * @return How create result information
+     */
     public @NotNull RuleResult resultInformation()
     {
         return this.resultInformation;
     }
 
+    /**
+     * How create result predicate
+     *
+     * @return How create result predicate
+     */
     public @NotNull RuleResult resultPredicate()
     {
         return this.resultPredicate;
     }
 
+    /**
+     * How create result subject
+     *
+     * @return How create result subject
+     */
     public @NotNull RuleResult resultSubject()
     {
         return this.resultSubject;
     }
 
+    /**
+     * Second triplet information
+     *
+     * @return Second triplet information
+     */
     public @NotNull Node secondInformation()
     {
         return this.secondInformation;
     }
 
+    /**
+     * Second triplet predicate
+     *
+     * @return Second triplet predicate
+     */
     public @NotNull Node secondPredicate()
     {
         return this.secondPredicate;
     }
 
+    /**
+     * Second triplet subject
+     *
+     * @return Second triplet subject
+     */
     public @NotNull Node secondSubject()
     {
         return this.secondSubject;
     }
 
+    /**
+     * Serialize Rule in byte array
+     *
+     * @param byteArray Byte array where write
+     */
     public void serialize(ByteArray byteArray)
     {
         this.firstSubject.serialize(byteArray);

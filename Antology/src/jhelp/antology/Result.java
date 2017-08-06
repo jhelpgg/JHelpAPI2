@@ -13,14 +13,32 @@
 package jhelp.antology;
 
 /**
- * Created by jhelp on 25/07/17.
+ * Result extract for {@link Rule}
  */
 public enum Result
 {
+    /**
+     * Use the first subject
+     */
     FIRST_SUBJECT,
+    /**
+     * Use the second subject
+     */
     SECOND_SUBJECT,
+    /**
+     * Use the first predicate
+     */
     FIRST_PREDICATE,
+    /**
+     * Use the second predicate
+     */
     SECOND_PREDICATE,
+    /**
+     * Use the first information
+     */
     FIRST_INFORMATION,
+    /**
+     * Use the second information
+     */
     SECOND_INFORMATION
 }

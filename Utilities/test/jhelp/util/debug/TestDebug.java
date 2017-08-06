@@ -118,6 +118,9 @@ public class TestDebug
     @Test
     public void testDebugType()
     {
+        DebugLevel debugLevel = Debug.getDebugLevel();
+        Debug.setLevel(DebugLevel.VERBOSE);
+
         Debug.debug("Debug message");
         String message = TestDebug.spyOut.popLastWrote();
         Assert.assertTrue(message + " NOT CONTAINS Debug message", message.contains("Debug message"));
@@ -142,5 +145,7 @@ public class TestDebug
         Debug.warning("Warning message");
         message = TestDebug.spyErr.popLastWrote();
         Assert.assertTrue(message + " NOT CONTAINS Warning message", message.contains("Warning message"));
+
+        Debug.setLevel(debugLevel);
     }
 }

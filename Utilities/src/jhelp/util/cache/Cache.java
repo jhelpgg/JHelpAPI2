@@ -18,13 +18,9 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * Manage a only RAM cache<br>
- * <br>
- * Last modification : 13 avr. 2010<br>
- * Version 0.0.0<br>
+ * Manage a only RAM cache
  *
  * @param <T> Element type
- * @author JHelp
  */
 public final class Cache<T>
 {

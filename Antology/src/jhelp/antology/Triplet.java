@@ -17,10 +17,16 @@ import jhelp.util.io.ByteArray;
 import jhelp.util.text.UtilText;
 
 /**
- * Created by jhelp on 22/07/17.
+ * Triplet composed of subject, predicate, information
  */
 public final class Triplet implements Comparable<Triplet>
 {
+    /***
+     * Parse triplet from byte array
+     * @param byteArray Byte array to parse
+     * @return Parsed triplet
+     * @throws Exception If byte array not contains valid triplet data
+     */
     public static Triplet parse(ByteArray byteArray) throws Exception
     {
         final Node subject     = Node.parse(byteArray);
@@ -28,10 +34,27 @@ public final class Triplet implements Comparable<Triplet>
         final Node information = Node.parse(byteArray);
         return new Triplet(subject, predicate, information);
     }
+
+    /**
+     * Information
+     */
     private final Node information;
+    /**
+     * Predicate
+     */
     private final Node predicate;
+    /**
+     * Subject
+     */
     private final Node subject;
 
+    /**
+     * Create a triplet
+     *
+     * @param subject     Subject
+     * @param predicate   Predicate
+     * @param information Information
+     */
     public Triplet(final Node subject, final Node predicate, final Node information)
     {
         Objects.requireNonNull(subject, "subject MUST NOT be null!");
@@ -100,6 +123,12 @@ public final class Triplet implements Comparable<Triplet>
         return this.information.compareTo(triplet.information);
     }
 
+    /**
+     * Indicates if given object equals to this triplet
+     *
+     * @param object Object to compare with
+     * @return {@code true} if given object equals to this triplet
+     */
     @Override
     public boolean equals(final Object object)
     {
@@ -124,22 +153,42 @@ public final class Triplet implements Comparable<Triplet>
                this.information.equals(triplet.information);
     }
 
+    /**
+     * String representation
+     *
+     * @return String representation
+     */
     @Override
     public String toString()
     {
         return UtilText.concatenate(this.subject, " ==(", this.predicate, ")=> ", this.information);
     }
 
+    /**
+     * Information
+     *
+     * @return Information
+     */
     public Node information()
     {
         return this.information;
     }
 
+    /**
+     * Predicate
+     *
+     * @return Predicate
+     */
     public Node predicate()
     {
         return this.predicate;
     }
 
+    /**
+     * Serialize triplet in byte array
+     *
+     * @param byteArray Byte array where write
+     */
     public void serialize(ByteArray byteArray)
     {
         this.subject.serialize(byteArray);
@@ -147,6 +196,11 @@ public final class Triplet implements Comparable<Triplet>
         this.information.serialize(byteArray);
     }
 
+    /**
+     * Subject
+     *
+     * @return Subject
+     */
     public Node subject()
     {
         return this.subject;

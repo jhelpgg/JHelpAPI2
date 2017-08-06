@@ -15,13 +15,25 @@ package jhelp.game.data;
 import jhelp.util.math.Math2;
 
 /**
- * Created by jhelp on 20/07/17.
+ * Zoom factor on object
  */
 public final class Zoom
 {
+    /**
+     * Zoom in height
+     */
     private final float zoomHeight;
+    /**
+     * Zoom in width
+     */
     private final float zoomWidth;
 
+    /**
+     * Create zoom information
+     *
+     * @param zoomWidth  Zoom in width
+     * @param zoomHeight Zoom in height
+     */
     public Zoom(final float zoomWidth, final float zoomHeight)
     {
         if (Math2.sign(zoomWidth) <= 0 || Math2.compare(zoomWidth, 1f) > 0 ||
@@ -35,6 +47,12 @@ public final class Zoom
         this.zoomHeight = zoomHeight;
     }
 
+    /**
+     * Indicates if given object equals to this zoom
+     *
+     * @param object Object to compare with
+     * @return {@code true} if given object equals to this zoom
+     */
     @Override
     public boolean equals(final Object object)
     {
@@ -57,11 +75,21 @@ public final class Zoom
         return Math2.equals(this.zoomWidth, zoom.zoomWidth) && Math2.equals(this.zoomHeight, zoom.zoomHeight);
     }
 
+    /**
+     * Zoom in height
+     *
+     * @return Zoom in height
+     */
     public float zoomHeight()
     {
         return this.zoomHeight;
     }
 
+    /**
+     * Zoom in width
+     *
+     * @return Zoom in width
+     */
     public float zoomWidth()
     {
         return this.zoomWidth;

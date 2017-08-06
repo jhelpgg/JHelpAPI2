@@ -12,6 +12,8 @@
 
 package jhelp.util.filter;
 
+import com.sun.istack.internal.NotNull;
+import com.sun.istack.internal.Nullable;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
@@ -36,7 +38,7 @@ public final class FileFilter
      *
      * @return Created filter
      */
-    public static FileFilter createFilterForImage()
+    public static @NotNull FileFilter createFilterForImage()
     {
         return FileFilter.createFilterForImage(false, false);
     }
@@ -48,7 +50,7 @@ public final class FileFilter
      * @param acceptVirtualLink Indicates if virtual links are accepted
      * @return Created filter
      */
-    public static FileFilter createFilterForImage(final boolean acceptHidden, final boolean acceptVirtualLink)
+    public static @NotNull FileFilter createFilterForImage(final boolean acceptHidden, final boolean acceptVirtualLink)
     {
         final FileFilter fileFilter = new FileFilter(acceptHidden, acceptVirtualLink);
 
@@ -58,7 +60,7 @@ public final class FileFilter
         fileFilter.addExtension("bmp");
         fileFilter.addExtension("pcx");
 
-        fileFilter.setInformation("Images");
+        fileFilter.information("Images");
 
         return fileFilter;
     }
@@ -70,7 +72,7 @@ public final class FileFilter
      *
      * @return Created file filter
      */
-    public static FileFilter createFilterForImageByFileImageInformation()
+    public static @NotNull FileFilter createFilterForImageByFileImageInformation()
     {
         return FileFilter.createFilterForImageByFileImageInformation(false, false);
     }
@@ -82,14 +84,14 @@ public final class FileFilter
      * @param acceptVirtualLink Indicates if virtual link are accepted
      * @return Created file filter
      */
-    public static FileFilter createFilterForImageByFileImageInformation(
+    public static @NotNull FileFilter createFilterForImageByFileImageInformation(
             final boolean acceptHidden,
             final boolean acceptVirtualLink)
     {
         final FileFilter fileFilter = new FileFilter(acceptHidden, acceptVirtualLink);
 
-        fileFilter.setSecondFileFilter(FileImageInformation.FILTER_BY_FILE_INFORMATION);
-        fileFilter.setInformation("Images");
+        fileFilter.secondFileFilter(FileImageInformation.FILTER_BY_FILE_INFORMATION);
+        fileFilter.information("Images");
 
         return fileFilter;
     }
@@ -99,7 +101,7 @@ public final class FileFilter
      *
      * @return Created filter
      */
-    public static FileFilter createFilterForSound()
+    public static @NotNull FileFilter createFilterForSound()
     {
         return FileFilter.createFilterForSound(false, false);
     }
@@ -111,7 +113,7 @@ public final class FileFilter
      * @param acceptVirtualLink Indicated if virtual links are allowed
      * @return Created filter
      */
-    public static FileFilter createFilterForSound(final boolean acceptHidden, final boolean acceptVirtualLink)
+    public static @NotNull FileFilter createFilterForSound(final boolean acceptHidden, final boolean acceptVirtualLink)
     {
         final FileFilter fileFilter = new FileFilter(acceptHidden, acceptVirtualLink);
 
@@ -120,7 +122,7 @@ public final class FileFilter
         fileFilter.addExtension("wav");
         fileFilter.addExtension("mid");
 
-        fileFilter.setInformation("Sounds");
+        fileFilter.information("Sounds");
 
         return fileFilter;
     }
@@ -130,7 +132,7 @@ public final class FileFilter
      *
      * @return Created filter
      */
-    public static FileFilter createFilterForVideos()
+    public static @NotNull FileFilter createFilterForVideos()
     {
         return FileFilter.createFilterForVideos(false, false);
     }
@@ -142,7 +144,7 @@ public final class FileFilter
      * @param acceptVirtualLink Indicates if virtual links are accepted
      * @return Created filter
      */
-    public static FileFilter createFilterForVideos(final boolean acceptHidden, final boolean acceptVirtualLink)
+    public static @NotNull FileFilter createFilterForVideos(final boolean acceptHidden, final boolean acceptVirtualLink)
     {
         final FileFilter fileFilter = new FileFilter(acceptHidden, acceptVirtualLink);
 
@@ -153,7 +155,7 @@ public final class FileFilter
         fileFilter.addExtension("mpg");
         fileFilter.addExtension("flv");
 
-        fileFilter.setInformation("Videos");
+        fileFilter.information("Videos");
 
         return fileFilter;
     }
@@ -173,7 +175,7 @@ public final class FileFilter
     /**
      * Filtered extensions
      */
-    private final ArrayList<String>  extentions;
+    private final ArrayList<String>  extensions;
     /**
      * Filter information
      */
@@ -199,7 +201,7 @@ public final class FileFilter
      */
     public FileFilter(final boolean acceptHidden, final boolean acceptVirtualLink)
     {
-        this.extentions = new ArrayList<>();
+        this.extensions = new ArrayList<>();
         this.information = "All";
 
         this.acceptHidden = acceptHidden;
@@ -210,15 +212,15 @@ public final class FileFilter
     /**
      * Indicates if a file pass this filter
      *
-     * @param dir  Directory path
-     * @param name File name
+     * @param directory Directory path
+     * @param name      File name
      * @return {@code true} if the file pass this filter
      * @see FilenameFilter#accept(File, String)
      */
     @Override
-    public boolean accept(final File dir, final String name)
+    public boolean accept(final @NotNull File directory, final @NotNull String name)
     {
-        return this.accept(new File(dir, name));
+        return this.accept(new File(directory, name));
     }
 
     /**
@@ -230,7 +232,7 @@ public final class FileFilter
      * @see java.io.FileFilter#accept(File)
      */
     @Override
-    public boolean accept(final File file)
+    public boolean accept(final @Nullable File file)
     {
         try
         {
@@ -261,7 +263,7 @@ public final class FileFilter
             return this.acceptDirectory;
         }
 
-        return this.isFiltered(file.getName());
+        return this.filtered(file.getName());
     }
 
     /**
@@ -271,7 +273,7 @@ public final class FileFilter
      * @see javax.swing.filechooser.FileFilter#getDescription()
      */
     @Override
-    public String getDescription()
+    public @NotNull String getDescription()
     {
         final StringBuilder stringBuffer = new StringBuilder();
         if (this.information != null)
@@ -291,11 +293,66 @@ public final class FileFilter
     }
 
     /**
+     * Indicates if directories are accepted
+     *
+     * @return {@code true} if directories are accepted
+     */
+    public boolean acceptDirectory()
+    {
+        return this.acceptDirectory;
+    }
+
+    /**
+     * Change the accept directories value
+     *
+     * @param acceptDirectory Accept or not directories
+     */
+    public void acceptDirectory(final boolean acceptDirectory)
+    {
+        this.acceptDirectory = acceptDirectory;
+    }
+
+    /**
      * Add an extension in the filter
      *
      * @param extension Extension added
      */
-    public void addExtension(String extension)
+    public void addExtension(@NotNull String extension)
+    {
+        if (extension == null)
+        {
+            throw new NullPointerException("extension MUST NOT be null");
+        }
+
+        extension = extension.trim()
+                             .toLowerCase();
+
+        if (extension.length() == 0)
+        {
+            throw new IllegalArgumentException("extension MUST NOT be empty");
+        }
+
+        this.extensions.add(extension);
+    }
+
+    /**
+     * Get an extension in the filter
+     *
+     * @param index Extension index
+     * @return Extension
+     */
+    public @NotNull String extension(final int index)
+    {
+        return this.extensions.get(index);
+    }
+
+    /**
+     * Indicates if an extension is filter
+     *
+     * @param extension Extension test
+     * @return {@code true} if the extension is filter
+     */
+    public boolean extensionFiltered(@NotNull String extension)
     {
         if (extension == null)
         {
@@ -310,7 +367,7 @@ public final class FileFilter
             throw new NullPointerException("extension MUST NOT be empty");
         }
 
-        this.extentions.add(extension);
+        return this.extensions.contains(extension);
     }
 
     /**
@@ -318,9 +375,10 @@ public final class FileFilter
      *
      * @return Filter string
      */
-    public String filter()
+    public @NotNull String filter()
     {
-        final int size = this.extentions.size();
+        final int size = this.extensions.size();
+
         if (size == 0)
         {
             return "*";
@@ -329,110 +387,15 @@ public final class FileFilter
         final StringBuilder stringBuffer = new StringBuilder();
 
         stringBuffer.append("*.");
-        stringBuffer.append(this.extentions.get(0));
+        stringBuffer.append(this.extensions.get(0));
 
         for (int i = 1; i < size; i++)
         {
             stringBuffer.append(";*.");
-            stringBuffer.append(this.extentions.get(i));
+            stringBuffer.append(this.extensions.get(i));
         }
 
         return stringBuffer.toString();
-    }
-
-    /**
-     * Get an extention in the filter
-     *
-     * @param index Extention index
-     * @return Extention
-     */
-    public String getExtention(final int index)
-    {
-        return this.extentions.get(index);
-    }
-
-    /**
-     * Return information
-     *
-     * @return information
-     */
-    public String getInformation()
-    {
-        return this.information;
-    }
-
-    /**
-     * Modify information
-     *
-     * @param information New information value
-     */
-    public void setInformation(final String information)
-    {
-        this.information = information;
-    }
-
-    /**
-     * Return secondFileFilter
-     *
-     * @return secondFileFilter
-     */
-    public java.io.FileFilter getSecondFileFilter()
-    {
-        return this.secondFileFilter;
-    }
-
-    /**
-     * Modify secondFileFilter
-     *
-     * @param secondFileFilter New secondFileFilter value
-     */
-    public void setSecondFileFilter(final java.io.FileFilter secondFileFilter)
-    {
-        this.secondFileFilter = secondFileFilter;
-    }
-
-    /**
-     * Indicates if directories are accepted
-     *
-     * @return {@code true} if directories are accepted
-     */
-    public boolean isAcceptDirectory()
-    {
-        return this.acceptDirectory;
-    }
-
-    /**
-     * Change the accept directories value
-     *
-     * @param acceptDirectory Accept or not directories
-     */
-    public void setAcceptDirectory(final boolean acceptDirectory)
-    {
-        this.acceptDirectory = acceptDirectory;
-    }
-
-    /**
-     * Indicates if an extention is filter
-     *
-     * @param extention Extention test
-     * @return {@code true} if the extention is filter
-     */
-    public boolean isAnExtentionFiltered(String extention)
-    {
-        if (extention == null)
-        {
-            throw new NullPointerException("extention MUST NOT be null");
-        }
-
-        extention = extention.trim()
-                             .toLowerCase();
-
-        if (extention.length() == 0)
-        {
-            throw new NullPointerException("extention MUST NOT be empty");
-        }
-
-        return this.extentions.contains(extention);
     }
 
     /**
@@ -441,9 +404,9 @@ public final class FileFilter
      * @param fileName File name
      * @return {@code true} if the file is filter
      */
-    public boolean isFiltered(String fileName)
+    public boolean filtered(@NotNull String fileName)
     {
-        if (this.extentions.isEmpty())
+        if (this.extensions.isEmpty())
         {
             return true;
         }
@@ -457,7 +420,7 @@ public final class FileFilter
         fileName = fileName.substring(index + 1)
                            .toLowerCase();
 
-        for (final String extention : this.extentions)
+        for (final String extention : this.extensions)
         {
             if (extention.equals(fileName))
             {
@@ -469,35 +432,75 @@ public final class FileFilter
     }
 
     /**
-     * Number of extentions
+     * Return information
      *
-     * @return Number of extentions
+     * @return information
      */
-    public int numberOfExtentions()
+    public @Nullable String information()
     {
-        return this.extentions.size();
+        return this.information;
     }
 
     /**
-     * Remove an extention
+     * Modify information
      *
-     * @param extention Extension to remove
+     * @param information New information value
      */
-    public void removeExtention(String extention)
+    public void information(final @Nullable String information)
     {
-        if (extention == null)
+        this.information = information;
+    }
+
+    /**
+     * Number of extensions
+     *
+     * @return Number of extensions
+     */
+    public int numberOfExtensions()
+    {
+        return this.extensions.size();
+    }
+
+    /**
+     * Remove an extension
+     *
+     * @param extension Extension to remove
+     */
+    public void removeExtension(@NotNull String extension)
+    {
+        if (extension == null)
         {
-            throw new NullPointerException("extention MUST NOT be null");
+            throw new NullPointerException("extension MUST NOT be null");
         }
 
-        extention = extention.trim()
+        extension = extension.trim()
                              .toLowerCase();
 
-        if (extention.length() == 0)
+        if (extension.length() == 0)
         {
-            throw new NullPointerException("extention MUST NOT be empty");
+            throw new IllegalArgumentException("extension MUST NOT be empty");
         }
 
-        this.extentions.remove(extention);
+        this.extensions.remove(extension);
+    }
+
+    /**
+     * Return secondFileFilter
+     *
+     * @return secondFileFilter
+     */
+    public @Nullable java.io.FileFilter secondFileFilter()
+    {
+        return this.secondFileFilter;
+    }
+
+    /**
+     * Modify secondFileFilter
+     *
+     * @param secondFileFilter New secondFileFilter value
+     */
+    public void secondFileFilter(final @Nullable java.io.FileFilter secondFileFilter)
+    {
+        this.secondFileFilter = secondFileFilter;
     }
 }

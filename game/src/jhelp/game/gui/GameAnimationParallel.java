@@ -20,12 +20,18 @@ import jhelp.game.anim.AnimationStatus;
 import jhelp.util.gui.JHelpImage;
 
 /**
- * Created by jhelp on 14/07/17.
+ * Animation that play some animations in parallel
  */
 public final class GameAnimationParallel extends GameAnimation
 {
+    /**
+     * Animations to play
+     */
     private final List<GameAnimation> animations;
 
+    /**
+     * Create an empty animation
+     */
     public GameAnimationParallel()
     {
         this.animations = new ArrayList<>();
@@ -109,6 +115,11 @@ public final class GameAnimationParallel extends GameAnimation
         return otherLoop;
     }
 
+    /**
+     * Add animation to play in parallel
+     *
+     * @param gameAnimation Animation to add
+     */
     public void add(@NotNull GameAnimation gameAnimation)
     {
         Objects.requireNonNull(gameAnimation, "gameAnimation MUST NOT be null!");
@@ -119,6 +130,11 @@ public final class GameAnimationParallel extends GameAnimation
         }
     }
 
+    /**
+     * Remove animation from managed ones
+     *
+     * @param gameAnimation Animation to remove
+     */
     public void remove(@NotNull GameAnimation gameAnimation)
     {
         synchronized (this.animations)

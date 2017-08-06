@@ -16,11 +16,7 @@ import com.sun.istack.internal.NotNull;
 import java.lang.ref.SoftReference;
 
 /**
- * Element of a {@link Cache}<br>
- * It describes how create an element <br>
- * <br>
- * Last modification : 13 avr. 2010<br>
- * Version 0.0.0<br>
+ * Element of a {@link Cache}
  *
  * @param <T> Element type
  * @author JHelp

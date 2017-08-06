@@ -18,32 +18,66 @@ import java.util.Objects;
 import jhelp.game.gui.GameAnimation;
 import jhelp.util.gui.JHelpImage;
 import jhelp.util.thread.ConsumerTask;
+import jhelp.util.thread.RunnableTask;
 import jhelp.util.thread.ThreadManager;
 
 /**
- * Created by jhelp on 14/07/17.
+ * Animation that launch a task at given frame
  */
-public class GameTaskAnimation<P> extends GameAnimation
+public final class GameTaskAnimation<P> extends GameAnimation
 {
+    /**
+     * Frame where launch the task
+     */
     private final int             atFrame;
+    /**
+     * Task parameter
+     */
     private final P               parameter;
+    /**
+     * Task to play
+     */
     private final ConsumerTask<P> task;
 
-    public GameTaskAnimation(@NotNull final ConsumerTask<P> task)
+    /**
+     * Launch task since animation is played
+     *
+     * @param task Task to do
+     */
+    public GameTaskAnimation(@NotNull final RunnableTask task)
     {
-        this(task, null, 0);
+        this(ignored -> task.run(), null, 0);
     }
 
-    public GameTaskAnimation(@NotNull final ConsumerTask<P> task, final int atFrame)
+    /**
+     * Launch task at given frame
+     *
+     * @param task    Task to do
+     * @param atFrame Frame when launch the task
+     */
+    public GameTaskAnimation(@NotNull final RunnableTask task, final int atFrame)
     {
-        this(task, null, atFrame);
+        this(ignored -> task.run(), null, atFrame);
     }
 
+    /**
+     * Launch task since animation is played
+     *
+     * @param task      Task to do
+     * @param parameter Parameter to give to task when played
+     */
     public GameTaskAnimation(@NotNull final ConsumerTask<P> task, @Nullable final P parameter)
     {
         this(task, parameter, 0);
     }
 
+    /**
+     * Launch task at given frame
+     *
+     * @param task      Task to do
+     * @param parameter Parameter to give to task when played
+     * @param atFrame   Frame when launch the task
+     */
     public GameTaskAnimation(@NotNull final ConsumerTask<P> task, @Nullable final P parameter, final int atFrame)
     {
         Objects.requireNonNull(task, "task MUST NOT be null!");

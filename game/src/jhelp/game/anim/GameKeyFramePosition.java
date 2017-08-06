@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.game.anim;
 
 import jhelp.util.gui.JHelpImage;
@@ -5,25 +17,31 @@ import jhelp.util.gui.dynamic.Position;
 import jhelp.util.gui.dynamic.Positionable;
 
 /**
- * Created by jhelp on 14/07/17.
+ * Animation key frame that animate position of something
  */
 public final class GameKeyFramePosition<P extends Positionable> extends GameKeyFrameAnimation<P, Position>
 {
+    /**
+     * Create the animation key frame
+     *
+     * @param object Object to change position
+     */
     public GameKeyFramePosition(final P object)
     {
         super(object);
     }
 
     /**
-     * compute current value for given object
+     * Apply a value to given object
      *
-     * @param object Object to get current value
-     * @return Current value
+     * @param value  Value to give
+     * @param object Object where apply the value
+     * @param parent Image parent locked in draw mode to draw something if need
      */
     @Override
-    protected Position obtainValue(final P object)
+    protected void apply(final Position value, final P object, final JHelpImage parent)
     {
-        return object.position();
+        object.position(value);
     }
 
     /**
@@ -44,15 +62,14 @@ public final class GameKeyFramePosition<P extends Positionable> extends GameKeyF
     }
 
     /**
-     * Apply a value to given object
+     * compute current value for given object
      *
-     * @param value  Value to give
-     * @param object Object where apply the value
-     * @param parent Image parent lovked in draw mode to draw something if need
+     * @param object Object to get current value
+     * @return Current value
      */
     @Override
-    protected void apply(final Position value, final P object, final JHelpImage parent)
+    protected Position obtainValue(final P object)
     {
-        object.position(value);
+        return object.position();
     }
 }

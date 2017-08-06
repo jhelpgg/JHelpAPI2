@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.list;
 
 import com.sun.istack.internal.NotNull;
@@ -36,10 +48,6 @@ public interface ParallelList<T, P extends ParallelList<T, P>>
 
         return new CollectionParallel<>(collection);
     }
-
-    // **************************************
-    // *** "for each" synchronous methods ***
-    // **************************************
 
     /**
      * Indicates if all element of the list match to given filter.<br>
@@ -134,10 +142,6 @@ public interface ParallelList<T, P extends ParallelList<T, P>>
         return this.consume(task, null);
     }
 
-    // ***************************************
-    // *** "for each" asynchronous methods ***
-    // ***************************************
-
     /**
      * Execute task for each element (that respects the given filter) of the list<br>
      * The execution is do in a separate thread, the execution is launch and this method returns immediately
@@ -224,10 +228,6 @@ public interface ParallelList<T, P extends ParallelList<T, P>>
         Objects.requireNonNull(task, "task MUST NOT be null!");
         return Future.launch(pair -> this.flatMap(pair.first, pair.second), new Pair<>(task, filter));
     }
-
-    // *************************************************
-    // *** "for each" unordered asynchronous methods ***
-    // *************************************************
 
     /**
      * Execute task for each element of the list and collect the result in other list<br>
@@ -329,10 +329,6 @@ public interface ParallelList<T, P extends ParallelList<T, P>>
         this.any(condition).andConsume(task);
         return this;
     }
-
-    // ***************************
-    // *** Conditional methods ***
-    // ***************************
 
     /**
      * Launch a task if none element match the given filter.

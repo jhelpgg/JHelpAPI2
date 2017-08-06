@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.cache;
 
 import java.util.Set;
@@ -69,7 +81,7 @@ public class TestCache
         TestCacheElement testCacheElement = new TestCacheElement(5, "a");
         cache.add("5a", testCacheElement);
         Assert.assertEquals("aaaaa", cache.get("5a"));
-        UtilTest.testException("Null key not accepted", () -> cache.remove(null));
+        cache.remove(null);
         cache.remove("8r");
         Assert.assertEquals("aaaaa", cache.get("5a"));
         Assert.assertFalse(testCacheElement.clearedCalled());

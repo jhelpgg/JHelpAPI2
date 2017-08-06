@@ -252,11 +252,11 @@ public final class Future<R>
      * @param <R>     Result type
      * @return Future link to result of first win given futures
      */
-    public static @NotNull <R> Future<R> or(@NotNull Future<R>... futures)
+    public static @SafeVarargs @NotNull <R> Future<R> or(@NotNull Future<R>... futures)
     {
         if (futures.length == 0)
         {
-            return Future.NULL;
+            return Future.of(null);
         }
 
         final Promise<R>        promise       = new Promise<>();
@@ -288,11 +288,11 @@ public final class Future<R>
      * @param <R>     Result type
      * @return Future link to result of first win given futures
      */
-    public static @NotNull <R> Future<R> or(@NotNull Filter<R> filter, @NotNull Future<R>... futures)
+    public static @SafeVarargs @NotNull <R> Future<R> or(@NotNull Filter<R> filter, @NotNull Future<R>... futures)
     {
         if (futures.length == 0)
         {
-            return Future.NULL;
+            return Future.of(null);
         }
 
         final Promise<R>    promise       = new Promise<>();
@@ -333,9 +333,7 @@ public final class Future<R>
      */
     public static @NotNull <R> Future<R> unwrap(@NotNull Future<Future<R>> future)
     {
-        Future<R> unwrap = future.thenDo(futureOfFuture -> futureOfFuture.value().value());
-        unwrap.onCancel(future::requestCancel);
-        return unwrap;
+        return future.andDoLink(Future::value);
     }
 
     /**
@@ -346,17 +344,15 @@ public final class Future<R>
      */
     public static @NotNull Future unwrapMax(@NotNull Future future)
     {
-        Future unwrap = future.thenDo(result ->
-                                      {
-                                          while (result instanceof Future)
-                                          {
-                                              result = ((Future) result).value();
-                                          }
+        return future.andDoLink(result ->
+                                {
+                                    while (result instanceof Future)
+                                    {
+                                        result = ((Future) result).value();
+                                    }
 
-                                          return result;
-                                      });
-        unwrap.onCancel(reason -> future.requestCancel((String) reason));
-        return unwrap;
+                                    return result;
+                                });
     }
 
     /**
@@ -367,7 +363,7 @@ public final class Future<R>
      * @param futures Futures to wait
      * @return Future linked to the end of given futures
      */
-    public static @NotNull Future<List<Future<?>>> waitAll(@NotNull Future<?>... futures)
+    public static @SafeVarargs @NotNull Future<List<Future<?>>> waitAll(@NotNull Future<?>... futures)
     {
         if (futures.length == 0)
         {

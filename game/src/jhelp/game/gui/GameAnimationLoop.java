@@ -18,14 +18,24 @@ import jhelp.game.anim.AnimationStatus;
 import jhelp.util.gui.JHelpImage;
 
 /**
- * Created by jhelp on 14/07/17.
+ * Animation that repeat an animation several times
  */
-public class GameAnimationLoop extends GameAnimation
+public final class GameAnimationLoop extends GameAnimation
 {
+    /**
+     * Animation to repeat
+     */
     private final GameAnimation gameAnimation;
+    /**Number loop left to do*/
     private       int           loopLeft;
+    /**Number total of loop*/
     private final int           numberOfLoop;
 
+    /**
+     * Create the animation
+     * @param gameAnimation Animation to repeat
+     * @param numberOfLoop Number of loop
+     */
     public GameAnimationLoop(@NotNull final GameAnimation gameAnimation, final int numberOfLoop)
     {
         Objects.requireNonNull(gameAnimation, "gameAnimation MUST NOT be null!");

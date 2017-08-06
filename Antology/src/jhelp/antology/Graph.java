@@ -20,15 +20,30 @@ import jhelp.util.list.SortedArray;
 import jhelp.util.thread.ConsumerTask;
 
 /**
- * Created by jhelp on 22/07/17.
+ * An ontology graph
  */
 public final class Graph
 {
+    /**
+     * Obtain graph from file.<br>
+     * If file not exists, it tries to create the file.<br>
+     * If file is valid, the graph will be automatically saved in it at each change
+     *
+     * @param file File where read/save the graph
+     * @return Graph from the file or empty graph if read failed or file just created
+     */
     public static Graph obtainGraph(File file)
     {
         return AutomaticSaveGraph.obtainGraph(file);
     }
 
+    /**
+     * Parse byte array with Graph data inside
+     *
+     * @param byteArray Byte array to parse
+     * @return Parsed graph
+     * @throws Exception If byte array data not a valid graph description
+     */
     public static Graph parse(ByteArray byteArray) throws Exception
     {
         final Graph graph = new Graph();
@@ -49,11 +64,27 @@ public final class Graph
 
         return graph;
     }
+
+    /**
+     * Listeners of graph events
+     */
     private final ArrayObject<GraphListener> graphListeners;
+    /**
+     * Graph nodes
+     */
     private final SortedArray<Node>          nodes;
+    /**
+     * Graph rules
+     */
     private final ArrayObject<Rule>          rules;
+    /**
+     * Graph version
+     */
     private       int                        version;
 
+    /**
+     * Creates an empty graph
+     */
     public Graph()
     {
         this.version = 0;
@@ -62,6 +93,11 @@ public final class Graph
         this.rules = new ArrayObject<>();
     }
 
+    /**
+     * Appply a rule
+     *
+     * @param rule Rule to apply
+     */
     private void applyRule(@NotNull final Rule rule)
     {
         final SortedArray<Triplet> firsts = this.search(rule.firstSubject(), rule.firstPredicate(),
@@ -97,11 +133,17 @@ public final class Graph
                                                 }));
     }
 
+    /**
+     * Apply all rules
+     */
     private void applyRules()
     {
         this.rules.consume(this::applyRule);
     }
 
+    /**
+     * Alert listeners that graph changed
+     */
     private void fireChanged()
     {
         synchronized (this.graphListeners)
@@ -110,6 +152,11 @@ public final class Graph
         }
     }
 
+    /**
+     * Remove a specific triplet
+     *
+     * @param triplet Triplet to remove
+     */
     private void remove(Triplet triplet)
     {
         Node subject     = triplet.subject();
@@ -129,6 +176,14 @@ public final class Graph
         }
     }
 
+    /**
+     * Add a triplet.<br>
+     * Can't add {@link Node#WILDCARD}
+     *
+     * @param subject     Subject
+     * @param predicate   Predicate
+     * @param information Information
+     */
     public void add(Node subject, Node predicate, Node information)
     {
         if (subject == Node.WILDCARD || predicate == Node.WILDCARD || information == Node.WILDCARD)
@@ -209,12 +264,28 @@ public final class Graph
         }
     }
 
+    /**
+     * Add a two ways triplet<br>
+     * Does the same as:
+     * <code lang="java">
+     * graph.add(subject1, relation, subject2);
+     * graph.add(subject2, relation, subject1);
+     * </code>
+     *
+     * @param subject1 First subject
+     * @param relation Relation between subjects
+     * @param subject2 Second subject
+     */
     public void addTwoWay(Node subject1, Node relation, Node subject2)
     {
         this.add(subject1, relation, subject2);
         this.add(subject2, relation, subject1);
     }
 
+    /**
+     * Clear the graph.<br>
+     * All nodes and rules are removed
+     */
     public void clear()
     {
         this.nodes.clear();
@@ -222,6 +293,13 @@ public final class Graph
         this.fireChanged();
     }
 
+    /**
+     * Compute paths for go from a subject to an information
+     *
+     * @param subject     Source subject
+     * @param information Destination information
+     * @return List of paths found
+     */
     public ArrayObject<Path> computePath(Node subject, Node information)
     {
         if (subject == Node.WILDCARD || information == Node.WILDCARD)
@@ -272,11 +350,21 @@ public final class Graph
         return paths;
     }
 
+    /**
+     * Indicated if graph is empty
+     *
+     * @return {@code true} if graph is empty
+     */
     public boolean empty()
     {
         return this.nodes.empty();
     }
 
+    /**
+     * Register listener to graph modifications
+     *
+     * @param graphListener Listener to register
+     */
     public void register(GraphListener graphListener)
     {
         if (graphListener == null)
@@ -293,12 +381,31 @@ public final class Graph
         }
     }
 
+    /**
+     * Remove all matching triplets.<br>
+     * Can use {@link Node#WILDCARD} to means all node
+     *
+     * @param subject     Subject to remove or {@link Node#WILDCARD} to remove all subjects
+     * @param predicate   Predicate to remove or {@link Node#WILDCARD} to remove all predicates
+     * @param information Information to remove or {@link Node#WILDCARD} to remove all information
+     */
     public void remove(Node subject, Node predicate, Node information)
     {
         this.search(subject, predicate, information).consume(this::remove);
         this.fireChanged();
     }
 
+    /**
+     * Remove all node subject, predicate or information that match to given node.<br>
+     * Does the same as:
+     * <code lang="java">
+     * graph.remove(node, Node.WILDCARD, Node.WILDCARD);
+     * graph.remove(Node.WILDCARD, node, Node.WILDCARD);
+     * graph.remove(Node.WILDCARD, Node.WILDCARD, node);
+     * </code>
+     *
+     * @param node
+     */
     public void removeAll(Node node)
     {
         this.remove(node, Node.WILDCARD, Node.WILDCARD);
@@ -306,6 +413,11 @@ public final class Graph
         this.remove(Node.WILDCARD, Node.WILDCARD, node);
     }
 
+    /**
+     * Remove a rule
+     *
+     * @param rule Rule to remove
+     */
     public void removeRule(Rule rule)
     {
         synchronized (this.rules)
@@ -317,6 +429,15 @@ public final class Graph
         }
     }
 
+    /**
+     * Search all triplet that match given triplet.<br>
+     * Can use {@link Node#WILDCARD} to mean all node of this position.
+     *
+     * @param subject     Subject to remove or {@link Node#WILDCARD} to search all subjects
+     * @param predicate   Predicate to remove or {@link Node#WILDCARD} to search all predicates
+     * @param information Information to remove or {@link Node#WILDCARD} to search all information
+     * @return List of triplet founds
+     */
     public SortedArray<Triplet> search(Node subject, Node predicate, Node information)
     {
         final SortedArray<Triplet> triplets        = new SortedArray<>(Triplet.class, true);
@@ -337,6 +458,11 @@ public final class Graph
         return triplets;
     }
 
+    /**
+     * Serialize the graph in byte array
+     *
+     * @param byteArray Byte array where serialize
+     */
     public void serialize(ByteArray byteArray)
     {
         byteArray.writeInteger(this.version);
@@ -346,6 +472,11 @@ public final class Graph
         this.rules.consume(rule -> rule.serialize(byteArray));
     }
 
+    /**
+     * Unregister listener of graph modifications.
+     *
+     * @param graphListener Listener to unregister
+     */
     public void unregister(GraphListener graphListener)
     {
         synchronized (this.graphListeners)
@@ -354,11 +485,21 @@ public final class Graph
         }
     }
 
+    /**
+     * Graph version
+     *
+     * @return Graph version
+     */
     public int version()
     {
         return this.version;
     }
 
+    /**
+     * Change graph version
+     *
+     * @param version New version. If lower or equals to current one, nothing happen
+     */
     public void version(int version)
     {
         if (version <= this.version)
@@ -370,6 +511,11 @@ public final class Graph
         this.fireChanged();
     }
 
+    /**
+     * Visit the graph to collect informations
+     *
+     * @param graphVisitor Graph visitor
+     */
     public void visit(@NotNull GraphVisitor graphVisitor)
     {
         this.nodes.consume(node ->

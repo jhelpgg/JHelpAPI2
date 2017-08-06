@@ -17,17 +17,28 @@ import jhelp.util.list.ArrayObject;
 import jhelp.util.list.SizedIterable;
 
 /**
- * Created by jhelp on 23/07/17.
+ * Node path
  */
 public final class Path implements SizedIterable<Triplet>
 {
+    /**
+     * The path
+     */
     private final ArrayObject<Triplet> path;
 
+    /**
+     * Create empty path
+     */
     Path()
     {
         this.path = new ArrayObject<>();
     }
 
+    /**
+     * Add triplet to path
+     *
+     * @param triplet Triplet to add
+     */
     void add(Triplet triplet)
     {
         if (this.path.isEmpty() || this.path.last().information().equals(triplet.subject()))
@@ -42,6 +53,11 @@ public final class Path implements SizedIterable<Triplet>
         }
     }
 
+    /**
+     * Copy the path
+     *
+     * @return Path copy
+     */
     public Path copy()
     {
         Path copy = new Path();
@@ -49,6 +65,11 @@ public final class Path implements SizedIterable<Triplet>
         return copy;
     }
 
+    /**
+     * Start subject
+     *
+     * @return Start subject
+     */
     public Node firstSubject()
     {
         if (this.path.isEmpty())
@@ -60,7 +81,7 @@ public final class Path implements SizedIterable<Triplet>
     }
 
     /**
-     * Returns an iterator over elements of type {@code T}.
+     * Returns an iterator over elements of type {@code Triplet}.
      *
      * @return an Iterator.
      */
@@ -70,6 +91,11 @@ public final class Path implements SizedIterable<Triplet>
         return this.path.iterator();
     }
 
+    /**
+     * Last information of path
+     *
+     * @return Last information of path
+     */
     public Node lastInformation()
     {
         if (this.path.isEmpty())
@@ -91,6 +117,11 @@ public final class Path implements SizedIterable<Triplet>
         return this.path.size();
     }
 
+    /**
+     * String representation
+     *
+     * @return String representation
+     */
     @Override
     public String toString()
     {

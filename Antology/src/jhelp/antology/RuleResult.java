@@ -12,19 +12,32 @@
 
 package jhelp.antology;
 
+import com.sun.istack.internal.NotNull;
+import com.sun.istack.internal.Nullable;
 import jhelp.util.cache.Cache;
 import jhelp.util.cache.CacheElement;
 import jhelp.util.io.ByteArray;
 
 /**
- * Created by jhelp on 25/07/17.
+ * Describe how compute {@link Rule} result
  */
-public class RuleResult implements Comparable<RuleResult>
+public final class RuleResult implements Comparable<RuleResult>
 {
+    /**
+     * Rule result element cache
+     */
     private static class RuleResultElement extends CacheElement<RuleResult>
     {
+        /**
+         * Embed result
+         */
         private final Result result;
 
+        /**
+         * Create cache element
+         *
+         * @param result Result to obtain
+         */
         RuleResultElement(final Result result)
         {
             this.result = result;
@@ -42,8 +55,18 @@ public class RuleResult implements Comparable<RuleResult>
         }
     }
 
+    /**
+     * Rule result cache
+     */
     private static final Cache<RuleResult> CACHE = new Cache<>();
 
+    /**
+     * Parse rule result from byte array
+     *
+     * @param byteArray Byte array to read
+     * @return Parsed rule result
+     * @throws Exception If byte array not contains valid data for rule result
+     */
     public static RuleResult parse(ByteArray byteArray) throws Exception
     {
         if (byteArray.readBoolean())
@@ -54,7 +77,15 @@ public class RuleResult implements Comparable<RuleResult>
         return RuleResult.ruleResult(Node.parse(byteArray));
     }
 
-    public static RuleResult ruleResult(Node node)
+    /**
+     * Create rule result with a fixed node.<br>
+     * That is to say the result will be always the given node
+     *
+     * @param node Fixed result value
+     * @return Created rule result
+     * @throws IllegalArgumentException if given node is {@link Node#WILDCARD}
+     */
+    public static @NotNull RuleResult ruleResult(@NotNull Node node)
     {
         if (node == Node.WILDCARD)
         {
@@ -64,13 +95,32 @@ public class RuleResult implements Comparable<RuleResult>
         return new RuleResult(null, node.duplicate());
     }
 
-    public static RuleResult ruleResult(Result result)
+    /**
+     * Create rule result from a {@link Result}
+     *
+     * @param result Result to apply
+     * @return Created rule result
+     */
+    public static @NotNull RuleResult ruleResult(@NotNull Result result)
     {
         return RuleResult.CACHE.get(result.name(), new RuleResultElement(result));
     }
+
+    /**
+     * Fixed node value
+     */
     private final Node   fixNode;
+    /**
+     * Result to apply
+     */
     private final Result result;
 
+    /**
+     * Create rule result
+     *
+     * @param result  Result to apply
+     * @param fixNode Fixed node value
+     */
     private RuleResult(final Result result, final Node fixNode)
     {
         this.result = result;
@@ -136,6 +186,12 @@ public class RuleResult implements Comparable<RuleResult>
         return this.fixNode.compareTo(ruleResult.fixNode);
     }
 
+    /**
+     * Indicates if given object equals to this rule result
+     *
+     * @param object Object to compare with
+     * @return {@code true} if given object equals to this rule result
+     */
     @Override
     public boolean equals(final Object object)
     {
@@ -169,16 +225,33 @@ public class RuleResult implements Comparable<RuleResult>
         return this.fixNode.equals(ruleResult.fixNode);
     }
 
-    public Node fixNode()
+    /**
+     * Fixed value<br>
+     * {@code null} if rule result based on {@link Result}
+     *
+     * @return Fixed value
+     */
+    public @Nullable Node fixNode()
     {
         return this.fixNode;
     }
 
-    public Result result()
+    /**
+     * Based {@link Result}.<br>
+     * {@code null} if rule result is a fixed value
+     *
+     * @return Based {@link Result}
+     */
+    public @Nullable Result result()
     {
         return this.result;
     }
 
+    /**
+     * Serialize rule result in byte array
+     *
+     * @param byteArray Byte array where write
+     */
     public void serialize(ByteArray byteArray)
     {
         byteArray.writeBoolean(this.result != null);

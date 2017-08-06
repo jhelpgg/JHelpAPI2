@@ -76,7 +76,7 @@ public interface Condition<T>
 
     /**
      * Create condition result of an "and" on all given conditions.<br>
-     * Tht is to say, the result condition wil be validate if and only if all given conditions are validate
+     * That is to say, the result condition wil be validate if and only if all given conditions are validate
      *
      * @param condition1 First condition
      * @param conditions Other conditions

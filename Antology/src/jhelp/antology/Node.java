@@ -20,34 +20,70 @@ import jhelp.util.list.SortedArray;
 import jhelp.util.math.Math2;
 
 /**
- * Created by jhelp on 22/07/17.
+ * Node graph
  */
 public final class Node implements Comparable<Node>
 {
+    /**
+     * Special node that indicates all nodes.<br>
+     * Can be used in {@link Graph#remove(Node, Node, Node)}, {@link Graph#removeAll(Node)},
+     * {@link Graph#search(Node, Node, Node)}, {@link Rule#Rule(Node, Node, Node, Node, Node, Node, RuleResult, RuleResult, RuleResult)}
+     */
     public static final Node WILDCARD = new Node();
 
+    /**
+     * Create a node that contains an int
+     *
+     * @param value Node value
+     * @return Created node
+     */
     public static Node createNode(int value)
     {
         return new Node(NodeType.INT, value);
     }
 
+    /**
+     * Create a node that contains a double
+     *
+     * @param value Node value
+     * @return Created node
+     */
     public static Node createNode(double value)
     {
         return new Node(NodeType.DOUBLE, value);
     }
 
-    public static Node createNode(String string)
+    /**
+     * Create a node that contains a String
+     *
+     * @param value Node value
+     * @return Created node
+     */
+    public static Node createNode(String value)
     {
-        Objects.requireNonNull(string, "string MUST NOT be null!");
-        return new Node(NodeType.STRING, string);
+        Objects.requireNonNull(value, "value MUST NOT be null!");
+        return new Node(NodeType.STRING, value);
     }
 
-    public static <B extends Binarizable> Node createNode(B binarizable)
+    /**
+     * Create a node that contains a Binarizable
+     *
+     * @param value Node value
+     * @return Created node
+     */
+    public static <B extends Binarizable> Node createNode(B value)
     {
-        Objects.requireNonNull(binarizable, "binarizable MUST NOT be null!");
-        return new Node(NodeType.BINARIZABLE, binarizable);
+        Objects.requireNonNull(value, "value MUST NOT be null!");
+        return new Node(NodeType.BINARIZABLE, value);
     }
 
+    /**
+     * Parse byte array to create a node
+     *
+     * @param byteArray Byte array to parse
+     * @return Parsed Node
+     * @throws Exception If byte array not contains valid Node data
+     */
     public static Node parse(ByteArray byteArray) throws Exception
     {
         NodeType nodeType = byteArray.readEnum(NodeType.class);
@@ -84,10 +120,22 @@ public final class Node implements Comparable<Node>
         return node;
     }
 
+    /**
+     * Node children
+     */
     private final SortedArray<Node> children;
+    /**
+     * Node content type
+     */
     private final NodeType          type;
+    /**
+     * Node content
+     */
     private final Object            value;
 
+    /**
+     * Create a empty node
+     */
     private Node()
     {
         this.children = null;
@@ -95,6 +143,12 @@ public final class Node implements Comparable<Node>
         this.value = null;
     }
 
+    /**
+     * Create a node
+     *
+     * @param type  Node content type
+     * @param value Node content
+     */
     private Node(final NodeType type, final Object value)
     {
         this.children = new SortedArray<>(Node.class, true);
@@ -102,6 +156,12 @@ public final class Node implements Comparable<Node>
         this.value = value;
     }
 
+    /**
+     * Check if given type if node content type
+     *
+     * @param nodeType Type to check
+     * @throws IllegalStateException if given type not the node content type
+     */
     private void check(NodeType nodeType)
     {
         if (this.type != nodeType)
@@ -110,42 +170,85 @@ public final class Node implements Comparable<Node>
         }
     }
 
-    void addChild(Node child)
+    /**
+     * Add a child
+     *
+     * @param child Child to add
+     */
+    void addChild(@NotNull Node child)
     {
         Objects.requireNonNull(child, "child MUST NOT be null!");
         this.children.add(child);
     }
 
+    /**
+     * Get child at given index
+     *
+     * @param index Node index
+     * @return Node at given index
+     */
     Node child(int index)
     {
         return this.children.get(index);
     }
 
+    /**
+     * Duplicate current node
+     *
+     * @return Duplicate
+     */
     Node duplicate()
     {
         return new Node(this.type, this.value);
     }
 
+    /**
+     * Index of a child
+     *
+     * @param child Child search
+     * @return child index
+     */
     int indexOf(Node child)
     {
         return this.children.indexOf(child);
     }
 
+    /**
+     * Number of children
+     *
+     * @return Number of children
+     */
     int numberChildren()
     {
         return this.children.size();
     }
 
+    /**
+     * Remove a child
+     *
+     * @param child Child to remove
+     */
     void removeChild(Node child)
     {
         this.children.remove(child);
     }
 
+    /**
+     * Collect all children that match to given criteria
+     *
+     * @param nodeTest Criteria for search
+     * @return List of searched children
+     */
     SortedArray<Node> search(NodeTest nodeTest)
     {
         return this.children.seekElements(nodeTest);
     }
 
+    /**
+     * Visit the node
+     *
+     * @param graphVisitor Visitor that collects information
+     */
     void visit(@NotNull GraphVisitor graphVisitor)
     {
         this.children.consume(node ->
@@ -156,6 +259,13 @@ public final class Node implements Comparable<Node>
                               });
     }
 
+    /**
+     * Obtain binarizable value
+     *
+     * @param <B> Binarizable type
+     * @return Binarizable value
+     * @throws IllegalStateException If node content not a binarizable
+     */
     public <B extends Binarizable> B binarizableValue()
     {
         this.check(NodeType.BINARIZABLE);
@@ -243,12 +353,24 @@ public final class Node implements Comparable<Node>
         return this.value.hashCode() - node.value.hashCode();
     }
 
+    /**
+     * Obtain double value
+     *
+     * @return double value
+     * @throws IllegalStateException If node content not a double
+     */
     public double doubleValue()
     {
         this.check(NodeType.DOUBLE);
         return (Double) this.value;
     }
 
+    /**
+     * Indicates if given object equals to this node
+     *
+     * @param object Object to compare with
+     * @return {@code true} if given object equals to this node
+     */
     @Override
     public boolean equals(final Object object)
     {
@@ -288,6 +410,11 @@ public final class Node implements Comparable<Node>
         }
     }
 
+    /**
+     * String representation
+     *
+     * @return String representation
+     */
     @Override
     public String toString()
     {
@@ -299,12 +426,23 @@ public final class Node implements Comparable<Node>
         return this.value.toString();
     }
 
+    /**
+     * Obtain int value
+     *
+     * @return int value
+     * @throws IllegalStateException If node content not a int
+     */
     public int intValue()
     {
         this.check(NodeType.INT);
         return (Integer) this.value;
     }
 
+    /**
+     * Serialize node in byte array
+     *
+     * @param byteArray Byte array where write node data
+     */
     public void serialize(ByteArray byteArray)
     {
         byteArray.writeEnum(this.type);
@@ -331,12 +469,23 @@ public final class Node implements Comparable<Node>
         this.children.consume(node -> node.serialize(byteArray));
     }
 
+    /**
+     * Obtain String value
+     *
+     * @return String value
+     * @throws IllegalStateException If node content not a String
+     */
     public String stringValue()
     {
         this.check(NodeType.STRING);
         return (String) this.value;
     }
 
+    /**
+     * Node content type
+     *
+     * @return Node content type
+     */
     public NodeType type()
     {
         return this.type;

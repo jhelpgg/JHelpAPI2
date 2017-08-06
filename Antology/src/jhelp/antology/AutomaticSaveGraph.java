@@ -21,10 +21,17 @@ import jhelp.util.thread.RunnableTask;
 import jhelp.util.thread.ThreadManager;
 
 /**
- * Created by jhelp on 22/07/17.
+ * Save graph automatically on each change
  */
 final class AutomaticSaveGraph implements GraphListener
 {
+    /**
+     * Obtain graph from a file.<br>
+     * If the file doesn't exits, it tries to create the file and return an empty graph.
+     *
+     * @param file File where read/save the graph.
+     * @return The graph
+     */
     static Graph obtainGraph(File file)
     {
         try
@@ -40,13 +47,34 @@ final class AutomaticSaveGraph implements GraphListener
         return new Graph();
     }
 
+    /**
+     * Graph's file
+     */
     private final File         file;
+    /**
+     * Graph to save
+     */
     private final Graph        graph;
+    /**
+     * Indicates that the current saving is no more consistent, to have to save again when just finished
+     */
     private       boolean      saveAgain;
+    /**
+     * Indicates if graph is saving
+     */
     private       boolean      saving;
+    /**
+     * Task for save the graph
+     */
     private final RunnableTask taskSave;
 
-    public AutomaticSaveGraph(final File file) throws IOException
+    /**
+     * Create the graph automatic saver
+     *
+     * @param file File where load/save graph
+     * @throws IOException On file creation or on load graph issue
+     */
+    AutomaticSaveGraph(final File file) throws IOException
     {
         if (!UtilIO.createFile(file))
         {
@@ -65,6 +93,12 @@ final class AutomaticSaveGraph implements GraphListener
         this.saveAgain = false;
     }
 
+    /**
+     * Load graph from file
+     *
+     * @return Loaded graph or empty graph if file empty
+     * @throws IOException On reading issue
+     */
     private Graph load() throws IOException
     {
         ByteArray byteArray = new ByteArray();
@@ -92,6 +126,9 @@ final class AutomaticSaveGraph implements GraphListener
         return graph;
     }
 
+    /**
+     * Save the graph
+     */
     private void saveTask()
     {
         ByteArray byteArray = new ByteArray();
@@ -120,17 +157,30 @@ final class AutomaticSaveGraph implements GraphListener
         }
     }
 
+    /**
+     * Embedded graph
+     *
+     * @return Embedded graph
+     */
     public Graph graph()
     {
         return this.graph;
     }
 
+    /**
+     * Called when graph changed
+     *
+     * @param graph Graph that changed
+     */
     @Override
     public void graphChanged(final Graph graph)
     {
         this.save();
     }
 
+    /**
+     * Require to save the graph
+     */
     public void save()
     {
         synchronized (this.taskSave)

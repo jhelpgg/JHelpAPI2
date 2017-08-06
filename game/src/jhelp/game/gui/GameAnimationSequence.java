@@ -20,13 +20,23 @@ import jhelp.game.anim.AnimationStatus;
 import jhelp.util.gui.JHelpImage;
 
 /**
- * Created by jhelp on 14/07/17.
+ * Animation to play several animations one after other.<br>
+ * Animations are played in sequence.
  */
 public final class GameAnimationSequence extends GameAnimation
 {
+    /**
+     * List of animations to play
+     */
     private final List<GameAnimation> animations;
+    /**
+     * Current animation to play
+     */
     private       int                 index;
 
+    /**
+     * Create an empty sequence
+     */
     public GameAnimationSequence()
     {
         this.animations = new ArrayList<>();
@@ -83,25 +93,30 @@ public final class GameAnimationSequence extends GameAnimation
                 return true;
             }
 
-            if (!gameAnimation.update(frame, parent))
+            if (gameAnimation.update(frame, parent))
             {
-                parent.playWhenExitDrawMode(gameAnimation::endAnimation);
-                this.index++;
-
-                if (this.index >= size)
-                {
-                    return false;
-                }
-
-                final GameAnimation animation = this.animations.get(this.index);
-                parent.playWhenExitDrawMode(image -> animation.start(frame, image));
                 return true;
             }
 
+            parent.playWhenExitDrawMode(gameAnimation::endAnimation);
+            this.index++;
+
+            if (this.index >= size)
+            {
+                return false;
+            }
+
+            final GameAnimation animation = this.animations.get(this.index);
+            parent.playWhenExitDrawMode(image -> animation.start(frame, image));
             return true;
         }
     }
 
+    /**
+     * Add animation in sequence
+     *
+     * @param gameAnimation Animation to add
+     */
     public void add(@NotNull GameAnimation gameAnimation)
     {
         Objects.requireNonNull(gameAnimation, "gameAnimation MUST NOT be null!");
@@ -112,6 +127,11 @@ public final class GameAnimationSequence extends GameAnimation
         }
     }
 
+    /**
+     * Remove an animation from sequence
+     *
+     * @param gameAnimation Animation to remove
+     */
     public void remove(@NotNull GameAnimation gameAnimation)
     {
         synchronized (this.animations)

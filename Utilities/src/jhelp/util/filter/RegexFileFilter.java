@@ -1,16 +1,19 @@
-/**
- * <h1>License :</h1> <br>
- * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any
- * damage it may
- * cause.<br>
- * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
- * modify this code. The code is free for usage and modification, you can't change that fact.<br>
- * <br>
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
  *
- * @author JHelp
  */
+
 package jhelp.util.filter;
 
+import com.sun.istack.internal.NotNull;
+import com.sun.istack.internal.Nullable;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.regex.Pattern;
@@ -49,7 +52,7 @@ public final class RegexFileFilter
      * @param regex               Regular expression. See {@link Pattern java.util.regex.Pattern} javadoc for explanation about regular
      *                            expression
      */
-    public RegexFileFilter(final boolean useRegexOnDirectory, final String regex)
+    public RegexFileFilter(final boolean useRegexOnDirectory, final @Nullable String regex)
     {
         this.useRegexOnDirectory = useRegexOnDirectory;
         this.regex = regex;
@@ -72,7 +75,7 @@ public final class RegexFileFilter
      * @param regex Regular expression. See {@link Pattern java.util.regex.Pattern} javadoc for explanation about regular
      *              expression
      */
-    public RegexFileFilter(final String regex)
+    public RegexFileFilter(final @Nullable String regex)
     {
         this(false, regex);
     }
@@ -88,7 +91,7 @@ public final class RegexFileFilter
      * @see FileFilter#accept(File)
      */
     @Override
-    public boolean accept(final File pathname)
+    public boolean accept(final @NotNull File pathname)
     {
         if ((!this.useRegexOnDirectory) && (pathname.isDirectory()))
         {
@@ -116,7 +119,7 @@ public final class RegexFileFilter
      *
      * @return The regular expression used by the filter
      */
-    public String getRegex()
+    public @Nullable String regex()
     {
         return this.regex;
     }
@@ -128,7 +131,7 @@ public final class RegexFileFilter
      *
      * @param regex New regular expression
      */
-    public void setRegex(final String regex)
+    public void regex(final @Nullable String regex)
     {
         this.regex = regex;
     }
@@ -138,7 +141,7 @@ public final class RegexFileFilter
      *
      * @return {@code true} if directory are also filtered by the regular expression
      */
-    public boolean isUseRegexOnDirectory()
+    public boolean useRegexOnDirectory()
     {
         return this.useRegexOnDirectory;
     }
@@ -148,7 +151,7 @@ public final class RegexFileFilter
      *
      * @param useRegexOnDirectory {@code true} for filter directory also
      */
-    public void setUseRegexOnDirectory(final boolean useRegexOnDirectory)
+    public void useRegexOnDirectory(final boolean useRegexOnDirectory)
     {
         this.useRegexOnDirectory = useRegexOnDirectory;
     }
