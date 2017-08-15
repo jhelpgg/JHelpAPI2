@@ -717,6 +717,11 @@ public final class SortedArray<TYPE> implements SizedIterable<TYPE>, ParallelLis
         return null;
     }
 
+    public Future<TYPE> seekElementAsync(final SeekTest<TYPE> seekTest)
+    {
+        return this.any(seekTest::isElementSeek);
+    }
+
     /**
      * Collect all matches element is a sorted array list of same class element, same comparator, and unique value
      *
@@ -726,6 +731,11 @@ public final class SortedArray<TYPE> implements SizedIterable<TYPE>, ParallelLis
     public SortedArray<TYPE> seekElements(final SeekTest<TYPE> seekTest)
     {
         return this.filter(seekTest::isElementSeek);
+    }
+
+    public StreamIterator<TYPE> seekElementsStreamed(final SeekTest<TYPE> seekTest)
+    {
+        return this.streamIterator().filter(seekTest::isElementSeek);
     }
 
     /**
@@ -783,6 +793,11 @@ public final class SortedArray<TYPE> implements SizedIterable<TYPE>, ParallelLis
         return stringBuilder.toString();
     }
 
+    @Override
+    public StreamIterator<TYPE> streamIterator()
+    {
+        return StreamIterator.from(this);
+    }
     /**
      * Called when garbage collector want free is memory <br>
      * <br>

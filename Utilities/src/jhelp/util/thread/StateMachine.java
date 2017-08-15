@@ -32,7 +32,7 @@ public class StateMachine<S extends Enum>
     /**
      * Map of registered tasks
      */
-    private final Map<S, List<Task<S, ?>>> tasksMap = new HashMap<>();
+    private final Map<S, List<ConsumerTask<S>>> tasksMap = new HashMap<>();
 
     /**
      * Create the state machine
@@ -66,13 +66,13 @@ public class StateMachine<S extends Enum>
             }
 
             this.state = state;
-            final List<Task<S, ?>> list = this.tasksMap.get(state);
+            final List<ConsumerTask<S>> list = this.tasksMap.get(state);
 
             if (list != null)
             {
-                for (Task<S, ?> task : list)
+                for (ConsumerTask<S> task : list)
                 {
-                    ThreadManager.doTask(task, state);
+                    ThreadManager.parallel(task, state);
                 }
             }
         }
@@ -87,7 +87,7 @@ public class StateMachine<S extends Enum>
      * @param task   Task to register
      * @param states States to associate the task
      */
-    protected final @SafeVarargs void register(@NotNull Task<S, ?> task, @NotNull S... states)
+    protected final @SafeVarargs void register(@NotNull ConsumerTask<S> task, @NotNull S... states)
     {
         Objects.requireNonNull(task, "task");
 
@@ -96,7 +96,7 @@ public class StateMachine<S extends Enum>
             for (S state : states)
             {
                 Objects.requireNonNull(state, "One of given state is null");
-                List<Task<S, ?>> list = this.tasksMap.get(state);
+                List<ConsumerTask<S>> list = this.tasksMap.get(state);
 
                 if (list == null)
                 {
@@ -110,7 +110,7 @@ public class StateMachine<S extends Enum>
 
                     if (state == this.state)
                     {
-                        ThreadManager.doTask(task, state);
+                        ThreadManager.parallel(task, state);
                     }
                 }
             }
@@ -123,14 +123,14 @@ public class StateMachine<S extends Enum>
      * @param task   Task to register
      * @param states States to associate the task
      */
-    protected final @SafeVarargs void unregister(@NotNull Task<S, ?> task, @NotNull S... states)
+    protected final @SafeVarargs void unregister(@NotNull ConsumerTask<S> task, @NotNull S... states)
     {
         synchronized (this.tasksMap)
         {
             for (S state : states)
             {
                 Objects.requireNonNull(state, "One of given state is null");
-                List<Task<S, ?>> list = this.tasksMap.get(state);
+                List<ConsumerTask<S>> list = this.tasksMap.get(state);
 
                 if (list != null)
                 {
@@ -150,13 +150,13 @@ public class StateMachine<S extends Enum>
      *
      * @param task Task to remove
      */
-    protected final void unregisterAll(@NotNull Task<S, ?> task)
+    protected final void unregisterAll(@NotNull ConsumerTask<S> task)
     {
         synchronized (this.tasksMap)
         {
-            List<Task<S, ?>> list;
+            List<ConsumerTask<S>> list;
 
-            for (Map.Entry<S, List<Task<S, ?>>> entry : this.tasksMap.entrySet())
+            for (Map.Entry<S, List<ConsumerTask<S>>> entry : this.tasksMap.entrySet())
             {
                 list = entry.getValue();
                 list.remove(task);

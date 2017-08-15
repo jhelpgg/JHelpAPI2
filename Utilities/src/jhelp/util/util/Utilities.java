@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
 import jhelp.util.list.ArrayObject;
+import jhelp.util.math.JHelpRandom;
 
 /**
  * Divers utilities
@@ -368,6 +369,38 @@ public final class Utilities
         }
 
         return -1;
+    }
+
+    public static <T> void scramble(T[] array)
+    {
+        if (array == null)
+        {
+            return;
+        }
+
+        final int size = array.length;
+
+        if (size < 2)
+        {
+            return;
+        }
+
+        int index1;
+        int index2;
+        T   temporary;
+
+        for (int index = size; index > 1; index--)
+        {
+            index1 = index - 1;
+            index2 = JHelpRandom.random(index);
+
+            if (index1 != index2)
+            {
+                temporary = array[index1];
+                array[index1] = array[index2];
+                array[index2] = temporary;
+            }
+        }
     }
 
     /**

@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.thread;
 
 import com.sun.istack.internal.NotNull;
@@ -24,7 +36,7 @@ public class SimpleSateMachine<S extends Enum> extends StateMachine<S>
      * @param task   Task to register
      * @param states States to associate the task
      */
-    public final @SafeVarargs void associate(@NotNull Task<S, ?> task, @NotNull S... states)
+    public final @SafeVarargs void associate(@NotNull ConsumerTask<S> task, @NotNull S... states)
     {
         this.register(task, states);
     }
@@ -36,7 +48,7 @@ public class SimpleSateMachine<S extends Enum> extends StateMachine<S>
      * @param task   Task to register
      * @param states States to associate the task
      */
-    public final @SafeVarargs void disassociate(@NotNull Task<S, ?> task, @NotNull S... states)
+    public final @SafeVarargs void disassociate(@NotNull ConsumerTask<S> task, @NotNull S... states)
     {
         this.unregister(task, states);
     }
@@ -46,7 +58,7 @@ public class SimpleSateMachine<S extends Enum> extends StateMachine<S>
      *
      * @param task Task to remove
      */
-    public final void disassociateAll(@NotNull Task<S, ?> task)
+    public final void disassociateAll(@NotNull ConsumerTask<S> task)
     {
         this.unregisterAll(task);
     }

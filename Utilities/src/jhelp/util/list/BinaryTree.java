@@ -388,6 +388,12 @@ public class BinaryTree<ELEMENT> implements ParallelList<ELEMENT, BinaryTree<ELE
         return arrayObject;
     }
 
+    @Override
+    public StreamIterator<ELEMENT> streamIterator()
+    {
+        return StreamIterator.from(this);
+    }
+
     /**
      * Execute a task in parallel on each element (filtered gby given filter) of the list.<br>
      * The method will wait all parallel task finished before return<br>

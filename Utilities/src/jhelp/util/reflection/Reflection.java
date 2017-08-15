@@ -15,6 +15,7 @@ package jhelp.util.reflection;
 import com.sun.istack.internal.Nullable;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -273,7 +274,7 @@ public class Reflection
                 dim[i] = 1;
             }
 
-            final Object o = Array.newInstance(type, dim);
+            final Object o = Array.newInstance(componentType, dim);
             if (type.isPrimitive())
             {
                 return o;
@@ -285,7 +286,7 @@ public class Reflection
                 val = Array.get(val, 0);
             }
 
-            Array.set(val, 0, Reflection.newInstance(type));
+            Array.set(val, 0, Reflection.newInstance(componentType));
 
             return o;
         }
@@ -388,6 +389,34 @@ public class Reflection
             throw new NullPointerException("typeName MUST NOT be null");
         }
         return Reflection.newInstance(classLoader.loadClass(typeName));
+    }
+
+    public static <I> Field obtainField(I instance, String name)
+    {
+        Class<?> clazz = instance.getClass();
+        Field    field = null;
+
+        while (clazz != null)
+        {
+            for (Field fieldLook : clazz.getDeclaredFields())
+            {
+                if (name.equals(fieldLook.getName()))
+                {
+                    field = fieldLook;
+                    break;
+                }
+            }
+            clazz = clazz.getSuperclass();
+        }
+
+        if (field == null)
+        {
+            throw new IllegalArgumentException(
+                    "Filed '" + name + "' not found in class " + instance.getClass().getName());
+        }
+
+        field.setAccessible(true);
+        return field;
     }
 
     /**

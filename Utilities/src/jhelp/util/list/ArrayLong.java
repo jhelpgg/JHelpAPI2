@@ -127,25 +127,6 @@ public final class ArrayLong implements ParallelList<Long, ArrayLong>, SizedIter
     }
 
     /**
-     * Call by garbage collector when want free some memory <br>
-     * <br>
-     * <b>Parent documentation:</b><br>
-     * {@inheritDoc}
-     *
-     * @throws Throwable On issue
-     * @see Object#finalize()
-     */
-    @Override
-    protected void finalize() throws Throwable
-    {
-        this.array = null;
-
-        this.size = 0;
-
-        super.finalize();
-    }
-
-    /**
      * Obtain an element from the list that match the given filter.<br>
      * The result can be any element in list that match.<br>
      * If no element found, the result future will be on error.<br>
@@ -282,6 +263,30 @@ public final class ArrayLong implements ParallelList<Long, ArrayLong>, SizedIter
         }
 
         return arrayObject;
+    }
+
+    /**
+     * Call by garbage collector when want free some memory <br>
+     * <br>
+     * <b>Parent documentation:</b><br>
+     * {@inheritDoc}
+     *
+     * @throws Throwable On issue
+     * @see Object#finalize()
+     */
+    @Override
+    protected void finalize() throws Throwable
+    {
+        this.array = null;
+
+        this.size = 0;
+
+        super.finalize();
+    }
+
+    public EnumerationIteratorLong iteratorLong()
+    {
+        return new EnumerationIteratorLong(Arrays.copyOf(this.array, this.size));
     }
 
     /**
@@ -546,26 +551,6 @@ public final class ArrayLong implements ParallelList<Long, ArrayLong>, SizedIter
     }
 
     /**
-     * Execute a task in parallel on each element (filtered gby given filter) of the list.<br>
-     * The method will wait all parallel task finished before return<br>
-     * Note:
-     * <ul>
-     * <li> Their no guarantee about the order of elements' list meet by the task. If order mandatory use {@link #consumeAsync(ConsumerTask, Filter)} and {@link Future#waitFinish()}</li>
-     * <li> Since order is not important, thread management is simplified, so it is faster than {@link #consumeAsync(ConsumerTask, Filter)} and {@link Future#waitFinish()} </li>
-     * </ul>
-     *
-     * @param task   Task to play
-     * @param filter Filter to select elements. If {@code null}, all elements are taken
-     * @return The list itself, convenient for chaining
-     */
-    @Override
-    public ArrayLong sync(final ConsumerTask<Long> task, final Filter<Long> filter)
-    {
-        ForEach.sync(this.toLongArray(), task, filter);
-        return this;
-    }
-
-    /**
      * Returns an iterator over elements of type {@code T}.
      *
      * @return an Iterator.
@@ -574,6 +559,17 @@ public final class ArrayLong implements ParallelList<Long, ArrayLong>, SizedIter
     public Iterator<Long> iterator()
     {
         return this.iteratorLong();
+    }
+
+    /**
+     * Iterable size
+     *
+     * @return Iterable size
+     */
+    @Override
+    public int size()
+    {
+        return this.getSize();
     }
 
     /**
@@ -610,9 +606,10 @@ public final class ArrayLong implements ParallelList<Long, ArrayLong>, SizedIter
                       && ((index == (this.size - 1)) || (integer <= this.array[index + 1]));
     }
 
-    public EnumerationIteratorLong iteratorLong()
+    @Override
+    public StreamIterator<Long> streamIterator()
     {
-        return new EnumerationIteratorLong(Arrays.copyOf(this.array, this.size));
+        return StreamIterator.from(this);
     }
 
     /**
@@ -675,14 +672,23 @@ public final class ArrayLong implements ParallelList<Long, ArrayLong>, SizedIter
     }
 
     /**
-     * Iterable size
+     * Execute a task in parallel on each element (filtered gby given filter) of the list.<br>
+     * The method will wait all parallel task finished before return<br>
+     * Note:
+     * <ul>
+     * <li> Their no guarantee about the order of elements' list meet by the task. If order mandatory use {@link #consumeAsync(ConsumerTask, Filter)} and {@link Future#waitFinish()}</li>
+     * <li> Since order is not important, thread management is simplified, so it is faster than {@link #consumeAsync(ConsumerTask, Filter)} and {@link Future#waitFinish()} </li>
+     * </ul>
      *
-     * @return Iterable size
+     * @param task   Task to play
+     * @param filter Filter to select elements. If {@code null}, all elements are taken
+     * @return The list itself, convenient for chaining
      */
     @Override
-    public int size()
+    public ArrayLong sync(final ConsumerTask<Long> task, final Filter<Long> filter)
     {
-        return this.getSize();
+        ForEach.sync(this.toLongArray(), task, filter);
+        return this;
     }
 
     /**

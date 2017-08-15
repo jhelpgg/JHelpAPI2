@@ -418,6 +418,8 @@ public interface ParallelList<T, P extends ParallelList<T, P>>
         return this.anyMatch(filter).andDo(result -> !result);
     }
 
+    StreamIterator<T> streamIterator();
+
     /**
      * Execute a task in parallel on each element of the list.<br>
      * The method will wait all parallel task finished before return<br>

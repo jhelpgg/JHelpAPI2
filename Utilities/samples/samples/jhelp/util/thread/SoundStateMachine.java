@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package samples.jhelp.util.thread;
 
 import jhelp.util.debug.Debug;
@@ -12,8 +24,8 @@ public class SoundStateMachine extends StateMachine<SoundState>
     public SoundStateMachine()
     {
         super(SoundState.NOT_INITIALIZED);
-        this.register((ConsumerTask<SoundState>) this::loading, SoundState.LOADING);
-        this.register((ConsumerTask<SoundState>) this::releasing, SoundState.RELEASING);
+        this.register(this::loading, SoundState.LOADING);
+        this.register(this::releasing, SoundState.RELEASING);
     }
 
     private void loading(SoundState soundState)

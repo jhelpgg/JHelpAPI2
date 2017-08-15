@@ -250,6 +250,12 @@ public final class ArrayFloat implements ParallelList<Float, ArrayFloat>, SizedI
         return arrayObject;
     }
 
+    @Override
+    public StreamIterator<Float> streamIterator()
+    {
+        return StreamIterator.from(this);
+    }
+
     /**
      * Execute a task in parallel on each element (filtered gby given filter) of the list.<br>
      * The method will wait all parallel task finished before return<br>
@@ -710,5 +716,4 @@ public final class ArrayFloat implements ParallelList<Float, ArrayFloat>, SizedI
 
         super.finalize();
     }
-
 }

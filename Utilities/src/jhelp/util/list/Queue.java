@@ -14,6 +14,7 @@ package jhelp.util.list;
 
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
+import java.util.Iterator;
 import java.util.Objects;
 import jhelp.util.thread.ConsumerTask;
 import jhelp.util.thread.Filter;
@@ -24,7 +25,7 @@ import jhelp.util.thread.ThreadManager;
 /**
  * A queue of elements
  */
-public final class Queue<T> implements ParallelList<T, Queue<T>>
+public final class Queue<T> implements ParallelList<T, Queue<T>>, SizedIterable<T>
 {
     /**
      * Head of queue
@@ -236,6 +237,17 @@ public final class Queue<T> implements ParallelList<T, Queue<T>>
     }
 
     /**
+     * Returns an iterator over elements of type {@code T}.
+     *
+     * @return an Iterator.
+     */
+    @Override
+    public Iterator<T> iterator()
+    {
+        return new QueueIterator<>(this.head);
+    }
+
+    /**
      * Execute a task in parallel on each element (filtered gby given filter) of the list.<br>
      * The method will wait all parallel task finished before return<br>
      * Note:
@@ -295,6 +307,12 @@ public final class Queue<T> implements ParallelList<T, Queue<T>>
         this.queue.next = new QueueElement(element);
         this.queue = this.queue.next;
         this.size++;
+    }
+
+    @Override
+    public StreamIterator<T> streamIterator()
+    {
+        return StreamIterator.from(this);
     }
 
     /**
