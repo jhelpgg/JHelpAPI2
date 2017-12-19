@@ -1,0 +1,35 @@
+L:  Greeting {"Bonjour" "Salut"}
+
+Q:  $Greeting, comment allez vous?          :(HelloHowAreYou)
+    A:  ($Greeting)? très bien ?follow      :(Good)
+    A:  ($Greeting)? pas trop mal ?follow   :(Neutral)
+    A:  ($Greeting)? pas bien ?follow       :(Bad)
+    A:  $Greeting ?follow                   :(OnlyGreeting)
+        => GOTO HelloHowAreYou
+    A:  *
+        => GOTO HelloHowAreYou
+
+@GREETING_DONE
+
+IF $follow IN ("Et vous" "Et toi" "Comment allez vous")
+    S:  Très bien merci
+ELSE IF HelloHowAreYou.Good
+    S: C'est cool
+ELSE IF HelloHowAreYou.Neutral
+    S: Ok
+ELSE IF HelloHowAreYou.Bad
+    S: Allez ça va s'arranger
+
+@BEFORE
+
+LOAD &NAME from (user, name, *)
+IF #NAME = ""
+    Q:  Quel est ton nom ?
+        A:  Mon nom est &NAME
+        A:  Je m'appel &NAME
+        A:  &NAME
+    STORE (user, name, #NAME)
+
+S: Enchanté #NAME, moi c'est Dafa.
+
+@AFTER

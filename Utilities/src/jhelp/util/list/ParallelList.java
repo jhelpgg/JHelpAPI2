@@ -226,7 +226,11 @@ public interface ParallelList<T, P extends ParallelList<T, P>>
             @NotNull Task<T, ParallelList<R, ?>> task, @Nullable Filter<T> filter)
     {
         Objects.requireNonNull(task, "task MUST NOT be null!");
-        return Future.launch(pair -> this.flatMap(pair.first, pair.second), new Pair<>(task, filter));
+        //pair -> this.flatMap(pair.first, pair.second)
+        return Future.launch(
+                (Task<Pair<Task<T, ParallelList<R, ?>>, Filter<T>>, ParallelList<R, ?>>) pair ->
+                        ParallelList.this.flatMap(pair.first, pair.second)
+                , new Pair<>(task, filter));
     }
 
     /**
@@ -387,7 +391,9 @@ public interface ParallelList<T, P extends ParallelList<T, P>>
     default @NotNull <R> Future<ParallelList<R, ?>> mapAsync(@NotNull Task<T, R> task, @Nullable Filter<T> filter)
     {
         Objects.requireNonNull(task, "task MUST NOT be null!");
-        return Future.launch(pair -> this.map(pair.first, pair.second), new Pair<>(task, filter));
+        return Future.launch((Task<Pair<Task<T, R>, Filter<T>>, ParallelList<R, ?>>) pair ->
+                                     ParallelList.this.map(pair.first, pair.second),
+                             new Pair<>(task, filter));
     }
 
     /**

@@ -1,4 +1,16 @@
 <!DOCTYPE html>
+<!--
+  ~ Copyright:
+  ~ License :
+  ~  The following code is deliver as is.
+  ~  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+  ~  You can use, modify, the code as your need for any usage.
+  ~  But you can't do any action that avoid me or other person use,  modify this code.
+  ~  The code is free for usage and modification, you can't change that fact.
+  ~  @author JHelp
+  ~
+  -->
+
 <html>
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -36,9 +48,9 @@
                 $("table.tableWithFloatingHeader").each(function() {
                     $(this).wrap("<div class=\"divTableWithFloatingHeader\" style=\"position:relative\"></div>");
 
-                    var originalHeaderRow = $("tr:first", this)
+                    var originalHeaderRow = $("tr:first", this);
                     originalHeaderRow.before(originalHeaderRow.clone());
-                    var clonedHeaderRow = $("tr:first", this)
+                    var clonedHeaderRow = $("tr:first", this);
 
                     clonedHeaderRow.addClass("tableFloatingHeader");
                     clonedHeaderRow.css("position", "absolute");
@@ -144,7 +156,7 @@
         <link rel="stylesheet" type="text/css" href="$CSS_PATH$buttons.css"/>
         <link rel="stylesheet" type="text/css" href="$CSS_PATH$tables.css"/>
     </head>
-    <body onLoad="javascript:launchParser()">
+    <body onLoad="launchParser()">
         <h1 class="$MAIN_TITLE_COLOR$">$MAIN_TITLE$</h1>
         <div class="row"/>
         <div class="col-2 col-m-2 menu">

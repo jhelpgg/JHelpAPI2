@@ -252,7 +252,7 @@ public class ToHumanReadable
      * @see jhelp.xml.ParseXMLlistener#endParse()
      */
     @Override
-    public void endParse() throws UnexpectedEndOfParse
+    public void endParse()
     {
     }
 
@@ -279,8 +279,6 @@ public class ToHumanReadable
      */
     @Override
     public void startMarkup(final String markupName, final Hashtable<String, String> parameters)
-            throws MissingRequiredParameterException,
-                   InvalidParameterValueException
     {
         try
         {

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>jhelp.engine2.render.Node</OriginalElement>
+  <nodes>
+    <node x="734.0" y="530.0">jhelp.engine2.geometry.Revolution</node>
+    <node x="449.75" y="100.0">jhelp.engine2.render.NodeWithBox</node>
+    <node x="0.0" y="450.0">jhelp.engine2.render.ObjectClone</node>
+    <node x="379.0" y="524.0">jhelp.engine2.geometry.Sphere</node>
+    <node x="489.0" y="200.0">jhelp.engine2.render.NodeWithMaterial</node>
+    <node x="533.5" y="300.0">jhelp.engine2.render.Object3D</node>
+    <node x="1380.0" y="525.0">jhelp.engine2.geometry.Equation3D</node>
+    <node x="570.0" y="529.0">jhelp.engine2.geometry.Box</node>
+    <node x="207.0" y="518.0">jhelp.engine2.geometry.Plane</node>
+    <node x="548.75" y="0.0">jhelp.engine2.render.Node</node>
+    <node x="963.0" y="527.0">jhelp.engine2.geometry.PathGeom</node>
+    <node x="1176.0" y="523.0">jhelp.engine2.geometry.Ribbon3D</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="jhelp.engine2.render.NodeWithBox" target="jhelp.engine2.render.Node">
+      <point x="-56.0" y="-25.0" />
+      <point x="505.75" y="75.0" />
+      <point x="571.75" y="75.0" />
+      <point x="-46.0" y="25.0" />
+    </edge>
+    <edge source="jhelp.engine2.geometry.Plane" target="jhelp.engine2.render.Object3D">
+      <point x="0.0" y="-25.0" />
+      <point x="298.5" y="400.0" />
+      <point x="583.2222222222222" y="400.0" />
+      <point x="-39.77777777777783" y="25.0" />
+    </edge>
+    <edge source="jhelp.engine2.render.Object3D" target="jhelp.engine2.render.NodeWithMaterial">
+      <point x="0.0" y="-25.0" />
+      <point x="0.0" y="25.0" />
+    </edge>
+    <edge source="jhelp.engine2.geometry.Ribbon3D" target="jhelp.engine2.render.Object3D">
+      <point x="0.0" y="-25.0" />
+      <point x="1219.0" y="390.0" />
+      <point x="682.6666666666666" y="390.0" />
+      <point x="59.66666666666663" y="25.0" />
+    </edge>
+    <edge source="jhelp.engine2.render.NodeWithMaterial" target="jhelp.engine2.render.NodeWithBox">
+      <point x="-67.0" y="-25.0" />
+      <point x="556.0" y="175.0" />
+      <point x="561.75" y="175.0" />
+      <point x="0.0" y="25.0" />
+    </edge>
+    <edge source="jhelp.engine2.render.ObjectClone" target="jhelp.engine2.render.NodeWithMaterial">
+      <point x="-69.66666666666674" y="-25.0" />
+      <point x="34.83333333333326" y="370.0" />
+      <point x="135.73333333333323" y="370.0" />
+      <point x="135.73333333333323" y="275.0" />
+      <point x="533.6666666666666" y="275.0" />
+      <point x="-89.33333333333337" y="25.0" />
+    </edge>
+    <edge source="jhelp.engine2.geometry.Revolution" target="jhelp.engine2.render.Object3D">
+      <point x="0.0" y="-25.0" />
+      <point x="801.0" y="410.0" />
+      <point x="642.8888888888889" y="410.0" />
+      <point x="19.888888888888914" y="25.0" />
+    </edge>
+    <edge source="jhelp.engine2.geometry.Sphere" target="jhelp.engine2.render.Object3D">
+      <point x="0.0" y="-25.0" />
+      <point x="465.0" y="410.0" />
+      <point x="603.1111111111111" y="410.0" />
+      <point x="-19.888888888888914" y="25.0" />
+    </edge>
+    <edge source="jhelp.engine2.geometry.Equation3D" target="jhelp.engine2.render.NodeWithMaterial">
+      <point x="50.75" y="-25.0" />
+      <point x="1483.25" y="275.0" />
+      <point x="712.3333333333333" y="275.0" />
+      <point x="89.33333333333326" y="25.0" />
+    </edge>
+    <edge source="jhelp.engine2.geometry.Equation3D" target="jhelp.engine2.render.Object3D">
+      <point x="-50.75" y="-25.0" />
+      <point x="1381.75" y="380.0" />
+      <point x="702.5555555555555" y="380.0" />
+      <point x="79.55555555555554" y="25.0" />
+    </edge>
+    <edge source="jhelp.engine2.render.ObjectClone" target="jhelp.engine2.render.Object3D">
+      <point x="0.0" y="-25.0" />
+      <point x="104.5" y="380.0" />
+      <point x="543.4444444444445" y="380.0" />
+      <point x="-79.55555555555554" y="25.0" />
+    </edge>
+    <edge source="jhelp.engine2.render.Node" target="jhelp.engine2.render.NodeWithBox">
+      <point x="0.0" y="25.0" />
+      <point x="56.0" y="-25.0" />
+    </edge>
+    <edge source="jhelp.engine2.geometry.PathGeom" target="jhelp.engine2.render.Object3D">
+      <point x="0.0" y="-25.0" />
+      <point x="1012.5" y="400.0" />
+      <point x="662.7777777777778" y="400.0" />
+      <point x="39.77777777777783" y="25.0" />
+    </edge>
+    <edge source="jhelp.engine2.geometry.Box" target="jhelp.engine2.render.Object3D">
+      <point x="0.0" y="-25.0" />
+      <point x="0.0" y="25.0" />
+    </edge>
+    <edge source="jhelp.engine2.render.Node" target="jhelp.engine2.render.NodeWithMaterial">
+      <point x="46.0" y="25.0" />
+      <point x="663.75" y="75.0" />
+      <point x="684.25" y="75.0" />
+      <point x="684.25" y="175.0" />
+      <point x="690.0" y="175.0" />
+      <point x="67.0" y="-25.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="1.0" x="717.5" y="285.0" />
+  <SelectedNodes>
+    <node>jhelp.engine2.geometry.Equation3D</node>
+  </SelectedNodes>
+  <Categories />
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+

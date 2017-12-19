@@ -121,7 +121,7 @@ class ControlBufferedInputStream
      * @see InputStream#read()
      */
     @Override
-    public int read() throws IOException
+    public int read()
     {
         final byte[] b    = new byte[1];
         final int    read = this.read(b);
@@ -147,7 +147,7 @@ class ControlBufferedInputStream
      * @see InputStream#read(byte[])
      */
     @Override
-    public int read(final byte[] b) throws IOException
+    public int read(final byte[] b)
     {
         return this.read(b, 0, b.length);
     }
@@ -166,7 +166,7 @@ class ControlBufferedInputStream
      * @see InputStream#read(byte[], int, int)
      */
     @Override
-    public int read(final byte[] b, final int off, final int len) throws IOException
+    public int read(final byte[] b, final int off, final int len)
     {
         if (b == null)
         {
@@ -247,7 +247,7 @@ class ControlBufferedInputStream
      * @see InputStream#close()
      */
     @Override
-    public void close() throws IOException
+    public void close()
     {
         this.destroy();
     }
@@ -276,7 +276,7 @@ class ControlBufferedInputStream
      * @see InputStream#reset()
      */
     @Override
-    public synchronized void reset() throws IOException
+    public synchronized void reset()
     {
     }
 

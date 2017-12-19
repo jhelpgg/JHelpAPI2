@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~ Copyright:
+  ~ License :
+  ~  The following code is deliver as is.
+  ~  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+  ~  You can use, modify, the code as your need for any usage.
+  ~  But you can't do any action that avoid me or other person use,  modify this code.
+  ~  The code is free for usage and modification, you can't change that fact.
+  ~  @author JHelp
+  ~
+  -->
+
+<Constants>
+
+    <!-- ************************** -->
+    <!-- *** Markups for parser *** -->
+    <!-- ************************** -->
+    <Constant
+            name="MARKUP_GRADIENT"
+            type="STRING"
+            value="Gradient">
+        Main markup for describe a list of a gradient:
+        &lt;ul&gt;
+        &lt;li&gt;&lt;b&gt;upLeft&lt;/b&gt; : Up left color&lt;/li&gt;
+        &lt;li&gt;&lt;b&gt;upRight&lt;/b&gt; : Up right color&lt;/li&gt;
+        &lt;li&gt;&lt;b&gt;downLeft&lt;/b&gt; : Down left color&lt;/li&gt;
+        &lt;li&gt;&lt;b&gt;downRight&lt;/b&gt; : Down right color&lt;/li&gt;
+        &lt;/ul&gt;
+    </Constant>
+    <Constant
+            name="MARKUP_GRADIENT_HORIZONTAL"
+            type="STRING"
+            value="GradientHorizontal">
+        Main markup for describe a gradient horizontal.It have Percent ({@link #MARKUP_PERCENT}) as children
+    </Constant>
+    <Constant
+            name="MARKUP_GRADIENT_VERTICAL"
+            type="STRING"
+            value="GradientVertical">
+        Main markup for describe a gradient vertical.It have Percent ({@link #MARKUP_PERCENT}) as children
+    </Constant>
+    <Constant
+            name="MARKUP_PERCENT"
+            type="STRING"
+            value="Percent">
+        A percent, color couple
+        &lt;ul&gt;
+        &lt;li&gt;&lt;b&gt;color&lt;/b&gt; : the color&lt;/li&gt;
+        &lt;li&gt;&lt;b&gt;percent&lt;/b&gt; : the percent&lt;/li&gt;
+        &lt;/ul&gt;
+    </Constant>
+    <Constant
+            name="MARKUP_FONT"
+            type="STRING"
+            value="Font">
+        Main markup for describe a font:
+        &lt;ul&gt;
+        &lt;li&gt;&lt;b&gt;family&lt;/b&gt; : Font family&lt;/li&gt;
+        &lt;li&gt;&lt;b&gt;size&lt;/b&gt; : Font size&lt;/li&gt;
+        &lt;li&gt;&lt;b&gt;bold&lt;/b&gt; : Indicates if its bold (false by default)&lt;/li&gt;
+        &lt;li&gt;&lt;b&gt;italic&lt;/b&gt; : Indicates if its italic (false by default)&lt;/li&gt;
+        &lt;li&gt;&lt;b&gt;underline&lt;/b&gt; : Indicates if its underline (false by default)&lt;/li&gt;
+        &lt;/ul&gt;
+    </Constant>
+
+
+    <!-- ***************************** -->
+    <!-- *** Parameters for parser *** -->
+    <!-- ***************************** -->
+    <Constant
+            name="PARAMETER_UP_LEFT"
+            type="STRING"
+            value="upLeft">
+        Up left color. Used by : {@link #MARKUP_GRADIENT}
+    </Constant>
+    <Constant
+            name="PARAMETER_UP_RIGHT"
+            type="STRING"
+            value="upRight">
+        Up right color. Used by : {@link #MARKUP_GRADIENT}
+    </Constant>
+    <Constant
+            name="PARAMETER_DOWN_LEFT"
+            type="STRING"
+            value="downLeft">
+        Down left color. Used by : {@link #MARKUP_GRADIENT}
+    </Constant>
+    <Constant
+            name="PARAMETER_DOWN_RIGHT"
+            type="STRING"
+            value="downRight">
+        Down right color. Used by : {@link #MARKUP_GRADIENT}
+    </Constant>
+    <Constant
+            name="PARAMETER_COLOR"
+            type="STRING"
+            value="color">
+        A color. Used by : {@link #MARKUP_PERCENT}
+    </Constant>
+    <Constant
+            name="PARAMETER_PERCENT"
+            type="STRING"
+            value="percent">
+        A percent. Used by : {@link #MARKUP_PERCENT}
+    </Constant>
+    <Constant
+            name="PARAMETER_FAMILY"
+            type="STRING"
+            value="family">
+        Font family name. Used by : {@link #MARKUP_FONT}
+    </Constant>
+    <Constant
+            name="PARAMETER_SIZE"
+            type="STRING"
+            value="size">
+        Font size. Used by : {@link #MARKUP_FONT}
+    </Constant>
+    <Constant
+            name="PARAMETER_BOLD"
+            type="STRING"
+            value="bold">
+        Bold status. Used by : {@link #MARKUP_FONT}
+    </Constant>
+    <Constant
+            name="PARAMETER_ITALIC"
+            type="STRING"
+            value="italic">
+        Italic status. Used by : {@link #MARKUP_FONT}
+    </Constant>
+    <Constant
+            name="PARAMETER_UNDERLINE"
+            type="STRING"
+            value="underline">
+        Underline status. Used by : {@link #MARKUP_FONT}
+    </Constant>
+</Constants>

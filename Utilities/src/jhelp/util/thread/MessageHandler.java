@@ -98,4 +98,22 @@ public abstract class MessageHandler<M>
     {
         this.post(message, 1L);
     }
+
+    /**
+     * Close the message handler as soon as possible.<br>
+     * Queued message not already played are ignored. <br>
+     * The current message will be finished because can't be cancelled
+     */
+    public final void terminate()
+    {
+        synchronized (this.handlingTask.working)
+        {
+            this.handlingTask.queueMessages.clear();
+
+            if (this.handlingTask.waiting.get())
+            {
+                this.handlingTask.working.notify();
+            }
+        }
+    }
 }

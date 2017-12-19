@@ -96,19 +96,19 @@ public class PrintSpy extends PrintStream
          *                     output stream has been closed.
          */
         @Override
-        public void write(final int b) throws IOException
+        public void write(final int b)
         {
             this.append((byte) b);
         }
 
         @Override
-        public void write(final byte[] b) throws IOException
+        public void write(final byte[] b)
         {
             this.append(b);
         }
 
         @Override
-        public void write(final byte[] b, final int off, final int len) throws IOException
+        public void write(final byte[] b, final int off, final int len)
         {
             this.append(off, len, b);
         }
@@ -368,7 +368,7 @@ public class PrintSpy extends PrintStream
     }
 
     @Override
-    public void write(final byte[] b) throws IOException
+    public void write(final byte[] b)
     {
         try
         {

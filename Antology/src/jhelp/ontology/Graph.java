@@ -434,7 +434,7 @@ public final class Graph
     public <R> R query(Query query, Class<R> resultClass)
     {
         final R result = (R) Reflection.newInstance(resultClass);
-        // TODO Do the query
+        // TODO Do the query: collect fields info recursively + play request and collect result in same time
         Debug.todo("Do the query");
         return result;
     }

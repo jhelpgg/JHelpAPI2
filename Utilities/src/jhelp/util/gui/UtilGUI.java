@@ -295,7 +295,7 @@ public final class UtilGUI
     {
         if (component instanceof WithFixedSize)
         {
-            return ((WithFixedSize) component).getFixedSize();
+            return ((WithFixedSize) component).fixedSize();
         }
 
         if (component instanceof Container)
@@ -338,7 +338,7 @@ public final class UtilGUI
     {
         if (component instanceof WithFixedSize)
         {
-            return ((WithFixedSize) component).getFixedSize();
+            return ((WithFixedSize) component).fixedSize();
         }
 
         if (component instanceof Container)
@@ -380,7 +380,7 @@ public final class UtilGUI
     {
         if (component instanceof WithFixedSize)
         {
-            return ((WithFixedSize) component).getFixedSize();
+            return ((WithFixedSize) component).fixedSize();
         }
 
         if (component instanceof Container)

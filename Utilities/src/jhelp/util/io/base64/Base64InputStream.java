@@ -274,7 +274,7 @@ public class Base64InputStream
      * @see InputStream#reset()
      */
     @Override
-    public synchronized void reset() throws IOException
+    public synchronized void reset()
     {
     }
 

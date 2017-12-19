@@ -85,7 +85,7 @@ public class XMLSerializer
     @SuppressWarnings("unchecked")
     public static <T> T deserialize(final Class<T> clas, final InputStream inputStream)
             throws IOException, ExceptionParseXML, IllegalArgumentException,
-                   NoSuchFieldException, IllegalAccessException, NoSuchMethodException, InvocationTargetException,
+                   IllegalAccessException, NoSuchMethodException, InvocationTargetException,
                    URISyntaxException, ClassNotFoundException
     {
         final T object = (T) Reflection.newInstance(clas);
@@ -124,7 +124,7 @@ public class XMLSerializer
      *            If problem while deserialize an array
      */
     public static void deserialize(final Object object, final Class<?> clas, final MarkupXML markupXML)
-            throws IllegalArgumentException, NoSuchFieldException,
+            throws IllegalArgumentException,
                    IllegalAccessException, NoSuchMethodException, InvocationTargetException, MalformedURLException,
                    URISyntaxException, ClassNotFoundException
     {
@@ -619,12 +619,12 @@ public class XMLSerializer
     {
         if (object == null)
         {
-            throw new NullPointerException("object musn't be null");
+            throw new NullPointerException("object mustn't be null");
         }
 
         if (dynamicWriteXML == null)
         {
-            throw new NullPointerException("dynamicWriteXML musn't be null");
+            throw new NullPointerException("dynamicWriteXML mustn't be null");
         }
 
         Class<?> fieldClass, arrayClass;

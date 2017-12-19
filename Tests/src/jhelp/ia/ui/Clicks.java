@@ -1,7 +1,17 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
 package jhelp.ia.ui;
 
 import jhelp.util.gui.UtilGUI;
-import jhelp.util.util.Utilities;
 
 /**
  * Created by jhelp on 02/07/17.
@@ -10,25 +20,8 @@ public class Clicks
 {
     public static void main(String[] args)
     {
-        int time = 10;
-
-        if (args != null && args.length > 0)
-        {
-            try
-            {
-                time = Integer.parseInt(args[0]);
-            }
-            catch (Exception ignored)
-            {
-            }
-        }
-
-        Utilities.sleep(4096);
-
-        for (int i = 0; i < time; i++)
-        {
-            UtilGUI.simulateMouseClick(16);
-            Utilities.sleep(16);
-        }
+        UtilGUI.initializeGUI();
+        FrameClicks frameClicks = new FrameClicks();
+        frameClicks.setVisible(true);
     }
 }

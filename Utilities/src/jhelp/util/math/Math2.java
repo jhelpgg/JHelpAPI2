@@ -42,36 +42,44 @@ public class Math2
     /**
      * Double precision, the "zero"
      */
-    public static final double     EPSILON             = Math2.maximum(Double.MIN_VALUE,
+    public static final double EPSILON             = Math2.maximum(Double.MIN_VALUE,
                                                                        Math.abs(Math.E - Math.exp(1.0)),
                                                                        Math.abs(Math.PI - Math.acos(-1.0)));
     /**
      * Float precision, the "zero"
      */
-    public static final float      EPSILON_FLOAT       = Math2.maximum(Float.MIN_VALUE,
+    public static final float  EPSILON_FLOAT       = Math2.maximum(Float.MIN_VALUE,
                                                                        Math.abs((float) Math.E - (float) Math.exp(1.0)),
                                                                        Math.abs((float) Math.PI -
                                                                                 (float) Math.acos(-1.0)));
     /**
+     * One grade in degree
+     */
+    public static       double GRADE_IN_DEGREE     = 0.9;
+    /**
+     * One grade in radian
+     */
+    public static       double GRADE_IN_RADIAN     = Math.PI / 200d;
+    /**
      * One inch in centimeter
      */
-    public static final double     INCH_IN_CENTIMETER  = 2.54;
+    public static final double INCH_IN_CENTIMETER  = 2.54;
     /**
      * One inch in millimeter
      */
-    public static final double     INCH_IN_MILLIMETER  = 25.4;
+    public static final double INCH_IN_MILLIMETER  = 25.4;
     /**
      * One inch in pica
      */
-    public static final double     INCH_IN_PICA        = 6.0;
+    public static final double INCH_IN_PICA        = 6.0;
     /**
      * One inch in point
      */
-    public static final double     INCH_IN_POINT       = 72.0;
+    public static final double INCH_IN_POINT       = 72.0;
     /**
      * One millimeter in point
      */
-    public static final double     MILLIMETER_IN_POINT = 72.0 / 25.4;
+    public static final double MILLIMETER_IN_POINT = 72.0 / 25.4;
     /**
      * One pica in millimeter
      */
@@ -279,7 +287,7 @@ public class Math2
      * @param p2        Second control point
      * @param p3        Third control point
      * @param precision Number of interpolation
-     * @param cubic     Where write interpolations
+     * @param cubic     Where write interpolations. If {@code null} or length too small, a new array is created
      * @return Interpolations
      */
     public static double[] cubic(
@@ -309,6 +317,28 @@ public class Math2
     }
 
     /**
+     * Convert degree to grade
+     *
+     * @param degree Degree to convert
+     * @return Converted grade
+     */
+    public static double degreeToGrade(final double degree)
+    {
+        return degree * Math2.GRADE_IN_DEGREE;
+    }
+
+    /**
+     * Convert degree to radian
+     *
+     * @param degree Degree to convert
+     * @return Converted radian
+     */
+    public static double degreeToRadian(final double degree)
+    {
+        return (degree * Math.PI) / 180.0;
+    }
+
+    /**
      * Indicates if two given real can be considered as equals
      *
      * @param value1 First real
@@ -330,6 +360,28 @@ public class Math2
     public static boolean equals(float value1, float value2)
     {
         return Math2.isNul(value1 - value2);
+    }
+
+    /**
+     * Convert grade to degree
+     *
+     * @param grade Grade to convert
+     * @return Converted degree
+     */
+    public static double gradeToDegree(final double grade)
+    {
+        return grade / Math2.GRADE_IN_DEGREE;
+    }
+
+    /**
+     * Convert grade to radian
+     *
+     * @param grade Grade to convert
+     * @return Converted radian
+     */
+    public static double gradeToRadian(final double grade)
+    {
+        return (grade * Math.PI) / 200.0;
     }
 
     /**
@@ -1027,50 +1079,50 @@ public class Math2
         final int max  = Math.max(n, diff);
 
         // Collect numerator numbers
-        final ArrayInt arrayInt = new ArrayInt();
+        final ArrayInt numerators = new ArrayInt();
         for (int i = m; i > max; i--)
         {
-            arrayInt.add(i);
+            numerators.add(i);
         }
 
-        int size = arrayInt.getSize();
-        int test;
-        int num, gcd;
+        int size = numerators.getSize();
+        int testedNumerator;
+        int denominator, gcd;
 
         // For each denominator number
         for (int i = min; i >= 2; i--)
         {
             // Current denominator number
-            num = i;
+            denominator = i;
 
             // For each left numerator numbers
-            for (int j = 0; (j < size) && (num > 1); j++)
+            for (int j = 0; (j < size) && (denominator > 1); j++)
             {
                 // Current numerator number
-                test = arrayInt.getInteger(j);
-                gcd = Math2.greaterCommonDivider(num, test);
+                testedNumerator = numerators.getInteger(j);
+                gcd = Math2.greaterCommonDivider(denominator, testedNumerator);
 
                 // If we can simplify current denominator number with current numerator number
                 if (gcd > 1)
                 {
-                    // Simplify the denominator
-                    test /= gcd;
+                    // Simplify the numerator
+                    testedNumerator /= gcd;
 
-                    if (test == 1)
+                    if (testedNumerator == 1)
                     {
                         // If left nothing (just 1), remove the numerator from list
-                        arrayInt.remove(j);
+                        numerators.remove(j);
                         size--;
                         j--;
                     }
                     else
                     {
                         // Update the numerator
-                        arrayInt.setInteger(j, test);
+                        numerators.setInteger(j, testedNumerator);
                     }
 
                     // Simplify the denominator
-                    num /= gcd;
+                    denominator /= gcd;
                 }
             }
         }
@@ -1090,7 +1142,7 @@ public class Math2
 
         for (int i = 0; i < size; i++)
         {
-            result *= arrayInt.getInteger(i);
+            result *= numerators.getInteger(i);
         }
 
         return result;
@@ -1233,6 +1285,28 @@ public class Math2
             actual += step;
         }
         return quadratic;
+    }
+
+    /**
+     * Convert radian to degree
+     *
+     * @param radian Radian to convert
+     * @return Converted degree
+     */
+    public static double radianToDegree(final double radian)
+    {
+        return (radian * 180.0) / Math.PI;
+    }
+
+    /**
+     * Convert radian to grade
+     *
+     * @param radian Radian to convert
+     * @return Converted grade
+     */
+    public static double radianToGrade(final double radian)
+    {
+        return (radian * 200.0) / Math.PI;
     }
 
     /**

@@ -23,12 +23,12 @@ public final class Pair<T1, T2>
     /**
      * First element
      */
-    public final @Nullable
+    public @Nullable
     T1 first;
     /**
      * Second element
      */
-    public final @Nullable
+    public @Nullable
     T2 second;
 
     /**

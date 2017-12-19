@@ -56,7 +56,7 @@ public class MarkupXML
      * @throws ExceptionParseXML
      *            On parsing problem
      */
-    public static MarkupXML load(final InputStream inputStream) throws IOException, ExceptionParseXML
+    public static MarkupXML load(final InputStream inputStream) throws ExceptionParseXML
     {
         final DefaultParseXMLlistener defaultParseXMLlistener = new DefaultParseXMLlistener();
 
@@ -106,7 +106,7 @@ public class MarkupXML
     {
         if (name == null)
         {
-            throw new NullPointerException("name musn't be null");
+            throw new NullPointerException("name mustn't be null");
         }
         this.name = name;
         this.parameters = new Hashtable<String, String>();
@@ -220,7 +220,7 @@ public class MarkupXML
     {
         if (child == null)
         {
-            throw new NullPointerException("child musn't be null");
+            throw new NullPointerException("child mustn't be null");
         }
         if (child.parent == this)
         {
@@ -351,11 +351,11 @@ public class MarkupXML
     {
         if (key == null)
         {
-            throw new NullPointerException("key musn't be null");
+            throw new NullPointerException("key mustn't be null");
         }
         if (value == null)
         {
-            throw new NullPointerException("value musn't be null");
+            throw new NullPointerException("value mustn't be null");
         }
         this.parameters.put(key, value);
     }
@@ -444,7 +444,7 @@ public class MarkupXML
     {
         if (key == null)
         {
-            throw new NullPointerException("key musn't be null");
+            throw new NullPointerException("key mustn't be null");
         }
         return this.parameters.containsKey(key);
     }
@@ -470,7 +470,7 @@ public class MarkupXML
     {
         if (name == null)
         {
-            throw new NullPointerException("name musn't be null");
+            throw new NullPointerException("name mustn't be null");
         }
         final ArrayList<MarkupXML> arrayList = new ArrayList<MarkupXML>();
         for (final MarkupXML child : this.children)
@@ -494,7 +494,7 @@ public class MarkupXML
     {
         if (key == null)
         {
-            throw new NullPointerException("key musn't be null");
+            throw new NullPointerException("key mustn't be null");
         }
         return this.parameters.get(key);
     }
@@ -781,7 +781,7 @@ public class MarkupXML
     {
         if (child == null)
         {
-            throw new NullPointerException("child musn't be null");
+            throw new NullPointerException("child mustn't be null");
         }
         if (child.parent != this)
         {
@@ -801,7 +801,7 @@ public class MarkupXML
     {
         if (key == null)
         {
-            throw new NullPointerException("key musn't be null");
+            throw new NullPointerException("key mustn't be null");
         }
         this.parameters.remove(key);
     }

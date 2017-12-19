@@ -77,7 +77,7 @@ public class DefaultParseXMLlistener
      * @see ParseXMLlistener#endMarkup(String)
      */
     @Override
-    public void endMarkup(final String markupName) throws UnexpectedEndOfMarkup
+    public void endMarkup(final String markupName)
     {
         if (this.temporaryParent != null)
         {
@@ -93,7 +93,7 @@ public class DefaultParseXMLlistener
      * @see ParseXMLlistener#endParse()
      */
     @Override
-    public void endParse() throws UnexpectedEndOfParse
+    public void endParse()
     {
         this.temporary = null;
         this.temporaryParent = null;
@@ -125,8 +125,6 @@ public class DefaultParseXMLlistener
      */
     @Override
     public void startMarkup(final String markupName, final Hashtable<String, String> parameters)
-            throws MissingRequiredParameterException,
-                   InvalidParameterValueException
     {
         if (this.markupXML == null)
         {
@@ -172,7 +170,7 @@ public class DefaultParseXMLlistener
      * @see ParseXMLlistener#textFind(String)
      */
     @Override
-    public void textFind(final String text) throws InvalidTextException
+    public void textFind(final String text)
     {
         this.temporary.setText(text);
     }

@@ -26,5 +26,5 @@ public interface WithFixedSize
      *
      * @return The fixed dimension
      */
-    Dimension getFixedSize();
+    Dimension fixedSize();
 }

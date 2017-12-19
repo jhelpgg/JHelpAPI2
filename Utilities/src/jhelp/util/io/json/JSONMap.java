@@ -151,9 +151,7 @@ public class JSONMap<KEY extends Comparable, VALUE>
      * @return Desired value OR {@code null} if no key
      */
     @SuppressWarnings("unchecked")
-    public VALUE get(
-            @NotNull
-                    KEY key)
+    public VALUE get(@NotNull KEY key)
     {
         if (key == null)
         {
@@ -239,9 +237,7 @@ public class JSONMap<KEY extends Comparable, VALUE>
      * @param value Value associated
      */
     @SuppressWarnings("unchecked")
-    public void put(
-            @NotNull
-                    KEY key, VALUE value)
+    public void put(@NotNull KEY key, VALUE value)
     {
         if (key == null)
         {

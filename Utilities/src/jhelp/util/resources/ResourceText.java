@@ -209,10 +209,7 @@ public final class ResourceText
         {
             url = this.resources.obtainResourceURL(this.xmlReferencePathHeader + ResourceText.XML);
 
-            if (url != null)
-            {
-                return true;
-            }
+            return url != null;
         }
 
         return false;

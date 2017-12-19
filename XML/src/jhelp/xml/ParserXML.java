@@ -276,43 +276,6 @@ public class ParserXML
     }
 
     /**
-     * Modify parseLevel
-     *
-     * @param parseLevel
-     *           New parseLevel value
-     */
-    public void setParseLevel(final ParseLevel parseLevel)
-    {
-        if (parseLevel == null)
-        {
-            throw new NullPointerException("parseLevel musn't be null");
-        }
-
-        this.parseLevel = parseLevel;
-    }
-
-    /**
-     * Return compressWhiteCharactersInTextOnOneSpace
-     *
-     * @return compressWhiteCharactersInTextOnOneSpace
-     */
-    public boolean isCompressWhiteCharactersInTextOnOneSpace()
-    {
-        return this.compressWhiteCharactersInTextOnOneSpace;
-    }
-
-    /**
-     * Modify compressWhiteCharactersInTextOnOneSpace
-     *
-     * @param compressWhiteCharactersInTextOnOneSpace
-     *           New compressWhiteCharactersInTextOnOneSpace value
-     */
-    public void setCompressWhiteCharactersInTextOnOneSpace(final boolean compressWhiteCharactersInTextOnOneSpace)
-    {
-        this.compressWhiteCharactersInTextOnOneSpace = compressWhiteCharactersInTextOnOneSpace;
-    }
-
-    /**
      * Launch a parsing.<br>
      * It didn't close the stream, you have to do it by your self.<br>
      * Beware you have to call {@link #setParseXMLlistener(ParseXMLlistener)} or {@link #parse(ParseXMLlistener, InputStream)}
@@ -328,7 +291,7 @@ public class ParserXML
     {
         if (inputStream == null)
         {
-            throw new NullPointerException("inputStream musn't be null");
+            throw new NullPointerException("inputStream mustn't be null");
         }
         if (this.parseXMLlistener == null)
         {
@@ -614,6 +577,41 @@ public class ParserXML
     }
 
     /**
+     * Return compressWhiteCharactersInTextOnOneSpace
+     *
+     * @return compressWhiteCharactersInTextOnOneSpace
+     */
+    public boolean isCompressWhiteCharactersInTextOnOneSpace()
+    {
+        return this.compressWhiteCharactersInTextOnOneSpace;
+    }
+
+    /**
+     * Modify compressWhiteCharactersInTextOnOneSpace
+     *
+     * @param compressWhiteCharactersInTextOnOneSpace New compressWhiteCharactersInTextOnOneSpace value
+     */
+    public void setCompressWhiteCharactersInTextOnOneSpace(final boolean compressWhiteCharactersInTextOnOneSpace)
+    {
+        this.compressWhiteCharactersInTextOnOneSpace = compressWhiteCharactersInTextOnOneSpace;
+    }
+
+    /**
+     * Modify parseLevel
+     *
+     * @param parseLevel New parseLevel value
+     */
+    public void setParseLevel(final ParseLevel parseLevel)
+    {
+        if (parseLevel == null)
+        {
+            throw new NullPointerException("parseLevel mustn't be null");
+        }
+
+        this.parseLevel = parseLevel;
+    }
+
+    /**
      * Parse a stream
      *
      * @param parseXMLlistener
@@ -639,7 +637,7 @@ public class ParserXML
     {
         if (parseXMLlistener == null)
         {
-            throw new NullPointerException("parseXMLlistener musn't be null");
+            throw new NullPointerException("parseXMLlistener mustn't be null");
         }
         this.parseXMLlistener = parseXMLlistener;
     }
@@ -657,7 +655,7 @@ public class ParserXML
     {
         if (parseLevel == null)
         {
-            throw new NullPointerException("parseLevel musn't be null");
+            throw new NullPointerException("parseLevel mustn't be null");
         }
         if (parseXMLprogressListener == null)
         {

@@ -39,9 +39,8 @@ public class Observable<T>
      *
      * @param data Initial value
      */
-    public Observable(@NotNull T data)
+    public Observable(@Nullable T data)
     {
-        Objects.requireNonNull(data);
         this.data = data;
         this.observers = new ArrayObject<>();
     }
@@ -53,7 +52,7 @@ public class Observable<T>
      * @param value Value to test
      * @return {@code true} if given value is valid
      */
-    protected boolean valueIsValid(@NotNull T value)
+    protected boolean valueIsValid(@Nullable T value)
     {
         return true;
     }
@@ -169,6 +168,23 @@ public class Observable<T>
         final Observable<T1> observable = new Observable<>(task.playTask(this.value()).value());
         this.startObserve((ignored, value) -> observable.value(task.playTask(value).value()));
         return observable;
+    }
+
+    /**
+     * Create an immutable version of this Observable.<br>
+     * The value of immutable version only change if this change.<br>
+     * It's use full for expose an Observable that can only be change by one class and others can only linked to the change but can't do modification.
+     *
+     * @return Immutable version
+     */
+    public final Observable<T> immutable()
+    {
+        if (this instanceof ImmutableObservable)
+        {
+            return this;
+        }
+
+        return new ImmutableObservable<>(this);
     }
 
     /**
@@ -292,7 +308,7 @@ public class Observable<T>
      *
      * @return Current value
      */
-    public final @NotNull T value()
+    public final @Nullable T value()
     {
         return this.data;
     }
@@ -305,13 +321,12 @@ public class Observable<T>
      * @param value New value to set
      * @return {@code true} if value really change
      */
-    public final boolean value(@NotNull T value)
+    public final boolean value(@Nullable T value)
     {
-        Objects.requireNonNull(value);
-
         synchronized (this.observers)
         {
-            if (this.valueIsValid(value) && !this.data.equals(value))
+            if (this.valueIsValid(value) && ((this.data == null && value != null)
+                                             || (this.data != null && !this.data.equals(value))))
             {
                 this.data = value;
                 this.observers.forEach((ConsumerTask<Observer<T>>) observer -> observer.valueChanged(this, value));

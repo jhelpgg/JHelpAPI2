@@ -356,7 +356,7 @@ public final class Future<R>
     }
 
     /**
-     * Create a future linked to the end of the end of given futures.<br>
+     * Create a future linked to the end of given futures.<br>
      * The result future will be finished when all given futures are finished.
      * It is possible to get the list of futures for having their individual status.
      *

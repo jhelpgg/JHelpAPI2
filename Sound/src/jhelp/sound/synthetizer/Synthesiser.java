@@ -620,11 +620,11 @@ public class Synthesiser
      * @param morsel Morsel to play
      * @throws SynthesiserException If synthesiser already play something
      */
-    public void play(final Morsel morsel) throws SynthesiserException
+    public void play(final Morsel morsel)
     {
         if (morsel == null)
         {
-            throw new NullPointerException("morsel musn't be null");
+            throw new NullPointerException("morsel mustn't be null");
         }
 
         if (this.alive)

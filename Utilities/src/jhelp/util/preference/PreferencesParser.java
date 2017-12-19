@@ -149,7 +149,7 @@ class PreferencesParser
      * @see DefaultHandler#warning(SAXParseException)
      */
     @Override
-    public void warning(final SAXParseException e) throws SAXException
+    public void warning(final SAXParseException e)
     {
         Debug.exception(e, "Warning /!\\");
     }
@@ -165,9 +165,9 @@ class PreferencesParser
      * @see DefaultHandler#error(SAXParseException)
      */
     @Override
-    public void error(final SAXParseException e) throws SAXException
+    public void error(final SAXParseException e)
     {
-        Debug.exception(e, "ERROR !!!");
+        Debug.exception(e, "FAILED !!!");
     }
 
     /**
@@ -181,8 +181,8 @@ class PreferencesParser
      * @see DefaultHandler#fatalError(SAXParseException)
      */
     @Override
-    public void fatalError(final SAXParseException e) throws SAXException
+    public void fatalError(final SAXParseException e)
     {
-        Debug.exception(e, "FATAL ERROR !!!");
+        Debug.exception(e, "FATAL FAILED !!!");
     }
 }

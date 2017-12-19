@@ -97,7 +97,7 @@ public class IntegerArrayInputStream
      * @see InputStream#close()
      */
     @Override
-    public void close() throws IOException
+    public void close()
     {
         this.array = null;
         this.bytes = null;

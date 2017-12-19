@@ -1,0 +1,205 @@
+<!--
+  ~ Copyright:
+  ~ License :
+  ~  The following code is deliver as is.
+  ~  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+  ~  You can use, modify, the code as your need for any usage.
+  ~  But you can't do any action that avoid me or other person use,  modify this code.
+  ~  The code is free for usage and modification, you can't change that fact.
+  ~  @author JHelp
+  ~
+  -->
+
+<!--
+  ~ License :
+  ~ The following code is deliver as is. I take care that code compile and work, but I am not responsible about any damage it may cause.
+  ~ You can use, modify, the code as your need for any usage.
+  ~ But you can't do any action that avoid me or other person use, modify this code.
+  ~ The code is free for usage and modification, you can't change that fact.
+  ~ JHelp
+  -->
+
+<Texts>
+    <!-- ************************* -->
+    <!-- *** Option pane texts *** -->
+    <!-- ************************* -->
+
+    <!-- Yes button text on option pane -->
+    <Text key="OptionPaneYes">
+        Oui
+    </Text>
+    <!-- Ok button text on option pane -->
+    <Text key="OptionPaneOk">
+        Ok
+    </Text>
+    <!-- Cancel button text on option pane -->
+    <Text key="OptionPaneCancel">
+        Annuler
+    </Text>
+    <!-- No button text on option pane -->
+    <Text key="OptionPaneNo">
+        Non
+    </Text>
+
+    <!-- *************************** -->
+    <!-- *** File explorer texts *** -->
+    <!-- *************************** -->
+
+    <!-- Ask to choose a new name on file renaming -->
+    <Text key="FileExplorerOtherName">
+        Choisissez un nouveau nom
+    </Text>
+    <!-- Alert user that the renaming can't append, the overwriting is not possible -->
+    <Text key="FileExplorerOverwriteImpossible">
+        Le fichier de destination existe déjà est ne peut pas être écrasé
+    </Text>
+    <!-- Alert user that the renaming will overwrite an already existing fexportDirectorytory title -->
+    <Text key="FileExplorerOverwriteFileTitle">
+        Ecraser le fichier/répertoire
+    </Text>
+    <!-- Alert user that the renaming will overwrite an already existing fexportDirectorytory message -->
+    <!-- {0} : FexportDirectorytory will be overwrite path -->
+    <Text key="FileExplorerOverwriteFileMessage">
+        Le fichier {0} Existe déjà.\nVoulez vous l'écraser ?
+    </Text>
+    <!-- Error text for indicates that a rename file failed. -->
+    <!-- {0} : source file path -->
+    <!-- {1} : destination file path -->
+    <Text key="FileExplorerErrorFailedToRename">
+        Echec pour renommer {0} en {1}
+    </Text>
+
+    <!-- Ask to choose a exportDirectorytory name on creation of a exportDirectorytory -->
+    <Text key="FileExplorerNewDirectoryName">
+        Nom du répertoire
+    </Text>
+    <!-- Alert user that exportDirectorytory already exists, so the creation have failed -->
+    <!-- {0} : Already existexportDirectorytory path -->
+    <Text key="FileExplorerWarningDirectoryExists">
+        Le répertoire {0} existe déjà !
+    </Text>
+
+    <!-- Delete fexportDirectorytory title -->
+    <Text key="FileExplorerDeleteFileTitle">
+        Effacer fichier/répertoire
+    </Text>
+    <!-- Delete fexportDirectorytory message -->
+    <!-- {0} : File to delete path -->
+    <Text key="FileExplorerDeleteFileMessage">
+        Voulez-vous vraiment effacer {0} ?
+    </Text>
+
+    <!-- ************************** -->
+    <!-- *** File chooser texts *** -->
+    <!-- ************************** -->
+
+    <!-- File chooser title header -->
+    <Text key="FileChooserTitleHeader">
+        Choisissez un fichier
+    </Text>
+
+    <!-- ***************************** -->
+    <!-- *** Edit image area texts *** -->
+    <!-- ***************************** -->
+
+    <!-- Open image area file -->
+    <Text key="EditImageArea.open">
+        Ouvrir une "Area"
+    </Text>
+    <!-- Save image area file -->
+    <Text key="EditImageArea.save">
+        Sauver l'"Area"
+    </Text>
+    <!-- Load image -->
+    <Text key="EditImageArea.load">
+        Charger une image
+    </Text>
+    <!-- Add area -->
+    <Text key="EditImageArea.add">
+        Ajouter une zone
+    </Text>
+    <!-- Make transparent -->
+    <Text key="EditImageArea.transparent">
+        Rendre une couleur transparente
+    </Text>
+    <!-- Dive selector -->
+    <Text key="EditImageArea.divide">
+        Deivise
+    </Text>
+    <!-- Create a gris -->
+    <Text key="EditImageArea.grid">
+        Grille
+    </Text>
+    <!-- Load image succeed -->
+    <!-- {0} : Loaded image path -->
+    <Text key="EditImageArea.loadSucceed">
+        L'image {0} a été chargée
+    </Text>
+    <!-- Load image failed -->
+    <!-- {0} : Loaded image path -->
+    <!-- {1} : Error message -->
+    <Text key="EditImageArea.loadFailed">
+        L'image {0} n'a pas pu être chargée.\nErreur : {1}
+    </Text>
+    <!-- Open image area succeed -->
+    <!-- {0} : Opened image area path -->
+    <Text key="EditImageArea.openSucceed">
+        L'image "Area" {0} a été ouverte
+    </Text>
+    <!-- Open image area failed -->
+    <!-- {0} : Opened image path -->
+    <!-- {1} : Error message -->
+    <Text key="EditImageArea.openFailed">
+        L'image "Area" {0} n'a pa pu être ouverte.\nErreur : {1}
+    </Text>
+    <!-- Save image area succeed -->
+    <!-- {0} : Saved image area path -->
+    <Text key="EditImageArea.saveSucceed">
+        L'image "Area" {0} a été sauvé
+    </Text>
+    <!-- Save image area failed -->
+    <!-- {0} : Saved image path -->
+    <!-- {1} : Error message -->
+    <Text key="EditImageArea.saveFailed">
+        L'image "Area" {0} N'a pas été sauvé.\nErreur : {1}
+    </Text>
+
+    <!-- ********************* -->
+    <!-- *** Color chooser *** -->
+    <!-- ********************* -->
+
+    <!-- Alpha part -->
+    <Text key="colorChooser.alpha">
+        Alpha
+    </Text>
+    <!-- Red part -->
+    <Text key="colorChooser.red">
+        Rouge
+    </Text>
+    <!-- Green part -->
+    <Text key="colorChooser.green">
+        Vert
+    </Text>
+    <!-- Blue part -->
+    <Text key="colorChooser.blue">
+        Bleu
+    </Text>
+
+    <!-- ******************************* -->
+    <!-- *** JHelpTable actions text *** -->
+    <!-- ******************************* -->
+
+    <!-- Make union of several cells -->
+    <Text key="table.action.cellUnion">
+        Fusionner les cellules
+    </Text>
+    <!-- Split one cell in several parts -->
+    <Text key="table.action.cellSplit">
+        Decouper la cellule
+    </Text>
+    <!--- Move one cell -->
+    <Text key="table.action.move">
+        Déplacer la cellule
+    </Text>
+
+</Texts>

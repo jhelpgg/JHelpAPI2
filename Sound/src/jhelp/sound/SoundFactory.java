@@ -64,7 +64,7 @@ public class SoundFactory
         {
             if (path == null)
             {
-                throw new NullPointerException("path musn't be null");
+                throw new NullPointerException("path mustn't be null");
             }
 
             this.path = path;
@@ -80,12 +80,12 @@ public class SoundFactory
         {
             if (resourceName == null)
             {
-                throw new NullPointerException("resourceName musn't be null");
+                throw new NullPointerException("resourceName mustn't be null");
             }
 
             if (referenceClass == null)
             {
-                throw new NullPointerException("referenceClass musn't be null");
+                throw new NullPointerException("referenceClass mustn't be null");
             }
 
             this.referenceClass = referenceClass;
@@ -101,7 +101,7 @@ public class SoundFactory
         {
             if (url == null)
             {
-                throw new NullPointerException("url musn't be null");
+                throw new NullPointerException("url mustn't be null");
             }
 
             this.url = url;

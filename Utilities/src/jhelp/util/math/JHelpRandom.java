@@ -12,21 +12,21 @@
 
 package jhelp.util.math;
 
+import com.sun.istack.internal.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import jhelp.util.debug.Debug;
-import jhelp.util.reflection.Reflection;
 import jhelp.util.text.UtilText;
 
 /**
  * Able to choice an object randomly.<br>
  * The chance to have an object can be different than to have an other one.<br>
- * For example if <font color="#008800">"A"</font> have 50% chance, <font color="#008800">"B"</font> 25%,
- * <font color="#008800">"C"</font> 12%, <font color="#008800">"D"</font> 6%,<font color="#008800">"E"</font> 3%,
- * <font color="#008800">"F"</font> 2%, <font color="#008800">"G"</font> 1% and <font color="#008800">"H"</font> 1% :<br>
- * <code lang="java"><!--
- * JHelpRandom<String> random = new JHelpRandom<String>();
+ * For example if <font color="#44CC44">"A"</font> have 50% chance, <font color="#44CC44">"B"</font> 25%,
+ * <font color="#44CC44">"C"</font> 12%, <font color="#44CC44">"D"</font> 6%,<font color="#44CC44">"E"</font> 3%,
+ * <font color="#44CC44">"F"</font> 2%, <font color="#44CC44">"G"</font> 1% and <font color="#44CC44">"H"</font> 1% :<br>
+ * <pre>
+ * JHelpRandom&lt;String&gt; random = new JHelpRandom&lt;String&gt;();
  * random.addChoice(50, "A");
  * random.addChoice(25, "B");
  * random.addChoice(12, "C");
@@ -35,29 +35,32 @@ import jhelp.util.text.UtilText;
  * random.addChoice(2,  "F");
  * random.addChoice(1,  "G");
  * random.addChoice(1,  "H");
- * --></code> After each time you do<br>
- * <code lang="java"><!--
+ * </pre>
+ * After each time you do<br>
+ * <pre>
  * String choice = random.choose();
- * --></code> Choice have 50% chance to be <font color="#008800">"A"</font>,<br>
- * 25% chance to be <font color="#008800">"B"</font>, <br>
- * 12% chance to be <font color="#008800">"C"</font>, <br>
- * 6% chance to be <font color="#008800">"D"</font>, <br>
- * 3% chance to be <font color="#008800">"E"</font>, <br>
- * 2% chance to be <font color="#008800">"F"</font>, <br>
- * 1% chance to be <font color="#008800">"G"</font> and <br>
- * 1% chance to be <font color="#008800">"H"</font><br>
+ * </pre>
+ * Choice have 50% chance to be <font color="#44CC44">"A"</font>,<br>
+ * 25% chance to be <font color="#44CC44">"B"</font>, <br>
+ * 12% chance to be <font color="#44CC44">"C"</font>, <br>
+ * 6% chance to be <font color="#44CC44">"D"</font>, <br>
+ * 3% chance to be <font color="#44CC44">"E"</font>, <br>
+ * 2% chance to be <font color="#44CC44">"F"</font>, <br>
+ * 1% chance to be <font color="#44CC44">"G"</font> and <br>
+ * 1% chance to be <font color="#44CC44">"H"</font><br>
  * <br>
- * You can also see things like this, you have a set of element compose of 55 <font color="#008800">"P"</font> and 87
- * <font color="#008800">"R"</font> :<br>
- * <code lang="java"><!--
- * JHelpRandom<String> random = new JHelpRandom<String>();
+ * You can also see things like this, you have a set of element compose of 55 <font color="#44CC44">"P"</font> and 87
+ * <font color="#44CC44">"R"</font> :<br>
+ * <pre>
+ * JHelpRandom&lt;String&gt; random = new JHelpRandom&lt;String&gt;();
  * random.addChoice(55, "P");
  * random.addChoice(87, "R");
- * --></code> After each time you do<br>
- * <code lang="java"><!--
+ * </pre>
+ * After each time you do<br>
+ * <pre>
  * String choice = random.choose();
- * --></code> Choice have 55 chance of 142 to be <font color="#008800">"P"</font> and 87 chance of 142 to be
- * <font color="#008800">"R"</font>
+ * </pre>
+ * Choice have 55 chance of 142 to be <font color="#44CC44">"P"</font> and 87 chance of 142 to be <font color="#44CC44">"R"</font>
  *
  * @param <CHOICE> Choice type
  * @author JHelp
@@ -129,30 +132,14 @@ public final class JHelpRandom<CHOICE>
     /**
      * Choose a value of an enum
      *
-     * @param <E>  Enum to get a value
-     * @param clas Enum class
-     * @return An enum value or {@code null} if failed
+     * @param <E>   Enum to get a value
+     * @param clazz Enum class
+     * @return An enum value
      */
-    @SuppressWarnings(
-            {
-                    "rawtypes", "unchecked"
-            })
-    public static <E extends Enum> E random(final Class<E> clas)
+    public static @NotNull <E extends Enum> E random(final Class<E> clazz)
     {
-        E[] array = null;
-
-        try
-        {
-            array = (E[]) Reflection.invokePublicMethod(clas, "values");
-        }
-        catch (final Exception exception)
-        {
-            Debug.exception(exception, "Failed to get values of ", clas.getName());
-
-            return null;
-        }
-
-        return JHelpRandom.random(array);
+        final E[] array = clazz.getEnumConstants();
+        return array[JHelpRandom.random(array.length)];
     }
 
     /**

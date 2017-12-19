@@ -166,12 +166,12 @@ public class SoundGameManager
     {
         if (resources == null)
         {
-            throw new NullPointerException("resources musn't be null");
+            throw new NullPointerException("resources mustn't be null");
         }
 
         if (directoryBackground == null)
         {
-            throw new NullPointerException("directoryBackground musn't be null");
+            throw new NullPointerException("directoryBackground mustn't be null");
         }
 
         this.fxQueue = new Queue<String>();

@@ -19,15 +19,17 @@ import java.util.Objects;
  */
 public final class Pointer<T>
 {
-    private T     data;
-    private Mutex mutex;
+    private       T     data;
+    private final Mutex mutex;
 
     public Pointer()
     {
+        this.mutex = new Mutex();
     }
 
     public Pointer(T data)
     {
+        this();
         this.data = data;
     }
 

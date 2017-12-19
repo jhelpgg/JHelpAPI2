@@ -145,7 +145,7 @@ class ControlInputStream
      * @see InputStream#read()
      */
     @Override
-    public int read() throws IOException
+    public int read()
     {
         if ((this.index >= this.data.length) || (this.pause))
         {
@@ -164,7 +164,7 @@ class ControlInputStream
      * @see InputStream#read(byte[])
      */
     @Override
-    public int read(final byte[] b) throws IOException
+    public int read(final byte[] b)
     {
         return this.read(b, 0, b.length);
     }
@@ -180,7 +180,7 @@ class ControlInputStream
      * @see InputStream#read(byte[], int, int)
      */
     @Override
-    public int read(final byte[] b, final int off, int len) throws IOException
+    public int read(final byte[] b, final int off, int len)
     {
         if (b == null)
         {
@@ -215,7 +215,7 @@ class ControlInputStream
      * @see InputStream#skip(long)
      */
     @Override
-    public long skip(long n) throws IOException
+    public long skip(long n)
     {
         n = Math.min(n, this.data.length - this.index);
         this.index += n;
@@ -230,7 +230,7 @@ class ControlInputStream
      * @see InputStream#available()
      */
     @Override
-    public int available() throws IOException
+    public int available()
     {
         return this.data.length;
     }
@@ -242,7 +242,7 @@ class ControlInputStream
      * @see InputStream#close()
      */
     @Override
-    public void close() throws IOException
+    public void close()
     {
     }
 
@@ -265,7 +265,7 @@ class ControlInputStream
      * @see InputStream#reset()
      */
     @Override
-    public synchronized void reset() throws IOException
+    public synchronized void reset()
     {
         this.index = this.mark;
     }

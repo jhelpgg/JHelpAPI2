@@ -1,17 +1,29 @@
-<Texts>
-	<Text key="white">White</Text>
-	<Text key="black">Black</Text>
-	<Text key="blue">Blue</Text>
-	<Text key="green">Green</Text>
-	<Text key="red">Red</Text>
-	<Text key="yellow">Yellow</Text>
-	<Text key="cyan">Cyan</Text>
-	<Text key="pink">Pink</Text>
-	<Text key="magenta">Magenta</Text>
-	<Text key="brown">Brown</Text>
-	<Text key="orange">Orange</Text>
-	<Text key="grey">Grey</Text>
+<!--
+  ~ Copyright:
+  ~ License :
+  ~  The following code is deliver as is.
+  ~  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+  ~  You can use, modify, the code as your need for any usage.
+  ~  But you can't do any action that avoid me or other person use,  modify this code.
+  ~  The code is free for usage and modification, you can't change that fact.
+  ~  @author JHelp
+  ~
+  -->
 
-	<Text key="dark">Dark</Text>
-	<Text key="light">Light</Text>
+<Texts>
+    <Text key="white">White</Text>
+    <Text key="black">Black</Text>
+    <Text key="blue">Blue</Text>
+    <Text key="green">Green</Text>
+    <Text key="red">Red</Text>
+    <Text key="yellow">Yellow</Text>
+    <Text key="cyan">Cyan</Text>
+    <Text key="pink">Pink</Text>
+    <Text key="magenta">Magenta</Text>
+    <Text key="brown">Brown</Text>
+    <Text key="orange">Orange</Text>
+    <Text key="grey">Grey</Text>
+
+    <Text key="dark">Dark</Text>
+    <Text key="light">Light</Text>
 </Texts>

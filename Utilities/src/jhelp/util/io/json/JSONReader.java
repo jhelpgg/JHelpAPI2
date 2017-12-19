@@ -24,21 +24,21 @@ import jhelp.util.reflection.Reflection;
  * Read a JSON, previously wrote by {@link JSONWriter}, and parse it to fill an object.<br>
  * The object read must be annotated {@link JSONObject} and serializable/parcelable (See {@link JSONObject}
  * documentation).<br>
- * The parsing mode can be strict (Bot accept removed field from last serialization) or not (Accept some changes)
+ * The parsing mode can be strict (Not accept removed field from last serialization) or not (Accept some changes)
  */
 public class JSONReader
 {
     /**
      * Fill object fields from JSON object
      *
-     * @param clas       Object class to fill
+     * @param clazz      Object class to fill
      * @param object     Object to fill
      * @param objectJSON JSON to parse
      * @param strict     Indicates if strict mode
      * @throws JSONException If JSON not valid for object to fill
      */
     @SuppressWarnings("unchecked")
-    private static void fillObject(Class clas, Object object, ObjectJSON objectJSON, boolean strict)
+    private static void fillObject(Class clazz, Object object, ObjectJSON objectJSON, boolean strict)
             throws JSONException
     {
         if (object == null)
@@ -54,7 +54,7 @@ public class JSONReader
         {
             try
             {
-                field = clas.getDeclaredField(key);
+                field = clazz.getDeclaredField(key);
                 field.setAccessible(true);
                 jsonElement = field.getAnnotation(JSONElement.class);
 
@@ -62,11 +62,11 @@ public class JSONReader
                 {
                     if (strict)
                     {
-                        throw new JSONException("The field : ", key, " in ", clas.getName(),
+                        throw new JSONException("The field : ", key, " in ", clazz.getName(),
                                                 " is not annotated JSONElement");
                     }
 
-                    Debug.warning("The field : ", key, " in ", clas.getName(), " is not annotated JSONElement");
+                    Debug.warning("The field : ", key, " in ", clazz.getName(), " is not annotated JSONElement");
                     continue;
                 }
 
@@ -173,7 +173,7 @@ public class JSONReader
                             {
                                 throw new JSONException(exception, "Can't set '", name, "' to enum ",
                                                         fieldClass.getName(),
-                                                        " in ", field, " of ", clas.getName());
+                                                        " in ", field, " of ", clazz.getName());
                             }
                         }
                     }
@@ -213,14 +213,14 @@ public class JSONReader
             {
                 if (strict)
                 {
-                    throw new JSONException(e, "Not found the field : ", key, " in ", clas.getName());
+                    throw new JSONException(e, "Not found the field : ", key, " in ", clazz.getName());
                 }
 
-                Debug.exception(e, "Not found the field : ", key, " in ", clas.getName());
+                Debug.exception(e, "Not found the field : ", key, " in ", clazz.getName());
             }
             catch (IllegalAccessException e)
             {
-                throw new JSONException(e, "Can't write inside the field : ", key, " in ", clas.getName());
+                throw new JSONException(e, "Can't write inside the field : ", key, " in ", clazz.getName());
             }
         }
     }
@@ -233,7 +233,7 @@ public class JSONReader
      * Modifications tolerate are adding/removing fields annotated {@link JSONElement}, but not accept the type
      * modification.
      *
-     * @param clas        Object class to get
+     * @param clazz       Object class to get
      * @param inputStream Stream to read
      * @param strict      Indicates if strict mode or not
      * @param <OBJECT>    Class of object to parse
@@ -243,20 +243,20 @@ public class JSONReader
      */
     @SuppressWarnings("unchecked")
     public static <OBJECT> OBJECT readJSON(
-            Class<OBJECT> clas, InputStream inputStream,
+            Class<OBJECT> clazz, InputStream inputStream,
             boolean strict) throws
                             IOException, JSONException
     {
-        final JSONObject jsonObject = clas.getAnnotation(JSONObject.class);
+        final JSONObject jsonObject = clazz.getAnnotation(JSONObject.class);
 
         if (jsonObject == null)
         {
-            throw new JSONException(clas.getName(), " not annotated as JSONObject");
+            throw new JSONException(clazz.getName(), " not annotated as JSONObject");
         }
 
         ObjectJSON objectJSON = ObjectJSON.parse(inputStream);
-        OBJECT     object     = (OBJECT) Reflection.newInstance(clas);
-        JSONReader.fillObject(clas, object, objectJSON, strict);
+        OBJECT     object     = (OBJECT) Reflection.newInstance(clazz);
+        JSONReader.fillObject(clazz, object, objectJSON, strict);
         return object;
     }
 }

@@ -147,7 +147,7 @@ public class Frequency
     private int readIndex = 0;
 
     @Override
-    public int read() throws IOException
+    public int read()
     {
         final byte[] b = new byte[4];
         //noinspection ResultOfMethodCallIgnored
@@ -167,7 +167,7 @@ public class Frequency
      * @see InputStream#read(byte[])
      */
     @Override
-    public int read(final byte[] b) throws IOException
+    public int read(final byte[] b)
     {
         return this.read(b, 0, b.length);
     }
@@ -186,7 +186,7 @@ public class Frequency
      * @see InputStream#read(byte[], int, int)
      */
     @Override
-    public int read(final byte[] b, int off, final int len) throws IOException
+    public int read(final byte[] b, int off, final int len)
     {
         double       angle      = 0;
         final double length     = 8192.0 / 440;
@@ -266,7 +266,7 @@ public class Frequency
      * @see InputStream#skip(long)
      */
     @Override
-    public long skip(final long n) throws IOException
+    public long skip(final long n)
     {
         this.readIndex += n;
         return n;
@@ -282,7 +282,7 @@ public class Frequency
      * @see InputStream#close()
      */
     @Override
-    public void close() throws IOException
+    public void close()
     {
     }
 
@@ -311,7 +311,7 @@ public class Frequency
      * @see InputStream#reset()
      */
     @Override
-    public synchronized void reset() throws IOException
+    public synchronized void reset()
     {
         this.readIndex = this.mark;
         this.mark = 0;

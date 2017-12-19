@@ -13,6 +13,7 @@
 package jhelp.util.data;
 
 import com.sun.istack.internal.NotNull;
+import com.sun.istack.internal.Nullable;
 
 /**
  * Observer of {@link Observable} value changes
@@ -26,5 +27,5 @@ public interface Observer<T>
      * @param observable {@link Observable} that value changed
      * @param newValue   New value give
      */
-    void valueChanged(@NotNull Observable<T> observable, @NotNull T newValue);
+    void valueChanged(@NotNull Observable<T> observable, @Nullable T newValue);
 }

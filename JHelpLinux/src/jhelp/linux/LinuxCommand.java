@@ -45,7 +45,7 @@ public class LinuxCommand
 
     public static Process extractRawVideo(
             File videoSource, File rawTarget, int width, int height, ProcessStreamReader videoInformation)
-            throws IOException, InterruptedException
+            throws IOException
     {
         if (!videoSource.exists() || !videoSource.isFile() || !videoSource.canRead())
         {

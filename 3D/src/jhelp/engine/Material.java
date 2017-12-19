@@ -1,0 +1,938 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
+/**
+ * <h1>License :</h1> <br>
+ * The following code is deliver as is. I take care that code compile and work, but I am not responsible about any damage it may
+ * cause.<br>
+ * You can use, modify, the code as your need for any usage. But you can't do any action that avoid me or other person use,
+ * modify this code. The code is free for usage and modification, you can't change that fact.<br>
+ * <br>
+ *
+ * @author JHelp
+ */
+package jhelp.engine;
+
+import java.util.Hashtable;
+
+import javax.media.opengl.GL;
+import javax.media.opengl.glu.GLU;
+
+import jhelp.engine.io.ConstantsXML;
+import jhelp.engine.util.Math3D;
+import jhelp.util.list.EnumerationIterator;
+import jhelp.util.text.UtilText;
+import jhelp.xml.MarkupXML;
+
+/**
+ * Material for 3D object<br>
+ * It's a mix with diffuse an environment<br>
+ * <br>
+ *
+ * @author JHelp
+ */
+public class Material
+{
+    /** New material default header name */
+    private static final String NEW_MATERIAL_HEADER = "MATERIAL_";
+    /** Materials table */
+    private static Hashtable<String, Material> hashtableMaterials;
+    /** Material use for pick UV */
+    private static Material                    materialForPickUV;
+    /** Next default ID name */
+    private static      int      nextID           = 0;
+    /** Default material */
+    public static final Material DEFAULT_MATERIAL = new Material("Default");
+
+    /** Name for material 2D */
+    public static final String MATERIAL_FOR_2D_NAME = "MATERIAL_FOR_2D";
+
+    /**
+     * New default named material
+     *
+     * @return New default named material
+     */
+    public static Material createNewMaterial()
+    {
+        if (Material.hashtableMaterials == null)
+        {
+            Material.hashtableMaterials = new Hashtable<String, Material>();
+        }
+        String name = Material.NEW_MATERIAL_HEADER + (Material.nextID++);
+        while (Material.hashtableMaterials.containsKey(name) == true)
+        {
+            name = Material.NEW_MATERIAL_HEADER + (Material.nextID++);
+        }
+        return new Material(name);
+    }
+
+    /**
+     * Create a new maetirial with a specific base name
+     *
+     * @param name
+     *           Base name
+     * @return Created material
+     */
+    public static Material createNewMaterial(String name)
+    {
+        if (Material.hashtableMaterials == null)
+        {
+            Material.hashtableMaterials = new Hashtable<String, Material>();
+        }
+
+        if ((name == null) || ((name = name.trim()).length() == 0))
+        {
+            name = Material.NEW_MATERIAL_HEADER + "0";
+        }
+
+        name = UtilText.computeNotInsideName(name, Material.hashtableMaterials.keySet());
+
+        return new Material(name);
+    }
+
+    /**
+     * Obtain material with its name
+     *
+     * @param name
+     *           Material name
+     * @return The material or {@link #DEFAULT_MATERIAL} if the material not exists
+     */
+    public static Material obtainMaterial(final String name)
+    {
+        if (name == null)
+        {
+            throw new NullPointerException("name mustn't be null");
+        }
+        if (Material.hashtableMaterials == null)
+        {
+            return Material.DEFAULT_MATERIAL;
+        }
+        final Material material = Material.hashtableMaterials.get(name);
+        if (material == null)
+        {
+            return Material.DEFAULT_MATERIAL;
+        }
+        return material;
+    }
+
+    /**
+     * Material use for pick UV
+     *
+     * @return Material use for pick UV
+     */
+    public static Material obtainMaterialForPickUV()
+    {
+        if (Material.materialForPickUV != null)
+        {
+            return Material.materialForPickUV;
+        }
+
+        Material.materialForPickUV = new Material("JHELP_MATERIAL_FOR_PICK_UV");
+        Material.materialForPickUV.getColorEmissive().set(1f);
+        Material.materialForPickUV.setSpecularLevel(1f);
+        Material.materialForPickUV.setShininess(128);
+        Material.materialForPickUV.getColorDiffuse().set(1f);
+        Material.materialForPickUV.getColorSpecular().set();
+        Material.materialForPickUV.getColorAmbiant().set(1f);
+        Material.materialForPickUV.setTwoSided(true);
+        Material.materialForPickUV.setTextureDiffuse(Texture.obtainTextureForPickUV());
+
+        return Material.materialForPickUV;
+    }
+
+    /**
+     * Obtain a material or create a new one if not exists
+     *
+     * @param name
+     *           Material name
+     * @return Searched material or newly created
+     */
+    public static Material obtainMaterialOrCreate(final String name)
+    {
+        if (name == null)
+        {
+            throw new NullPointerException("name mustn't be null");
+        }
+
+        if (Material.hashtableMaterials == null)
+        {
+            return new Material(name);
+        }
+
+        final Material material = Material.hashtableMaterials.get(name);
+        if (material == null)
+        {
+            return new Material(name);
+        }
+
+        return material;
+    }
+
+    /**
+     * Parse a XML markup to create a material
+     *
+     * @param markupXML
+     *           Markup XML to parse
+     * @return Created material
+     */
+    public static Material parseXML(final MarkupXML markupXML)
+    {
+        final Material material = Material.obtainMaterialOrCreate(
+                markupXML.obtainParameter(ConstantsXML.MARKUP_MATERIAL_name));
+
+        material.colorAmbiant.parseString(markupXML.obtainParameter(ConstantsXML.MARKUP_MATERIAL_colorAmbiant));
+        material.colorDiffuse.parseString(markupXML.obtainParameter(ConstantsXML.MARKUP_MATERIAL_colorDiffuse));
+        material.colorEmissive.parseString(markupXML.obtainParameter(ConstantsXML.MARKUP_MATERIAL_colorEmissive));
+        material.colorSpecular.parseString(markupXML.obtainParameter(ConstantsXML.MARKUP_MATERIAL_colorSpecular));
+        material.shininess = markupXML.obtainParameter(ConstantsXML.MARKUP_MATERIAL_shininess, 12);
+        material.specularLevel = markupXML.obtainParameter(ConstantsXML.MARKUP_MATERIAL_specularLevel, 0.1f);
+        material.sphericRate = markupXML.obtainParameter(ConstantsXML.MARKUP_MATERIAL_sphericRate, 1f);
+        material.transparency = markupXML.obtainParameter(ConstantsXML.MARKUP_MATERIAL_sphericRate, 1f);
+        material.twoSided = markupXML.obtainParameter(ConstantsXML.MARKUP_MATERIAL_twoSided, false);
+
+        String name = markupXML.obtainParameter(ConstantsXML.MARKUP_MATERIAL_textureDiffuse);
+        if (name != null)
+        {
+            material.textureDiffuse = Texture.obtainTexture(name);
+        }
+
+        name = markupXML.obtainParameter(ConstantsXML.MARKUP_MATERIAL_textureSpheric);
+        if (name != null)
+        {
+            material.textureSpheric = Texture.obtainTexture(name);
+        }
+
+        return material;
+    }
+
+    /**
+     * Force refresh all materials
+     */
+    public static final void refreshAllMaterials()
+    {
+        if (Material.hashtableMaterials == null)
+        {
+            return;
+        }
+
+        for (final Material material : new EnumerationIterator<Material>(Material.hashtableMaterials.elements()))
+        {
+            if (material.textureDiffuse != null)
+            {
+                material.textureDiffuse.flush();
+            }
+
+            if (material.textureSpheric != null)
+            {
+                material.textureSpheric.flush();
+            }
+
+            if (material.cubeMap != null)
+            {
+                material.cubeMap.flush();
+            }
+        }
+    }
+
+    /**
+     * Register a material
+     *
+     * @param material
+     *           Material to register
+     */
+    private static void registerMaterial(final Material material)
+    {
+        if (Material.hashtableMaterials == null)
+        {
+            Material.hashtableMaterials = new Hashtable<String, Material>();
+        }
+        Material.hashtableMaterials.put(material.name, material);
+    }
+
+    /**
+     * Rename a material
+     *
+     * @param material
+     *           Material to rename
+     * @param newName
+     *           New name
+     */
+    public static void rename(final Material material, String newName)
+    {
+        if (material == null)
+        {
+            throw new NullPointerException("material mustn't be null");
+        }
+        if (newName == null)
+        {
+            throw new NullPointerException("newName mustn't be null");
+        }
+        newName = newName.trim();
+        if (newName.length() < 1)
+        {
+            throw new IllegalArgumentException("newName mustn't be empty");
+        }
+        if (material.name.equals(newName) == true)
+        {
+            return;
+        }
+        Material.hashtableMaterials.remove(material.name);
+        material.name = newName;
+        Material.hashtableMaterials.put(newName, material);
+    }
+
+    /** Ambiant color */
+    private Color4f colorAmbiant;
+    /** Diffuse color */
+    private Color4f colorDiffuse;
+    /** Emissive color */
+    private Color4f colorEmissive;
+    /** Specular color */
+    private Color4f colorSpecular;
+    /** Cube map */
+    private CubeMap cubeMap;
+    /** Rate for cube map */
+    private float   cubeMapRate;
+    /** Material name */
+    private String  name;
+    /** Shininess (0 <-> 128) */
+    private int     shininess;
+    /** Specular level (0 <-> 1) */
+    private float   specularLevel;
+    /** Rate for environment */
+    private float   sphericRate;
+    /** Texture diffuse */
+    private Texture textureDiffuse;
+    /** Texture environment */
+    private Texture textureSpheric;
+    /** Transparency (0 <-> 1) */
+    private float   transparency;
+    /** Indicates if the material is two sided */
+    private boolean twoSided;
+
+    /**
+     * Constructs the material
+     *
+     * @param name
+     *           Material name
+     */
+    public Material(String name)
+    {
+        if (name == null)
+        {
+            throw new NullPointerException("name mustn't be null");
+        }
+        name = name.trim();
+        if (name.length() < 1)
+        {
+            throw new IllegalArgumentException("name mustn't be empty");
+        }
+        this.name = name;
+        this.colorAmbiant = Color4f.BLACK.getCopy();
+        this.colorDiffuse = Color4f.GRAY.getCopy();
+        this.colorEmissive = Color4f.DARK_GRAY.getCopy();
+        this.colorSpecular = Color4f.LIGHT_GRAY.getCopy();
+        this.specularLevel = 0.1f;
+        this.shininess = 12;
+        this.transparency = 1f;
+        this.twoSided = false;
+        this.sphericRate = 1f;
+        this.cubeMapRate = 1f;
+        Material.registerMaterial(this);
+    }
+
+    /**
+     * Render the material for a 3D object
+     *
+     * @param gl
+     *           OpenGL context
+     * @param glu
+     *           Open GL utilities
+     * @param object3D
+     *           Object to render
+     */
+    void renderMaterial(final GL gl, final GLU glu, final Object3D object3D)
+    {
+        this.prepareMaterial(gl);
+        //
+        if (this.textureDiffuse != null)
+        {
+            gl.glEnable(GL.GL_TEXTURE_2D);
+            this.textureDiffuse.bind(gl);
+            object3D.drawObject(gl, glu);
+            gl.glDisable(GL.GL_TEXTURE_2D);
+        }
+        else
+        {
+            object3D.drawObject(gl, glu);
+        }
+
+        if (this.textureSpheric != null)
+        {
+            final float transparency = this.transparency;
+            this.transparency *= this.sphericRate;
+            //
+            this.prepareMaterial(gl);
+            gl.glDepthFunc(GL.GL_LEQUAL);
+            //
+            gl.glEnable(GL.GL_TEXTURE_2D);
+            gl.glEnable(GL.GL_TEXTURE_GEN_S);
+            gl.glEnable(GL.GL_TEXTURE_GEN_T);
+            //
+            gl.glTexGeni(GL.GL_S, GL.GL_TEXTURE_GEN_MODE, GL.GL_SPHERE_MAP);
+            gl.glTexGeni(GL.GL_T, GL.GL_TEXTURE_GEN_MODE, GL.GL_SPHERE_MAP);
+            //
+            this.textureSpheric.bind(gl);
+            object3D.drawObject(gl, glu);
+            //
+            gl.glDisable(GL.GL_TEXTURE_GEN_T);
+            gl.glDisable(GL.GL_TEXTURE_GEN_S);
+            gl.glDisable(GL.GL_TEXTURE_2D);
+            //
+            gl.glDepthFunc(GL.GL_LESS);
+            //
+            this.transparency = transparency;
+        }
+
+        if (this.cubeMap != null)
+        {
+            final float transparency = this.transparency;
+            this.transparency *= this.cubeMapRate;
+
+            this.prepareMaterial(gl);
+            gl.glDepthFunc(GL.GL_LEQUAL);
+
+            this.cubeMap.bind(gl);
+            object3D.drawObject(gl, glu);
+            this.cubeMap.endCubeMap(gl);
+
+            gl.glDepthFunc(GL.GL_LESS);
+            this.transparency = transparency;
+        }
+
+        if (object3D.isShowWire())
+        {
+            gl.glDisable(GL.GL_LIGHTING);
+            object3D.getWireColor().glColor4f(gl);
+            gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE);
+            gl.glTexEnvf(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_REPLACE);
+            object3D.drawObject(gl, glu);
+            gl.glTexEnvf(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE);
+            gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL);
+            gl.glEnable(GL.GL_LIGHTING);
+        }
+    }
+
+    /**
+     * Indicates if an Object is the same as the material
+     *
+     * @param object
+     *           Object to compare
+     * @return {@code true} if an Object is the same as the material
+     * @see Object#equals(Object)
+     */
+    @Override
+    public boolean equals(final Object object)
+    {
+        if (object == null)
+        {
+            return false;
+        }
+        if (super.equals(object) == true)
+        {
+            return true;
+        }
+        if ((object instanceof Material) == false)
+        {
+            return false;
+        }
+        final Material material = (Material) object;
+        if (material.name.equals(this.name) == true)
+        {
+            return true;
+        }
+        if (material.colorAmbiant.equals(this.colorAmbiant) == false)
+        {
+            return false;
+        }
+        if (material.colorDiffuse.equals(this.colorDiffuse) == false)
+        {
+            return false;
+        }
+        if (material.colorEmissive.equals(this.colorEmissive) == false)
+        {
+            return false;
+        }
+        if (material.colorSpecular.equals(this.colorSpecular) == false)
+        {
+            return false;
+        }
+        if (material.shininess != this.shininess)
+        {
+            return false;
+        }
+        if (material.twoSided != this.twoSided)
+        {
+            return false;
+        }
+        if (Math3D.equal(material.specularLevel, this.specularLevel) == false)
+        {
+            return false;
+        }
+        if (Math3D.equal(material.sphericRate, this.sphericRate) == false)
+        {
+            return false;
+        }
+        if (Math3D.equal(material.transparency, this.transparency) == false)
+        {
+            return false;
+        }
+        if (((this.textureDiffuse == null) && (material.textureDiffuse != null)) ||
+            ((this.textureDiffuse != null) && (material.textureDiffuse == null)))
+        {
+            return false;
+        }
+        if ((this.textureDiffuse != null) && (material.textureDiffuse != null) &&
+            (this.textureDiffuse.equals(material.textureDiffuse) == false))
+        {
+            return false;
+        }
+        if (((this.textureSpheric == null) && (material.textureSpheric != null)) ||
+            ((this.textureSpheric != null) && (material.textureSpheric == null)))
+        {
+            return false;
+        }
+        return (this.textureSpheric == null) || (material.textureSpheric == null) ||
+               (this.textureSpheric.equals(material.textureSpheric) != false);
+    }
+
+    /**
+     * Ambiant color
+     *
+     * @return Ambiant color
+     */
+    public Color4f getColorAmbiant()
+    {
+        return this.colorAmbiant;
+    }
+
+    /**
+     * Change ambiant color
+     *
+     * @param colorAmbiant
+     *           New ambiant color
+     */
+    public void setColorAmbiant(Color4f colorAmbiant)
+    {
+        if (colorAmbiant == null)
+        {
+            throw new NullPointerException("The colorAmbiant couldn't be null");
+        }
+        if (colorAmbiant.isDefaultColor())
+        {
+            colorAmbiant = colorAmbiant.getCopy();
+        }
+        this.colorAmbiant = colorAmbiant;
+    }
+
+    /**
+     * Diffuse color
+     *
+     * @return Diffuse color
+     */
+    public Color4f getColorDiffuse()
+    {
+        return this.colorDiffuse;
+    }
+
+    /**
+     * Change diffuse color
+     *
+     * @param colorDiffuse
+     *           New diffuse color
+     */
+    public void setColorDiffuse(Color4f colorDiffuse)
+    {
+        if (colorDiffuse == null)
+        {
+            throw new NullPointerException("The colorDiffuse couldn't be null");
+        }
+        if (colorDiffuse.isDefaultColor())
+        {
+            colorDiffuse = colorDiffuse.getCopy();
+        }
+        this.colorDiffuse = colorDiffuse;
+    }
+
+    /**
+     * Emissive color
+     *
+     * @return Emissive color
+     */
+    public Color4f getColorEmissive()
+    {
+        return this.colorEmissive;
+    }
+
+    /**
+     * Change emissive color
+     *
+     * @param colorEmissive
+     *           New emissive color
+     */
+    public void setColorEmissive(Color4f colorEmissive)
+    {
+        if (colorEmissive == null)
+        {
+            throw new NullPointerException("The colorEmissive couldn't be null");
+        }
+        if (colorEmissive.isDefaultColor())
+        {
+            colorEmissive = colorEmissive.getCopy();
+        }
+        this.colorEmissive = colorEmissive;
+    }
+
+    /**
+     * Specular color
+     *
+     * @return Specular color
+     */
+    public Color4f getColorSpecular()
+    {
+        return this.colorSpecular;
+    }
+
+    /**
+     * Change specular color
+     *
+     * @param colorSpecular
+     *           New specular color
+     */
+    public void setColorSpecular(Color4f colorSpecular)
+    {
+        if (colorSpecular == null)
+        {
+            throw new NullPointerException("The colorSpecular couldn't be null");
+        }
+        if (colorSpecular.isDefaultColor())
+        {
+            colorSpecular = colorSpecular.getCopy();
+        }
+        this.colorSpecular = colorSpecular;
+    }
+
+    /**
+     * Return cubeMap
+     *
+     * @return cubeMap
+     */
+    public CubeMap getCubeMap()
+    {
+        return this.cubeMap;
+    }
+
+    /**
+     * Modify cubeMap
+     *
+     * @param cubeMap
+     *           New cubeMap value
+     */
+    public void setCubeMap(final CubeMap cubeMap)
+    {
+        this.cubeMap = cubeMap;
+    }
+
+    /**
+     * Return cubeMapRate
+     *
+     * @return cubeMapRate
+     */
+    public float getCubeMapRate()
+    {
+        return this.cubeMapRate;
+    }
+
+    /**
+     * Modify cubeMapRate
+     *
+     * @param cubeMapRate
+     *           New cubeMapRate value
+     */
+    public void setCubeMapRate(final float cubeMapRate)
+    {
+        this.cubeMapRate = cubeMapRate;
+    }
+
+    /**
+     * Material name
+     *
+     * @return Material name
+     */
+    public String getName()
+    {
+        return this.name;
+    }
+
+    /**
+     * Shininess
+     *
+     * @return Shininess
+     */
+    public int getShininess()
+    {
+        return this.shininess;
+    }
+
+    /**
+     * Change shininess (0 <-> 128)
+     *
+     * @param shininess
+     *           New shininess (0 <-> 128)
+     */
+    public void setShininess(final int shininess)
+    {
+        if ((shininess < 0) || (shininess > 128))
+        {
+            throw new IllegalArgumentException("The shininess must be on [0, 128], not : " + shininess);
+        }
+        this.shininess = shininess;
+    }
+
+    /**
+     * Specular level
+     *
+     * @return Specular level
+     */
+    public float getSpecularLevel()
+    {
+        return this.specularLevel;
+    }
+
+    /**
+     * Change specular level
+     *
+     * @param specularLevel
+     *           New specular level
+     */
+    public void setSpecularLevel(final float specularLevel)
+    {
+        this.specularLevel = specularLevel;
+    }
+
+    /**
+     * Environment rate
+     *
+     * @return Environment rate
+     */
+    public float getSphericRate()
+    {
+        return this.sphericRate;
+    }
+
+    /**
+     * Change environment rate
+     *
+     * @param sphericRate
+     *           New environment rate
+     */
+    public void setSphericRate(final float sphericRate)
+    {
+        this.sphericRate = sphericRate;
+    }
+
+    /**
+     * Diffuse texture
+     *
+     * @return Diffuse texture
+     */
+    public Texture getTextureDiffuse()
+    {
+        return this.textureDiffuse;
+    }
+
+    /**
+     * Change diffuse texture<br>
+     * Use {@code null} to remove diffuse texture
+     *
+     * @param textureDiffuse
+     *           New diffuse texture
+     */
+    public void setTextureDiffuse(final Texture textureDiffuse)
+    {
+        this.textureDiffuse = textureDiffuse;
+    }
+
+    /**
+     * Environment texture
+     *
+     * @return Environment texture
+     */
+    public Texture getTextureSpheric()
+    {
+        return this.textureSpheric;
+    }
+
+    /**
+     * Change environment texture<br>
+     * Use {@code null} to remove environment texture
+     *
+     * @param textureSpheric
+     *           New environment texture
+     */
+    public void setTextureSpheric(final Texture textureSpheric)
+    {
+        this.textureSpheric = textureSpheric;
+    }
+
+    /**
+     * Transparency
+     *
+     * @return Transparency
+     */
+    public float getTransparency()
+    {
+        return this.transparency;
+    }
+
+    /**
+     * Change transparency
+     *
+     * @param transparency
+     *           New transparency
+     */
+    public void setTransparency(final float transparency)
+    {
+        this.transparency = transparency;
+    }
+
+    /**
+     * Indicates if the material is two sided
+     *
+     * @return {@code true} if the material is two sided
+     */
+    public boolean isTwoSided()
+    {
+        return this.twoSided;
+    }
+
+    /**
+     * Change two sided state
+     *
+     * @param twoSided
+     *           New two sided state
+     */
+    public void setTwoSided(final boolean twoSided)
+    {
+        this.twoSided = twoSided;
+    }
+
+    /**
+     * Reset all settings to put as default
+     */
+    public void originalSettings()
+    {
+        this.colorAmbiant = Color4f.BLACK.getCopy();
+        this.colorDiffuse = Color4f.GRAY.getCopy();
+        this.colorEmissive = Color4f.DARK_GRAY.getCopy();
+        this.colorSpecular = Color4f.LIGHT_GRAY.getCopy();
+        this.specularLevel = 0.1f;
+        this.shininess = 12;
+        this.transparency = 1f;
+        this.twoSided = false;
+        this.sphericRate = 1f;
+        this.cubeMapRate = 1f;
+    }
+
+    /**
+     * Pepare material for OpenGL render.<br>
+     * Use by the renderer, don't call it directly
+     *
+     * @param gl
+     *           OpenGL context
+     */
+    public void prepareMaterial(final GL gl)
+    {
+        if (this.twoSided)
+        {
+            gl.glDisable(GL.GL_CULL_FACE);
+        }
+        else
+        {
+            gl.glEnable(GL.GL_CULL_FACE);
+        }
+        gl.glDisable(GL.GL_TEXTURE_2D);
+        final float alpha = this.colorDiffuse.getAlpha();
+        this.colorDiffuse.setAlpha(this.transparency);
+        this.colorDiffuse.glColor4f(gl);
+        this.colorDiffuse.setAlpha(alpha);
+        //
+        gl.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE, this.colorDiffuse.putInFloatBuffer());
+        //
+        gl.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_EMISSION, this.colorEmissive.putInFloatBuffer());
+        //
+        gl.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_SPECULAR, this.colorSpecular.putInFloatBuffer(this.specularLevel));
+        //
+        gl.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_AMBIENT, this.colorAmbiant.putInFloatBuffer());
+        //
+        gl.glMateriali(GL.GL_FRONT_AND_BACK, GL.GL_SHININESS, this.shininess);
+    }
+
+    /**
+     * Serialize the mateirl in XML markup
+     *
+     * @return Markup represents the material
+     */
+    public MarkupXML saveToXML()
+    {
+        final MarkupXML markupXML = new MarkupXML(ConstantsXML.MARKUP_MATERIAL);
+
+        markupXML.addParameter(ConstantsXML.MARKUP_MATERIAL_colorAmbiant, this.colorAmbiant.serialize());
+        markupXML.addParameter(ConstantsXML.MARKUP_MATERIAL_colorDiffuse, this.colorDiffuse.serialize());
+        markupXML.addParameter(ConstantsXML.MARKUP_MATERIAL_colorEmissive, this.colorEmissive.serialize());
+        markupXML.addParameter(ConstantsXML.MARKUP_MATERIAL_colorSpecular, this.colorSpecular.serialize());
+        markupXML.addParameter(ConstantsXML.MARKUP_MATERIAL_name, this.name);
+        markupXML.addParameter(ConstantsXML.MARKUP_MATERIAL_shininess, this.shininess);
+        markupXML.addParameter(ConstantsXML.MARKUP_MATERIAL_specularLevel, this.specularLevel);
+        markupXML.addParameter(ConstantsXML.MARKUP_MATERIAL_sphericRate, this.sphericRate);
+
+        if (this.textureDiffuse != null)
+        {
+            markupXML.addParameter(ConstantsXML.MARKUP_MATERIAL_textureDiffuse, this.textureDiffuse.getTextureName());
+        }
+
+        markupXML.addParameter(ConstantsXML.MARKUP_MATERIAL_transparency, this.transparency);
+
+        if (this.textureSpheric != null)
+        {
+            markupXML.addParameter(ConstantsXML.MARKUP_MATERIAL_textureSpheric, this.textureSpheric.getTextureName());
+        }
+
+        markupXML.addParameter(ConstantsXML.MARKUP_MATERIAL_twoSided, this.twoSided);
+
+        return markupXML;
+    }
+
+    /**
+     * Do settings for 2D
+     */
+    public void settingAsFor2D()
+    {
+        this.colorEmissive.set(1f);
+        this.specularLevel = 1f;
+        this.shininess = 128;
+        this.colorDiffuse.set(1f);
+        this.colorSpecular.set();
+        this.colorAmbiant.set(1f);
+        this.twoSided = true;
+    }
+}

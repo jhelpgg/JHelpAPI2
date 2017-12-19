@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~ Copyright:
+  ~ License :
+  ~  The following code is deliver as is.
+  ~  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+  ~  You can use, modify, the code as your need for any usage.
+  ~  But you can't do any action that avoid me or other person use,  modify this code.
+  ~  The code is free for usage and modification, you can't change that fact.
+  ~  @author JHelp
+  ~
+  -->
+
+<Constants>
+
+    <!-- *************** -->
+    <!-- *** Markups *** -->
+    <!-- *************** -->
+    <Constant
+            name="MARKUP_FRAME"
+            type="STRING"
+            value="JHelpFrame2D">
+        Markup for describe the engine.main frame
+        &lt;ul&gt;
+        &lt;li&gt;&lt;b&gt;{@link #PARAMETER_NAME name}&lt;/b&gt; : Name of the class (With the package name)
+        [Mandatory]&lt;/li&gt;
+        &lt;li&gt;&lt;b&gt;{@link #PARAMETER_TITLE title}&lt;/b&gt; : Frame title [Optional]&lt;/li&gt;
+        &lt;li&gt;&lt;b&gt;{@link #PARAMETER_LAYOUT layout}&lt;/b&gt; : Layout class to use in {{@link
+        #JHelpBorderLayout} (Default value), {@link #JHelpHorizontalLayout}, {@link #JHelpVerticalLayout}, {@link
+        #JHelpTableLayout}} [Optional]&lt;/li&gt;
+        &lt;/ul&gt;
+    </Constant>
+    <Constant
+            name="MARKUP_BACKGROUND_ROUND_REACTANLGE"
+            type="STRING"
+            value="JHelpBackgroundRoundRectangle">
+        Markup for describe a background component with round rectangle shape. It must contains a component as
+        sub_markup
+        &lt;ul&gt;
+        &lt;li&gt;&lt;b&gt;{@link #PARAMETER_NAME name}&lt;/b&gt; : Name of the component [Mandatory]&lt;/li&gt;
+        &lt;li&gt;&lt;b&gt;arc&lt;/b&gt; : Arc size (Default 20) [Optional]&lt;/li&gt;
+        &lt;li&gt;&lt;b&gt;background&lt;/b&gt; : Background color in hexadecimal (AARRGGBB) (Default 80808080)
+        [Optional]&lt;/li&gt;
+        &lt;/ul&gt;
+    </Constant>
+    <Constant
+            name="MARKUP_BACKGROUND_SAUSSAGE"
+            type="STRING"
+            value="JHelpBackgroundSaussage">
+        Markup for describe a background component with round sausage shape. It must contains a component as sub_markup
+        &lt;ul&gt;
+        &lt;li&gt;&lt;b&gt;{@link #PARAMETER_NAME name}&lt;/b&gt; : Name of the component [Mandatory]&lt;/li&gt;
+        &lt;li&gt;&lt;b&gt;space&lt;/b&gt; : Empty space (Default 10) [Optional]&lt;/li&gt;
+        &lt;li&gt;&lt;b&gt;background&lt;/b&gt; : Background color in hexadecimal (AARRGGBB) (Default 80808080)
+        [Optional]&lt;/li&gt;
+        &lt;/ul&gt;
+    </Constant>
+
+
+    <!-- ****************** -->
+    <!-- *** Parameters *** -->
+    <!-- ****************** -->
+    <Constant
+            name="PARAMETER_NAME"
+            type="STRING"
+            value="name">
+        Name of component.&lt;br&gt;Used by : {@link #MARKUP_FRAME}, {@link #MARKUP_BACKGROUND_ROUND_REACTANLGE} and
+        {@link #MARKUP_BACKGROUND_SAUSSAGE}
+    </Constant>
+    <Constant
+            name="PARAMETER_TITLE"
+            type="STRING"
+            value="title">
+        Title of the engine.main frame.&lt;br&gt;Used by : {@link #MARKUP_FRAME}
+    </Constant>
+    <Constant
+            name="PARAMETER_LAYOUT"
+            type="STRING"
+            value="layout">
+        Layout class to use in {{@link #JHelpBorderLayout} (Default value), {@link #JHelpHorizontalLayout}, {@link
+        #JHelpVerticalLayout}, {@link #JHelpTableLayout}}.&lt;br&gt;Used by : {@link #MARKUP_FRAME}
+    </Constant>
+
+    <!-- ********************* -->
+    <!-- *** Layout values *** -->
+    <!-- ********************* -->
+    <Constant
+            name="JHelpBorderLayout"
+            type="STRING"
+            value="JHelpBorderLayout">
+        Represents the {@link jhelp.gui.JHelpBorderLayout} class. It layout components one in center, other in "borders"
+    </Constant>
+    <Constant
+            name="JHelpHorizontalLayout"
+            type="STRING"
+            value="JHelpHorizontalLayout">
+        Represents the {@link jhelp.gui.JHelpHorizontalLayout} class. It layout components one side other one let to
+        right"
+    </Constant>
+    <Constant
+            name="JHelpVerticalLayout"
+            type="STRING"
+            value="JHelpVerticalLayout">
+        Represents the {@link jhelp.gui.JHelpVerticalLayout} class. It layout components one bellow other
+    </Constant>
+    <Constant
+            name="JHelpTableLayout"
+            type="STRING"
+            value="JHelpTableLayout">
+        Represents the {@link jhelp.gui.JHelpTableLayout} class. It layout components in table with cells
+    </Constant>
+</Constants>

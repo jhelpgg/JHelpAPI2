@@ -103,7 +103,7 @@ public class ByteArray
          * @see InputStream#skip(long)
          */
         @Override
-        public long skip(final long n) throws IOException
+        public long skip(final long n)
         {
             return ByteArray.this.skip(n);
         }
@@ -119,7 +119,7 @@ public class ByteArray
          * @see InputStream#available()
          */
         @Override
-        public int available() throws IOException
+        public int available()
         {
             return ByteArray.this.available();
         }
@@ -134,7 +134,7 @@ public class ByteArray
          * @see InputStream#close()
          */
         @Override
-        public void close() throws IOException
+        public void close()
         {
             // Nothing to do
         }
@@ -164,7 +164,7 @@ public class ByteArray
          * @see InputStream#reset()
          */
         @Override
-        public synchronized void reset() throws IOException
+        public synchronized void reset()
         {
             ByteArray.this.reset();
         }
@@ -204,7 +204,7 @@ public class ByteArray
          * @see OutputStream#write(int)
          */
         @Override
-        public void write(final int b) throws IOException
+        public void write(final int b)
         {
             ByteArray.this.write(b);
         }
@@ -221,7 +221,7 @@ public class ByteArray
          * @see OutputStream#write(byte[])
          */
         @Override
-        public void write(final byte[] b) throws IOException
+        public void write(final byte[] b)
         {
             ByteArray.this.write(b, 0, b.length);
         }
@@ -239,7 +239,7 @@ public class ByteArray
          * @see OutputStream#write(byte[], int, int)
          */
         @Override
-        public void write(final byte[] b, final int off, final int len) throws IOException
+        public void write(final byte[] b, final int off, final int len)
         {
             ByteArray.this.write(b, off, len);
         }
@@ -254,7 +254,7 @@ public class ByteArray
          * @see OutputStream#flush()
          */
         @Override
-        public void flush() throws IOException
+        public void flush()
         {
             // Nothing to do
         }
@@ -269,7 +269,7 @@ public class ByteArray
          * @see OutputStream#close()
          */
         @Override
-        public void close() throws IOException
+        public void close()
         {
             // Nothing to do
         }
@@ -503,7 +503,7 @@ public class ByteArray
      * @throws Exception
      *            If the actual read data in the byte array doesn't represents the {@link Binarizable} asked
      */
-    public <B extends Binarizable> B readBinarizable(final Class<B> clas) throws Exception
+    public <B extends Binarizable> B readBinarizable(final Class<B> clas)
     {
         if (this.read() == 0)
         {
@@ -528,7 +528,7 @@ public class ByteArray
      * @throws Exception If the byte array doesn't contains an array of desired {@link Binarizable} at the actual read
      *                   index
      */
-    public <B extends Binarizable> B[] readBinarizableArray(final Class<B> clas) throws Exception
+    public <B extends Binarizable> B[] readBinarizableArray(final Class<B> clas)
     {
         final int length = this.readInteger();
 

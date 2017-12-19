@@ -68,23 +68,23 @@ public final class UtilIO
     /**
      * Path that represents the current directory
      */
-    public static final String CURRENT_DIRECTORY = ".";
+    public static final String CURRENT_DIRECTORY  = ".";
     /**
      * One kilo-byte in bytes
      */
-    public static final int    KILO_BYTES        = 1024;
+    public static final int    KILO_BYTES         = 1024;
     /**
      * Size of a file header
      */
-    public static final int    HEADER_SIZE       = UtilIO.KILO_BYTES;
+    public static final int    HEADER_SIZE        = UtilIO.KILO_BYTES;
     /**
      * One mega-byte in bytes
      */
-    public static final int    MEGA_BYTES        = 1024 * UtilIO.KILO_BYTES;
+    public static final int    MEGA_BYTES         = 1024 * UtilIO.KILO_BYTES;
     /**
      * Buffer size
      */
-    public static final int    BUFFER_SIZE       = 4 * UtilIO.MEGA_BYTES;
+    public static final int    BUFFER_SIZE        = 4 * UtilIO.MEGA_BYTES;
     /**
      * Path separator used in URL, ZIP, JAR
      */
@@ -1613,16 +1613,16 @@ public final class UtilIO
                 catch (Exception ignored)
                 {
                 }
+            }
 
-                if (inputStream != null)
+            if (inputStream != null)
+            {
+                try
                 {
-                    try
-                    {
-                        inputStream.close();
-                    }
-                    catch (Exception ignored)
-                    {
-                    }
+                    inputStream.close();
+                }
+                catch (Exception ignored)
+                {
                 }
             }
         }

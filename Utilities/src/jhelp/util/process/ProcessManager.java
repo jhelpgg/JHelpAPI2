@@ -44,13 +44,13 @@ public class ProcessManager
     }
 
     public static Process launchProcess(String command, String... parameters)
-            throws IOException, InterruptedException
+            throws IOException
     {
         return ProcessManager.launchProcess(null, null, command, parameters);
     }
 
     public static Process launchProcess(final ProcessStreamReader defaultStream, String command, String... parameters)
-            throws IOException, InterruptedException
+            throws IOException
     {
         return ProcessManager.launchProcess(defaultStream, null, command, parameters);
     }
@@ -58,7 +58,7 @@ public class ProcessManager
     public static Process launchProcess(
             final ProcessStreamReader defaultStream, final ProcessStreamReader errorStream,
             String command, String... parameters)
-            throws IOException, InterruptedException
+            throws IOException
     {
         Objects.requireNonNull(command, "command MUST NOT be null!");
         final List<String> completeCommand = new ArrayObject<>();

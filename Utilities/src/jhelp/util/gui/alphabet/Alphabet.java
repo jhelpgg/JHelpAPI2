@@ -253,7 +253,7 @@ public abstract class Alphabet
      * @param image       Image where draw
      * @param x           X
      * @param y           Y
-     * @param center      Center the text
+     * @param center      Indicates if have to center the text
      * @param limitWidth  Limit width
      * @param limitHeight Limit height
      * @return Offset end

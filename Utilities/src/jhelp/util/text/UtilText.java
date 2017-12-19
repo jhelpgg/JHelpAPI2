@@ -174,6 +174,7 @@ public final class UtilText
         stringBuffer.append('[');
         Class<?> type = object.getClass()
                               .getComponentType();
+        boolean deleteLastComma = false;
 
         if (type.isPrimitive())
         {
@@ -183,6 +184,7 @@ public final class UtilText
                 {
                     stringBuffer.append(element);
                     stringBuffer.append(", ");
+                    deleteLastComma = true;
                 }
             }
             else if (byte.class.equals(type))
@@ -191,6 +193,7 @@ public final class UtilText
                 {
                     stringBuffer.append(element);
                     stringBuffer.append(", ");
+                    deleteLastComma = true;
                 }
             }
             else if (char.class.equals(type))
@@ -199,6 +202,7 @@ public final class UtilText
                 {
                     stringBuffer.append(element);
                     stringBuffer.append(", ");
+                    deleteLastComma = true;
                 }
             }
             else if (double.class.equals(type))
@@ -207,6 +211,7 @@ public final class UtilText
                 {
                     stringBuffer.append(element);
                     stringBuffer.append(", ");
+                    deleteLastComma = true;
                 }
             }
             else if (float.class.equals(type))
@@ -215,6 +220,7 @@ public final class UtilText
                 {
                     stringBuffer.append(element);
                     stringBuffer.append(", ");
+                    deleteLastComma = true;
                 }
             }
             else if (int.class.equals(type))
@@ -223,6 +229,7 @@ public final class UtilText
                 {
                     stringBuffer.append(element);
                     stringBuffer.append(", ");
+                    deleteLastComma = true;
                 }
             }
             else if (long.class.equals(type))
@@ -231,6 +238,7 @@ public final class UtilText
                 {
                     stringBuffer.append(element);
                     stringBuffer.append(", ");
+                    deleteLastComma = true;
                 }
             }
             else if (short.class.equals(type))
@@ -239,6 +247,7 @@ public final class UtilText
                 {
                     stringBuffer.append(element);
                     stringBuffer.append(", ");
+                    deleteLastComma = true;
                 }
             }
         }
@@ -248,11 +257,15 @@ public final class UtilText
             {
                 UtilText.appendObject(stringBuffer, element);
                 stringBuffer.append(", ");
+                deleteLastComma = true;
             }
         }
 
-        final int length = stringBuffer.length();
-        stringBuffer.delete(length - 2, length);
+        if (deleteLastComma)
+        {
+            final int length = stringBuffer.length();
+            stringBuffer.delete(length - 2, length);
+        }
 
         stringBuffer.append(']');
     }
@@ -408,10 +421,10 @@ public final class UtilText
 
     /**
      * Compute "distance" between two texts.<br>
-     * To compute how "far" are the tow texts, we take all words of each and if a word of one not exits in the other, we
-     * decide
-     * they are more far than if the word is in the second but not in the same place. If the word is in same place, we say
-     * distance is zero
+     * To compute how "far" are the two texts, we take all words of each and
+     * if a word of one not exits in the other, we decide they are more far than
+     * if the word is in the second but not in the same place.
+     * If the word is in same place, we say distance is zero
      *
      * @param text1          First text
      * @param text2          Second text
@@ -498,7 +511,7 @@ public final class UtilText
             else
             {
                 atLeast = true;
-                index1 = integer.intValue();
+                index1 = integer;
                 if (index1 != index2)
                 {
                     distance++;
@@ -578,7 +591,7 @@ public final class UtilText
      * @param text          Text that must respect the constraints
      * @param maximumWidth  Maximum width that the text can take
      * @param maximumHeight Maximum height that the text can take
-     * @param familly       Font family to use
+     * @param family        Font family to use
      * @param bold          Indicates if bold text
      * @param italic        Indicates if italic text
      * @param underline     Indicates if underline text
@@ -586,7 +599,7 @@ public final class UtilText
      */
     public static JHelpFont computeMaximumSizedFont(
             final String text, final int maximumWidth, final int maximumHeight,
-            final String familly, final boolean bold,
+            final String family, final boolean bold,
             final boolean italic, final boolean underline)
     {
         int       max = maximumHeight << 1;
@@ -598,7 +611,7 @@ public final class UtilText
         do
         {
             size = (max + min) >> 1;
-            font = new JHelpFont(familly, size, bold, italic, underline);
+            font = new JHelpFont(family, size, bold, italic, underline);
             dimension = font.stringSize(text);
 
             if ((dimension.width > maximumWidth) || (dimension.height > maximumHeight))

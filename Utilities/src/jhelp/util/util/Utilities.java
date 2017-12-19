@@ -403,6 +403,38 @@ public final class Utilities
         }
     }
 
+    public static void scramble(int[] array)
+    {
+        if (array == null)
+        {
+            return;
+        }
+
+        final int size = array.length;
+
+        if (size < 2)
+        {
+            return;
+        }
+
+        int index1;
+        int index2;
+        int temporary;
+
+        for (int index = size; index > 1; index--)
+        {
+            index1 = index - 1;
+            index2 = JHelpRandom.random(index);
+
+            if (index1 != index2)
+            {
+                temporary = array[index1];
+                array[index1] = array[index2];
+                array[index2] = temporary;
+            }
+        }
+    }
+
     /**
      * Make thread call it sleep for specified time in milliseconds
      *

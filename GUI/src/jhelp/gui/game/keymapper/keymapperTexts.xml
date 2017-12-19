@@ -1,0 +1,30 @@
+<!--
+  ~ Copyright:
+  ~ License :
+  ~  The following code is deliver as is.
+  ~  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+  ~  You can use, modify, the code as your need for any usage.
+  ~  But you can't do any action that avoid me or other person use,  modify this code.
+  ~  The code is free for usage and modification, you can't change that fact.
+  ~  @author JHelp
+  ~
+  -->
+
+<TEXTS>
+    <Text key="ACTION_ACTION">Action</Text>
+    <Text key="ACTION_CANCEL">Cancel</Text>
+    <Text key="ACTION_DOWN">Down</Text>
+    <Text key="ACTION_EXIT">Exit</Text>
+    <Text key="ACTION_FIRE">Fire 1</Text>
+    <Text key="ACTION_FIRE_2">Fire 2</Text>
+    <Text key="ACTION_LEFT">Left</Text>
+    <Text key="ACTION_MENU">Menu</Text>
+    <Text key="ACTION_NEXT">Next</Text>
+    <Text key="ACTION_PAUSE">Pause</Text>
+    <Text key="ACTION_PREVIOUS">Previous</Text>
+    <Text key="ACTION_RIGHT">Right</Text>
+    <Text key="ACTION_SPECIAL">Special</Text>
+    <Text key="ACTION_START">Start</Text>
+    <Text key="ACTION_UP">Up</Text>
+    <Text key="ACTION_SWITCH_FULL_SCREEN">Full screen</Text>
+</TEXTS>

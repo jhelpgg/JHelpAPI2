@@ -14,12 +14,15 @@ package jhelp.util.thread;
 
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Task element in {@link ThreadManager}
  */
 class TaskElement<P, R> implements Comparable<TaskElement<P, R>>
 {
+    private static final AtomicInteger NEXT_ID = new AtomicInteger(0);
+    final int        id;
     /**
      * Task parameter
      */
@@ -42,9 +45,18 @@ class TaskElement<P, R> implements Comparable<TaskElement<P, R>>
      */
     public TaskElement(final long time, final @NotNull Task<P, R> task, final @Nullable P parameter)
     {
+        this.id = TaskElement.NEXT_ID.getAndIncrement();
         this.time = time;
         this.task = task;
         this.parameter = parameter;
+    }
+
+    TaskElement(int id)
+    {
+        this.id = id;
+        this.task = null;
+        this.time = 0;
+        this.parameter = null;
     }
 
     /**
@@ -104,5 +116,32 @@ class TaskElement<P, R> implements Comparable<TaskElement<P, R>>
     public int compareTo(final TaskElement<P, R> taskElement)
     {
         return Long.compare(this.time, taskElement.time);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return this.id;
+    }
+
+    @Override
+    public boolean equals(final Object object)
+    {
+        if (object == this)
+        {
+            return true;
+        }
+
+        if (object == null)
+        {
+            return false;
+        }
+
+        if (!object.getClass().equals(TaskElement.class))
+        {
+            return false;
+        }
+
+        return this.id == ((TaskElement) object).id;
     }
 }

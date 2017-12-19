@@ -102,15 +102,15 @@ public class TestDebug
 
         Debug.setLevel(DebugLevel.ERROR);
         Debug.verbose("Verbose message");
-        Assert.assertTrue("ERROR:Verbose: Nothing should be write", TestDebug.spyOut.popLastWrote().isEmpty());
+        Assert.assertTrue("FAILED:Verbose: Nothing should be write", TestDebug.spyOut.popLastWrote().isEmpty());
         Debug.debug("Debug message");
-        Assert.assertTrue("ERROR:Debug: Nothing should be write", TestDebug.spyOut.popLastWrote().isEmpty());
+        Assert.assertTrue("FAILED:Debug: Nothing should be write", TestDebug.spyOut.popLastWrote().isEmpty());
         Debug.information("Information message");
-        Assert.assertTrue("ERROR:Information: Nothing should be write", TestDebug.spyOut.popLastWrote().isEmpty());
+        Assert.assertTrue("FAILED:Information: Nothing should be write", TestDebug.spyOut.popLastWrote().isEmpty());
         Debug.warning("Warning message");
-        Assert.assertTrue("ERROR:Warning: Nothing should be write", TestDebug.spyErr.popLastWrote().isEmpty());
+        Assert.assertTrue("FAILED:Warning: Nothing should be write", TestDebug.spyErr.popLastWrote().isEmpty());
         Debug.error("Error message");
-        Assert.assertFalse("ERROR:Error: Something should be write", TestDebug.spyErr.popLastWrote().isEmpty());
+        Assert.assertFalse("FAILED:Error: Something should be write", TestDebug.spyErr.popLastWrote().isEmpty());
 
         Debug.setLevel(debugLevel);
     }

@@ -12,6 +12,7 @@
 
 package jhelp.util.preference;
 
+import com.sun.istack.internal.NotNull;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Locale;
@@ -65,6 +66,30 @@ public class Preferences
                 return serializedValue;
             case LOCALE:
                 return Utilities.convertStringToLocale(serializedValue);
+            case ENUM:
+                try
+                {
+                    int      index        = serializedValue.indexOf(':');
+                    String   className    = serializedValue.substring(0, index);
+                    Class    clazz        = Class.forName(className);
+                    Object[] values       = clazz.getEnumConstants();
+                    String   nameSearched = serializedValue.substring(index + 1);
+
+                    for (Object value : values)
+                    {
+                        if (nameSearched.equals(((Enum) value).name()))
+                        {
+                            return value;
+                        }
+                    }
+                }
+                catch (Exception exception)
+                {
+                    throw new IllegalArgumentException(serializedValue + " not a " + PreferenceType.ENUM + " value !",
+                                                       exception);
+                }
+
+                throw new IllegalArgumentException(serializedValue + " not a " + PreferenceType.ENUM + " value !");
         }
 
         return null;
@@ -97,6 +122,8 @@ public class Preferences
                 return (String) value;
             case LOCALE:
                 return value.toString();
+            case ENUM:
+                return value.getClass().getName() + ":" + ((Enum) value).name();
         }
 
         return null;
@@ -328,6 +355,38 @@ public class Preferences
     }
 
     /**
+     * Obtain an enum value
+     *
+     * @param name         Key name
+     * @param defaultValue Default value
+     * @param <E>          Enum type
+     * @return Preference value or default value
+     */
+    public <E extends Enum> E getValue(@NotNull String name, @NotNull E defaultValue)
+    {
+        if (name == null)
+        {
+            throw new NullPointerException("name MUST NOT be null");
+        }
+
+        final Pair<PreferenceType, Object> pair = this.preferences.get(name);
+
+        if (pair == null)
+        {
+            this.setValue(name, defaultValue);
+            return defaultValue;
+        }
+
+        if (pair.first != PreferenceType.ENUM)
+        {
+            throw new IllegalArgumentException(
+                    "The value of" + name + " isn't a " + PreferenceType.ENUM + " but a " + pair.first);
+        }
+
+        return (E) pair.second;
+    }
+
+    /**
      * Get a String value from preferences
      *
      * @param name         Preference name
@@ -484,7 +543,10 @@ public class Preferences
         this.preferences.put(name, new Pair<>(pair.first, value));
         this.savePreferences();
     }
-
+    /**
+     * Define/change an enum value
+     *
+     */
     /**
      * Define/change a String value
      *
@@ -602,6 +664,44 @@ public class Preferences
         {
             throw new IllegalArgumentException(
                     "The preference " + name + " is not a " + PreferenceType.FILE + " but a " + pair.first);
+        }
+
+        this.preferences.put(name, new Pair<>(pair.first, value));
+        this.savePreferences();
+    }
+
+    /**
+     * Define/change an enum value
+     *
+     * @param name  Preference key
+     * @param value New value
+     */
+    public <E extends Enum> void setValue(final @NotNull String name, @NotNull E value)
+    {
+        if (name == null)
+        {
+            throw new NullPointerException("name MUST NOT be null");
+        }
+
+        if (value == null)
+        {
+            throw new NullPointerException("value MUST NOT be null");
+        }
+
+        Pair<PreferenceType, Object> pair = this.preferences.get(name);
+
+        if (pair == null)
+        {
+            pair = new Pair<>(PreferenceType.ENUM, value);
+            this.preferences.put(name, pair);
+            this.savePreferences();
+            return;
+        }
+
+        if (pair.first != PreferenceType.ENUM)
+        {
+            throw new IllegalArgumentException(
+                    "The preference " + name + " is not a " + PreferenceType.ENUM + " but a " + pair.first);
         }
 
         this.preferences.put(name, new Pair<>(pair.first, value));

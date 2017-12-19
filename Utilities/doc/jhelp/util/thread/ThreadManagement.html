@@ -1,4 +1,16 @@
 <!DOCTYPE html>
+<!--
+  ~ Copyright:
+  ~ License :
+  ~  The following code is deliver as is.
+  ~  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+  ~  You can use, modify, the code as your need for any usage.
+  ~  But you can't do any action that avoid me or other person use,  modify this code.
+  ~  The code is free for usage and modification, you can't change that fact.
+  ~  @author JHelp
+  ~
+  -->
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -36,9 +48,9 @@
                 $("table.tableWithFloatingHeader").each(function() {
                     $(this).wrap("<div class=\"divTableWithFloatingHeader\" style=\"position:relative\"></div>");
 
-                    var originalHeaderRow = $("tr:first", this)
+                    var originalHeaderRow = $("tr:first", this);
                     originalHeaderRow.before(originalHeaderRow.clone());
-                    var clonedHeaderRow = $("tr:first", this)
+                    var clonedHeaderRow = $("tr:first", this);
 
                     clonedHeaderRow.addClass("tableFloatingHeader");
                     clonedHeaderRow.css("position", "absolute");
@@ -72,7 +84,7 @@
     <link rel="stylesheet" type="text/css" href="../../../scripts/buttons.css"/>
     <link rel="stylesheet" type="text/css" href="../../../scripts/tables.css"/>
 </head>
-<body onLoad="javascript:launchParser()">
+<body onLoad="launchParser()">
 <h1>Thread manager</h1>
 The class <b>jhelp.util.thread.ThreadManager</b> manage a thread pool, and launch tasks in parallel.<br>
 To use it just choose the type of task you need to choose the method.<br>
@@ -353,7 +365,7 @@ public class MainReaderWriter
         //Do something with the data
     }
 
-    public static void main(String[] arguments)
+    public static void engine.main(String[] arguments)
     {
         ReaderWriter&lt;Data&gt; readerWriter = new ReaderWriter&lt;&gt;(null);
         ConsumerTask&lt;Data&gt; consumer     = MainReaderWriter::consume;
@@ -470,7 +482,7 @@ package samples.jhelp.util.thread;
 
 public class MainPrintHandler
 {
-    public static void main(String[] args)
+    public static void engine.main(String[] args)
     {
         PrintMessageHandler printMessageHandler = new PrintMessageHandler();
         printMessageHandler.post(PrintMessage.setTitle("Title 1"));

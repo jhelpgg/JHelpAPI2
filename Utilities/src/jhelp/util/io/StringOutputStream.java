@@ -60,7 +60,7 @@ public class StringOutputStream
      * @see OutputStream#write(int)
      */
     @Override
-    public void write(final int b) throws IOException
+    public void write(final int b)
     {
         this.byteArrayOutputStream.write(b);
     }
@@ -95,7 +95,7 @@ public class StringOutputStream
      * @see OutputStream#write(byte[], int, int)
      */
     @Override
-    public void write(final byte[] b, final int off, final int len) throws IOException
+    public void write(final byte[] b, final int off, final int len)
     {
         this.byteArrayOutputStream.write(b, off, len);
     }

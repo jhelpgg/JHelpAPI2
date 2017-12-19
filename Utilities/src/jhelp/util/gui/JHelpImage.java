@@ -780,11 +780,10 @@ public class JHelpImage
             }
         }
 
-        BufferedImage bufferedImage = JHelpImage.loadBufferedImage(image);
-
-        final int width  = bufferedImage.getWidth();
-        final int height = bufferedImage.getHeight();
-        int[]     pixels = new int[width * height];
+        final BufferedImage bufferedImage = JHelpImage.loadBufferedImage(image);
+        final int           width         = bufferedImage.getWidth();
+        final int           height        = bufferedImage.getHeight();
+        int[]               pixels        = new int[width * height];
 
         pixels = bufferedImage.getRGB(0, 0, width, height, pixels, 0, width);
 
@@ -792,7 +791,6 @@ public class JHelpImage
 
         pixels = null;
         bufferedImage.flush();
-        bufferedImage = null;
 
         return imageLoaded;
     }
@@ -2126,105 +2124,6 @@ public class JHelpImage
     }
 
     /**
-     * Colorize with automatic palette<br>
-     * MUST be in draw mode
-     *
-     * @param precision Precision to use
-     * @return Number of different color
-     */
-    public int colorizeWithPalette(final int precision)
-    {
-        if (!this.drawMode)
-        {
-            throw new IllegalStateException("Must be in draw mode !");
-        }
-
-        final int          size         = this.pixels.length;
-        final int[]        result       = new int[size];
-        int                indexPalette = 0xFF000000;// 0;
-        int                color, reference, red, green, blue;
-        int                p;
-        final Stack<Point> stack        = new Stack<>();
-        Point              point;
-        int                x            = this.width - 1;
-        int                y            = this.height - 1;
-
-        for (int pix = size - 1; pix >= 0; pix--)
-        {
-            if (result[pix] == 0)
-            {
-                color = indexPalette;
-                indexPalette++;
-
-                reference = this.pixels[pix];
-                red = (reference >> 16) & 0xFF;
-                green = (reference >> 8) & 0xFF;
-                blue = reference & 0xFF;
-
-                stack.push(new Point(x, y));
-
-                while (!stack.isEmpty())
-                {
-                    point = stack.pop();
-                    p = point.x + (point.y * this.width);
-
-                    result[p] = color;
-
-                    if ((point.x > 0) && (result[p - 1] == 0)
-                        && (Color.isNear(red, green, blue, this.pixels[p - 1], precision)))
-                    {
-                        stack.push(new Point(point.x - 1, point.y));
-                    }
-
-                    if ((point.y > 0) && (result[p - this.width] == 0)
-                        && (Color.isNear(red, green, blue, this.pixels[p - this.width], precision)))
-                    {
-                        stack.push(new Point(point.x, point.y - 1));
-                    }
-
-                    if ((point.x < (this.width - 1)) && (result[p + 1] == 0)
-                        && (Color.isNear(red, green, blue, this.pixels[p + 1], precision)))
-                    {
-                        stack.push(new Point(point.x + 1, point.y));
-                    }
-
-                    if ((point.y < (this.height - 1)) && (result[p + this.width] == 0)
-                        && (Color.isNear(red, green, blue, this.pixels[p + this.width], precision)))
-                    {
-                        stack.push(new Point(point.x, point.y + 1));
-                    }
-                }
-            }
-
-            x--;
-            if (x < 0)
-            {
-                x = this.width - 1;
-                y--;
-            }
-        }
-
-        System.arraycopy(result, 0, this.pixels, 0, size);
-
-        return indexPalette & 0x00FFFFFF;
-    }
-
-    /**
-     * Raster image type <br>
-     * <br>
-     * <b>Parent documentation:</b><br>
-     * {@inheritDoc}
-     *
-     * @return Raster image type
-     * @see jhelp.util.image.raster.RasterImage#getImageType()
-     */
-    @Override
-    public RasterImageType getImageType()
-    {
-        return RasterImageType.JHELP_IMAGE;
-    }
-
-    /**
      * Create a couple of sprite and associated animated image<br>
      * MUST NOT be in draw mode
      *
@@ -2243,21 +2142,6 @@ public class JHelpImage
         final JHelpSprite        sprite        = this.createSprite(x, y, width, height);
         final JHelpAnimatedImage animatedImage = new JHelpAnimatedImage(sprite.getImage(), animationMode);
         return new Pair<>(sprite, animatedImage);
-    }
-
-    /**
-     * Convert image to JHelp image <br>
-     * <br>
-     * <b>Parent documentation:</b><br>
-     * {@inheritDoc}
-     *
-     * @return This image itself (It is already a JHelp image)
-     * @see jhelp.util.image.raster.RasterImage#toJHelpImage()
-     */
-    @Override
-    public JHelpImage toJHelpImage()
-    {
-        return this;
     }
 
     /**
@@ -2281,148 +2165,6 @@ public class JHelpImage
         final JHelpSprite sprite = new JHelpSprite(x, y, width, height, this, index);
         this.sprites.add(sprite);
         return sprite;
-    }
-
-    /**
-     * Change image contrast by using the middle of the minimum and maximum<br>
-     * MUST be in draw mode
-     *
-     * @param factor Factor to apply to the contrast
-     */
-    public void contrast(final double factor)
-    {
-        if (!this.drawMode)
-        {
-            throw new IllegalStateException("Must be in draw mode !");
-        }
-
-        int    color, red, green, blue, index;
-        double yMin, yMax, y;
-
-        index = this.pixels.length - 1;
-        color = this.pixels[index];
-        red = (color >> 16) & 0xFF;
-        green = (color >> 8) & 0xFF;
-        blue = color & 0xFF;
-
-        yMin = yMax = JHelpImage.computeY(red, green, blue);
-
-        index--;
-        while (index >= 0)
-        {
-            color = this.pixels[index];
-            red = (color >> 16) & 0xFF;
-            green = (color >> 8) & 0xFF;
-            blue = color & 0xFF;
-
-            y = JHelpImage.computeY(red, green, blue);
-
-            yMin = Math.min(yMin, y);
-            yMax = Math.max(yMax, y);
-
-            index--;
-        }
-
-        final double yMil = (yMin + yMax) / 2;
-        double       u, v;
-
-        for (int i = this.pixels.length - 1; i >= 0; i--)
-        {
-            color = this.pixels[i];
-            red = (color >> 16) & 0xFF;
-            green = (color >> 8) & 0xFF;
-            blue = color & 0xFF;
-
-            y = JHelpImage.computeY(red, green, blue);
-            u = JHelpImage.computeU(red, green, blue);
-            v = JHelpImage.computeV(red, green, blue);
-
-            y = (yMil + (factor * (y - yMil)));
-
-            this.pixels[i] = (color & 0xFF000000)
-                             | (JHelpImage.computeRed(y, u, v) << 16)
-                             | (JHelpImage.computeGreen(y, u, v) << 8)
-                             | JHelpImage.computeBlue(y, u, v);
-        }
-    }
-
-    /**
-     * Change image contrast by using the average of all values<br>
-     * MUST be in draw mode
-     *
-     * @param factor Factor to apply to the contrast
-     */
-    public void contrastAverage(final double factor)
-    {
-        if (!this.drawMode)
-        {
-            throw new IllegalStateException("Must be in draw mode !");
-        }
-
-        int    color, red, green, blue, index;
-        double yAverage, y;
-
-        index = this.pixels.length - 1;
-        color = this.pixels[index];
-        red = (color >> 16) & 0xFF;
-        green = (color >> 8) & 0xFF;
-        blue = color & 0xFF;
-
-        yAverage = JHelpImage.computeY(red, green, blue);
-
-        index--;
-        while (index >= 0)
-        {
-            color = this.pixels[index];
-            red = (color >> 16) & 0xFF;
-            green = (color >> 8) & 0xFF;
-            blue = color & 0xFF;
-
-            yAverage += JHelpImage.computeY(red, green, blue);
-
-            index--;
-        }
-
-        final double ymil = yAverage / this.pixels.length;
-        double       u, v;
-
-        for (int i = this.pixels.length - 1; i >= 0; i--)
-        {
-            color = this.pixels[i];
-            red = (color >> 16) & 0xFF;
-            green = (color >> 8) & 0xFF;
-            blue = color & 0xFF;
-
-            y = JHelpImage.computeY(red, green, blue);
-            u = JHelpImage.computeU(red, green, blue);
-            v = JHelpImage.computeV(red, green, blue);
-
-            y = (ymil + (factor * (y - ymil)));
-
-            this.pixels[i] = (color & 0xFF000000)
-                             | (JHelpImage.computeRed(y, u, v) << 16)
-                             | (JHelpImage.computeGreen(y, u, v) << 8)
-                             | JHelpImage.computeBlue(y, u, v);
-        }
-    }
-
-    /**
-     * Copy the image is this one<br>
-     * This image and the given one MUST have same dimension<br>
-     * Note : if this image or given one not in draw mode, all visible sprites (of the image) are consider like a part
-     * of the
-     * image
-     *
-     * @param image Image to copy
-     */
-    public void copy(final JHelpImage image)
-    {
-        if ((this.width != image.width) || (this.height != image.height))
-        {
-            throw new IllegalArgumentException("We can only multiply with an image of same size");
-        }
-
-        System.arraycopy(image.pixels, 0, this.pixels, 0, this.pixels.length);
     }
 
     /**
@@ -2629,6 +2371,258 @@ public class JHelpImage
     }
 
     /**
+     * Draw a line<br>
+     * MUST be in draw mode
+     *
+     * @param x1    X of first point
+     * @param y1    Y first point
+     * @param x2    X second point
+     * @param y2    Y second point
+     * @param color Color to use
+     */
+    public void drawLine(final int x1, final int y1, final int x2, final int y2, final int color)
+    {
+        this.drawLine(x1, y1, x2, y2, color, true);
+    }
+
+    /**
+     * Colorize with automatic palette<br>
+     * MUST be in draw mode
+     *
+     * @param precision Precision to use
+     * @return Number of different color
+     */
+    public int colorizeWithPalette(final int precision)
+    {
+        if (!this.drawMode)
+        {
+            throw new IllegalStateException("Must be in draw mode !");
+        }
+
+        final int          size         = this.pixels.length;
+        final int[]        result       = new int[size];
+        int                indexPalette = 0xFF000000;// 0;
+        int                color, reference, red, green, blue;
+        int                p;
+        final Stack<Point> stack        = new Stack<>();
+        Point              point;
+        int                x            = this.width - 1;
+        int                y            = this.height - 1;
+
+        for (int pix = size - 1; pix >= 0; pix--)
+        {
+            if (result[pix] == 0)
+            {
+                color = indexPalette;
+                indexPalette++;
+
+                reference = this.pixels[pix];
+                red = (reference >> 16) & 0xFF;
+                green = (reference >> 8) & 0xFF;
+                blue = reference & 0xFF;
+
+                stack.push(new Point(x, y));
+
+                while (!stack.isEmpty())
+                {
+                    point = stack.pop();
+                    p = point.x + (point.y * this.width);
+
+                    result[p] = color;
+
+                    if ((point.x > 0) && (result[p - 1] == 0)
+                        && (Color.isNear(red, green, blue, this.pixels[p - 1], precision)))
+                    {
+                        stack.push(new Point(point.x - 1, point.y));
+                    }
+
+                    if ((point.y > 0) && (result[p - this.width] == 0)
+                        && (Color.isNear(red, green, blue, this.pixels[p - this.width], precision)))
+                    {
+                        stack.push(new Point(point.x, point.y - 1));
+                    }
+
+                    if ((point.x < (this.width - 1)) && (result[p + 1] == 0)
+                        && (Color.isNear(red, green, blue, this.pixels[p + 1], precision)))
+                    {
+                        stack.push(new Point(point.x + 1, point.y));
+                    }
+
+                    if ((point.y < (this.height - 1)) && (result[p + this.width] == 0)
+                        && (Color.isNear(red, green, blue, this.pixels[p + this.width], precision)))
+                    {
+                        stack.push(new Point(point.x, point.y + 1));
+                    }
+                }
+            }
+
+            x--;
+            if (x < 0)
+            {
+                x = this.width - 1;
+                y--;
+            }
+        }
+
+        System.arraycopy(result, 0, this.pixels, 0, size);
+
+        return indexPalette & 0x00FFFFFF;
+    }
+
+    /**
+     * Change image contrast by using the middle of the minimum and maximum<br>
+     * MUST be in draw mode
+     *
+     * @param factor Factor to apply to the contrast
+     */
+    public void contrast(final double factor)
+    {
+        if (!this.drawMode)
+        {
+            throw new IllegalStateException("Must be in draw mode !");
+        }
+
+        int    color, red, green, blue, index;
+        double yMin, yMax, y;
+
+        index = this.pixels.length - 1;
+        color = this.pixels[index];
+        red = (color >> 16) & 0xFF;
+        green = (color >> 8) & 0xFF;
+        blue = color & 0xFF;
+
+        yMin = yMax = JHelpImage.computeY(red, green, blue);
+
+        index--;
+        while (index >= 0)
+        {
+            color = this.pixels[index];
+            red = (color >> 16) & 0xFF;
+            green = (color >> 8) & 0xFF;
+            blue = color & 0xFF;
+
+            y = JHelpImage.computeY(red, green, blue);
+
+            yMin = Math.min(yMin, y);
+            yMax = Math.max(yMax, y);
+
+            index--;
+        }
+
+        final double yMil = (yMin + yMax) / 2;
+        double       u, v;
+
+        for (int i = this.pixels.length - 1; i >= 0; i--)
+        {
+            color = this.pixels[i];
+            red = (color >> 16) & 0xFF;
+            green = (color >> 8) & 0xFF;
+            blue = color & 0xFF;
+
+            y = JHelpImage.computeY(red, green, blue);
+            u = JHelpImage.computeU(red, green, blue);
+            v = JHelpImage.computeV(red, green, blue);
+
+            y = (yMil + (factor * (y - yMil)));
+
+            this.pixels[i] = (color & 0xFF000000)
+                             | (JHelpImage.computeRed(y, u, v) << 16)
+                             | (JHelpImage.computeGreen(y, u, v) << 8)
+                             | JHelpImage.computeBlue(y, u, v);
+        }
+    }
+
+    /**
+     * Change image contrast by using the average of all values<br>
+     * MUST be in draw mode
+     *
+     * @param factor Factor to apply to the contrast
+     */
+    public void contrastAverage(final double factor)
+    {
+        if (!this.drawMode)
+        {
+            throw new IllegalStateException("Must be in draw mode !");
+        }
+
+        int    color, red, green, blue, index;
+        double yAverage, y;
+
+        index = this.pixels.length - 1;
+        color = this.pixels[index];
+        red = (color >> 16) & 0xFF;
+        green = (color >> 8) & 0xFF;
+        blue = color & 0xFF;
+
+        yAverage = JHelpImage.computeY(red, green, blue);
+
+        index--;
+        while (index >= 0)
+        {
+            color = this.pixels[index];
+            red = (color >> 16) & 0xFF;
+            green = (color >> 8) & 0xFF;
+            blue = color & 0xFF;
+
+            yAverage += JHelpImage.computeY(red, green, blue);
+
+            index--;
+        }
+
+        final double ymil = yAverage / this.pixels.length;
+        double       u, v;
+
+        for (int i = this.pixels.length - 1; i >= 0; i--)
+        {
+            color = this.pixels[i];
+            red = (color >> 16) & 0xFF;
+            green = (color >> 8) & 0xFF;
+            blue = color & 0xFF;
+
+            y = JHelpImage.computeY(red, green, blue);
+            u = JHelpImage.computeU(red, green, blue);
+            v = JHelpImage.computeV(red, green, blue);
+
+            y = (ymil + (factor * (y - ymil)));
+
+            this.pixels[i] = (color & 0xFF000000)
+                             | (JHelpImage.computeRed(y, u, v) << 16)
+                             | (JHelpImage.computeGreen(y, u, v) << 8)
+                             | JHelpImage.computeBlue(y, u, v);
+        }
+    }
+
+    /**
+     * Copy the image is this one<br>
+     * This image and the given one MUST have same dimension<br>
+     * Note : if this image or given one not in draw mode, all visible sprites (of the image) are consider like a part
+     * of the
+     * image
+     *
+     * @param image Image to copy
+     */
+    public void copy(final JHelpImage image)
+    {
+        if ((this.width != image.width) || (this.height != image.height))
+        {
+            throw new IllegalArgumentException("We can only multiply with an image of same size");
+        }
+
+        System.arraycopy(image.pixels, 0, this.pixels, 0, this.pixels.length);
+    }
+
+    /**
+     * Indicates if draw mode is locked.<br>
+     * If the draw mode is locked, it is impossible to change the draw mode status
+     *
+     * @return {@code true} if draw mode is locked.
+     */
+    public boolean drawModeLocked()
+    {
+        return this.drawModeLocked;
+    }
+
+    /**
      * Create an image copy<br>
      * Note : if this image is not in draw mode, al visible sprites will be consider like a part of this image
      *
@@ -2687,18 +2681,59 @@ public class JHelpImage
     }
 
     /**
-     * Draw a line<br>
+     * Draw an empty shape<br>
      * MUST be in draw mode
      *
-     * @param x1    X of first point
-     * @param y1    Y first point
-     * @param x2    X second point
-     * @param y2    Y second point
-     * @param color Color to use
+     * @param shape      Shape to draw
+     * @param color      Color to use
+     * @param doAlphaMix Indicates if we do the mixing {@code true}, or we just override {@code false}
      */
-    public void drawLine(final int x1, final int y1, final int x2, final int y2, final int color)
+    public void drawShape(final Shape shape, final int color, final boolean doAlphaMix)
     {
-        this.drawLine(x1, y1, x2, y2, color, true);
+        if (!this.drawMode)
+        {
+            throw new IllegalStateException("Must be in draw mode !");
+        }
+
+        final PathIterator pathIterator = shape.getPathIterator(ConstantsGUI.AFFINE_TRANSFORM, ConstantsGUI.FLATNESS);
+
+        final double[] info   = new double[6];
+        int            x      = 0;
+        int            y      = 0;
+        int            xStart = 0;
+        int            yStart = 0;
+        int            xx, yy;
+
+        while (!pathIterator.isDone())
+        {
+            switch (pathIterator.currentSegment(info))
+            {
+                case PathIterator.SEG_MOVETO:
+                    xStart = x = (int) Math.round(info[0]);
+                    yStart = y = (int) Math.round(info[1]);
+
+                    break;
+                case PathIterator.SEG_LINETO:
+                    xx = (int) Math.round(info[0]);
+                    yy = (int) Math.round(info[1]);
+
+                    this.drawLine(x, y, xx, yy, color, doAlphaMix);
+
+                    x = xx;
+                    y = yy;
+
+                    break;
+                case PathIterator.SEG_CLOSE:
+                    this.drawLine(x, y, xStart, yStart, color, doAlphaMix);
+
+                    x = xStart;
+                    y = yStart;
+
+                    break;
+            }
+
+            pathIterator.next();
+        }
     }
 
     /**
@@ -3237,29 +3272,61 @@ public class JHelpImage
     }
 
     /**
-     * Indicates if draw mode is locked.<br>
-     * If the draw mode is locked, it is impossible to change the draw mode status
+     * Draw a thick line
      *
-     * @return {@code true} if draw mode is locked.
+     * @param x1        First point X
+     * @param y1        First point Y
+     * @param x2        Second point X
+     * @param y2        Second point Y
+     * @param thickness Thick of the line
+     * @param color     Color to use on line
      */
-    public boolean drawModeLocked()
+    public void drawThickLine(
+            final int x1, final int y1, final int x2, final int y2, final int thickness, final int color)
     {
-        return this.drawModeLocked;
+        if (thickness < 2)
+        {
+            this.drawLine(x1, y1, x2, y2, color);
+            return;
+        }
+
+        this.fillShape(this.createThickLine(x1, y1, x2, y2, thickness), color);
     }
 
     /**
-     * Draw an empty shape<br>
-     * MUST be in draw mode
+     * Draw a thick line
      *
-     * @param shape      Shape to draw
-     * @param color      Color to use
-     * @param doAlphaMix Indicates if we do the mixing {@code true}, or we just override {@code false}
+     * @param x1        First point X
+     * @param y1        First point Y
+     * @param x2        Second point X
+     * @param y2        Second point Y
+     * @param thickness Thick of the line
+     * @param texture   Texture to use on line
      */
-    public void drawShape(final Shape shape, final int color, final boolean doAlphaMix)
+    public void drawThickLine(
+            final int x1, final int y1, final int x2, final int y2, final int thickness,
+            final JHelpImage texture)
+    {
+        this.fillShape(this.createThickLine(x1, y1, x2, y2, thickness), texture);
+    }
+
+    /**
+     * Draw shape with thick border
+     *
+     * @param shape     Shape to draw
+     * @param thickness Border thick
+     * @param color     Color to use on border
+     */
+    public void drawThickShape(final Shape shape, final int thickness, final int color)
     {
         if (!this.drawMode)
         {
             throw new IllegalStateException("Must be in draw mode !");
+        }
+
+        if (thickness < 1)
+        {
+            return;
         }
 
         final PathIterator pathIterator = shape.getPathIterator(ConstantsGUI.AFFINE_TRANSFORM, ConstantsGUI.FLATNESS);
@@ -3284,14 +3351,14 @@ public class JHelpImage
                     xx = (int) Math.round(info[0]);
                     yy = (int) Math.round(info[1]);
 
-                    this.drawLine(x, y, xx, yy, color, doAlphaMix);
+                    this.drawThickLine(x, y, xx, yy, thickness, color);
 
                     x = xx;
                     y = yy;
 
                     break;
                 case PathIterator.SEG_CLOSE:
-                    this.drawLine(x, y, xStart, yStart, color, doAlphaMix);
+                    this.drawThickLine(x, y, xStart, yStart, thickness, color);
 
                     x = xStart;
                     y = yStart;
@@ -3301,28 +3368,6 @@ public class JHelpImage
 
             pathIterator.next();
         }
-    }
-
-    /**
-     * Draw a thick line
-     *
-     * @param x1        First point X
-     * @param y1        First point Y
-     * @param x2        Second point X
-     * @param y2        Second point Y
-     * @param thickness Thick of the line
-     * @param color     Color to use on line
-     */
-    public void drawThickLine(
-            final int x1, final int y1, final int x2, final int y2, final int thickness, final int color)
-    {
-        if (thickness < 2)
-        {
-            this.drawLine(x1, y1, x2, y2, color);
-            return;
-        }
-
-        this.fillShape(this.createThickLine(x1, y1, x2, y2, thickness), color);
     }
 
     /**
@@ -3610,20 +3655,63 @@ public class JHelpImage
     }
 
     /**
-     * Draw a thick line
+     * Draw shape with thick border
      *
-     * @param x1        First point X
-     * @param y1        First point Y
-     * @param x2        Second point X
-     * @param y2        Second point Y
-     * @param thickness Thick of the line
-     * @param texture   Texture to use on line
+     * @param shape     Shape to draw
+     * @param thickness Border thick
+     * @param texture   Texture to use on border
      */
-    public void drawThickLine(
-            final int x1, final int y1, final int x2, final int y2, final int thickness,
-            final JHelpImage texture)
+    public void drawThickShape(final Shape shape, final int thickness, final JHelpImage texture)
     {
-        this.fillShape(this.createThickLine(x1, y1, x2, y2, thickness), texture);
+        if (!this.drawMode)
+        {
+            throw new IllegalStateException("Must be in draw mode !");
+        }
+
+        if (thickness < 1)
+        {
+            return;
+        }
+
+        final PathIterator pathIterator = shape.getPathIterator(ConstantsGUI.AFFINE_TRANSFORM, ConstantsGUI.FLATNESS);
+
+        final double[] info   = new double[6];
+        int            x      = 0;
+        int            y      = 0;
+        int            xStart = 0;
+        int            yStart = 0;
+        int            xx, yy;
+
+        while (!pathIterator.isDone())
+        {
+            switch (pathIterator.currentSegment(info))
+            {
+                case PathIterator.SEG_MOVETO:
+                    xStart = x = (int) Math.round(info[0]);
+                    yStart = y = (int) Math.round(info[1]);
+
+                    break;
+                case PathIterator.SEG_LINETO:
+                    xx = (int) Math.round(info[0]);
+                    yy = (int) Math.round(info[1]);
+
+                    this.drawThickLine(x, y, xx, yy, thickness, texture);
+
+                    x = xx;
+                    y = yy;
+
+                    break;
+                case PathIterator.SEG_CLOSE:
+                    this.drawThickLine(x, y, xStart, yStart, thickness, texture);
+
+                    x = xStart;
+                    y = yStart;
+
+                    break;
+            }
+
+            pathIterator.next();
+        }
     }
 
     /**
@@ -3798,123 +3886,62 @@ public class JHelpImage
     }
 
     /**
-     * Draw shape with thick border
+     * Draw a vertical line<br>
+     * MUST be in draw mode
      *
-     * @param shape     Shape to draw
-     * @param thickness Border thick
-     * @param color     Color to use on border
+     * @param x     X
+     * @param y1    Start Y
+     * @param y2    End Y
+     * @param color Color to use
      */
-    public void drawThickShape(final Shape shape, final int thickness, final int color)
+    public void drawVerticalLine(final int x, final int y1, final int y2, final int color)
     {
-        if (!this.drawMode)
-        {
-            throw new IllegalStateException("Must be in draw mode !");
-        }
-
-        if (thickness < 1)
-        {
-            return;
-        }
-
-        final PathIterator pathIterator = shape.getPathIterator(ConstantsGUI.AFFINE_TRANSFORM, ConstantsGUI.FLATNESS);
-
-        final double[] info   = new double[6];
-        int            x      = 0;
-        int            y      = 0;
-        int            xStart = 0;
-        int            yStart = 0;
-        int            xx, yy;
-
-        while (!pathIterator.isDone())
-        {
-            switch (pathIterator.currentSegment(info))
-            {
-                case PathIterator.SEG_MOVETO:
-                    xStart = x = (int) Math.round(info[0]);
-                    yStart = y = (int) Math.round(info[1]);
-
-                    break;
-                case PathIterator.SEG_LINETO:
-                    xx = (int) Math.round(info[0]);
-                    yy = (int) Math.round(info[1]);
-
-                    this.drawThickLine(x, y, xx, yy, thickness, color);
-
-                    x = xx;
-                    y = yy;
-
-                    break;
-                case PathIterator.SEG_CLOSE:
-                    this.drawThickLine(x, y, xStart, yStart, thickness, color);
-
-                    x = xStart;
-                    y = yStart;
-
-                    break;
-            }
-
-            pathIterator.next();
-        }
+        this.drawVerticalLine(x, y1, y2, color, true);
     }
 
     /**
-     * Draw shape with thick border
+     * Stop the draw mode and refresh the image<br>
+     * Don't call this method if image is locked. Use {@link #drawModeLocked()} to know.<br>
+     * The image is locked if we are inside a task launch by {@link #playInDrawMode(ConsumerTask)} or {@link #playOutDrawMode(ConsumerTask)}
      *
-     * @param shape     Shape to draw
-     * @param thickness Border thick
-     * @param texture   Texture to use on border
+     * @throws IllegalStateException If draw mode is locked
      */
-    public void drawThickShape(final Shape shape, final int thickness, final JHelpImage texture)
+    public void endDrawMode()
     {
-        if (!this.drawMode)
+        if (this.drawModeLocked)
         {
-            throw new IllegalStateException("Must be in draw mode !");
+            throw new IllegalStateException("Draw mode is locked");
         }
 
-        if (thickness < 1)
+        if (this.drawMode)
         {
-            return;
-        }
+            this.drawMode = false;
 
-        final PathIterator pathIterator = shape.getPathIterator(ConstantsGUI.AFFINE_TRANSFORM, ConstantsGUI.FLATNESS);
+            final int length = this.sprites.size();
 
-        final double[] info   = new double[6];
-        int            x      = 0;
-        int            y      = 0;
-        int            xStart = 0;
-        int            yStart = 0;
-        int            xx, yy;
-
-        while (!pathIterator.isDone())
-        {
-            switch (pathIterator.currentSegment(info))
+            for (int index = 0; index < length; index++)
             {
-                case PathIterator.SEG_MOVETO:
-                    xStart = x = (int) Math.round(info[0]);
-                    yStart = y = (int) Math.round(info[1]);
-
-                    break;
-                case PathIterator.SEG_LINETO:
-                    xx = (int) Math.round(info[0]);
-                    yy = (int) Math.round(info[1]);
-
-                    this.drawThickLine(x, y, xx, yy, thickness, texture);
-
-                    x = xx;
-                    y = yy;
-
-                    break;
-                case PathIterator.SEG_CLOSE:
-                    this.drawThickLine(x, y, xStart, yStart, thickness, texture);
-
-                    x = xStart;
-                    y = yStart;
-
-                    break;
+                if (this.visibilities[index])
+                {
+                    this.sprites.get(index)
+                                .changeVisible(true);
+                }
             }
 
-            pathIterator.next();
+            synchronized (this.playOutDrawMode)
+            {
+                this.drawModeLocked = true;
+
+                while (!this.playOutDrawMode.empty())
+                {
+                    this.playOutDrawMode.outQueue().consume(this);
+                }
+
+                this.drawModeLocked = false;
+            }
         }
+
+        this.update();
     }
 
     /**
@@ -4326,6 +4353,85 @@ public class JHelpImage
     }
 
     /**
+     * Extract a sub image from the image<br>
+     * Note : If one of image is not in draw mode, all visible sprite (of this image) will be consider as a part of the
+     * image
+     *
+     * @param x      X of upper left corner of the area to extract
+     * @param y      Y of upper left corner of the area to extract
+     * @param width  Area to extract width
+     * @param height Area to extract height
+     * @return Extracted image
+     */
+    public JHelpImage extractSubImage(int x, int y, int width, int height)
+    {
+        if (x < 0)
+        {
+            width += x;
+            x = 0;
+        }
+
+        if (y < 0)
+        {
+            height += y;
+            y = 0;
+        }
+
+        if ((x + width) > this.width)
+        {
+            width = this.width - x;
+        }
+
+        if ((y + height) > this.height)
+        {
+            height = this.height - y;
+        }
+
+        if ((width < 1) || (height < 1))
+        {
+            return JHelpImage.DUMMY;
+        }
+
+        final JHelpImage part = new JHelpImage(width, height);
+
+        part.startDrawMode();
+        part.drawImageOver(0, 0, this, x, y, width, height);
+        part.endDrawMode();
+
+        return part;
+    }
+
+    /**
+     * Fill image with texture on take count original alpha, but replace other colors part
+     *
+     * @param texture Texture to fill
+     */
+    public void fillRespectAlpha(final JHelpImage texture)
+    {
+        if (!this.drawMode)
+        {
+            throw new IllegalStateException("Must be in draw mode !");
+        }
+
+        final int textureWidth = texture.width;
+        int       lineTexture;
+        int       pix          = 0;
+        int       color;
+
+        for (int y = 0, yTexture = 0; y < this.height; y++, yTexture = (yTexture + 1) % texture.height)
+        {
+            lineTexture = yTexture * textureWidth;
+
+            for (int x = 0, xTexture = 0; x < this.width; x++, xTexture = (xTexture + 1) % textureWidth)
+            {
+                color = texture.pixels[lineTexture + xTexture];
+                this.pixels[pix] = ((((this.pixels[pix] >>> 24) * (color >>> 24)) >> 8) << 24) | (color & 0x00FFFFFF);
+                pix++;
+            }
+        }
+    }
+
+    /**
      * Draw shape with thick border
      *
      * @param shape     Shape to draw
@@ -4458,6 +4564,132 @@ public class JHelpImage
     }
 
     /**
+     * Fill a shape<br>
+     * MUST be in draw mode
+     *
+     * @param shape Shape to fill
+     * @param color Color to use
+     */
+    public void fillShape(final Shape shape, final int color)
+    {
+        this.fillShape(shape, color, true);
+    }
+
+    /**
+     * Fill a shape<br>
+     * MUST be in draw mode
+     *
+     * @param shape      Shape to fill
+     * @param color      Color to use
+     * @param doAlphaMix Indicates if we do the mixing {@code true}, or we just override {@code false}
+     */
+    public void fillShape(final Shape shape, final int color, final boolean doAlphaMix)
+    {
+        if (!this.drawMode)
+        {
+            throw new IllegalStateException("Must be in draw mode !");
+        }
+
+        final Rectangle rectangle = shape.getBounds();
+
+        final int x      = rectangle.x;
+        final int y      = rectangle.y;
+        final int width  = rectangle.width;
+        final int height = rectangle.height;
+
+        if ((width <= 0) || (height <= 0))
+        {
+            return;
+        }
+
+        final int x2 = (x + width) - 1;
+        final int y2 = (y + height) - 1;
+
+        final int startX = Math.max(this.clip.xMin, x);
+        final int endX   = Math.min(this.clip.xMax, x2);
+        final int startY = Math.max(this.clip.yMin, y);
+        final int endY   = Math.min(this.clip.yMax, y2);
+
+        if ((startX > endX) || (startY > endY))
+        {
+            return;
+        }
+
+        final int alpha = (color >> 24) & 0xFF;
+
+        if ((alpha == 0) && (doAlphaMix))
+        {
+            return;
+        }
+
+        int line = startX + (startY * this.width);
+        int pix;
+
+        if ((alpha == 255) || (!doAlphaMix))
+        {
+            for (int yy = startY; yy <= endY; yy++)
+            {
+                pix = line;
+
+                for (int xx = startX; xx <= endX; xx++)
+                {
+                    if (shape.contains(xx, yy))
+                    {
+                        this.pixels[pix] = color;
+                    }
+
+                    pix++;
+                }
+
+                line += this.width;
+            }
+
+            return;
+        }
+
+        final int ahpla = 256 - alpha;
+        final int red   = ((color >> 16) & 0xFF) * alpha;
+        final int green = ((color >> 8) & 0xFF) * alpha;
+        final int blue  = (color & 0xFF) * alpha;
+        int       col;
+
+        for (int yy = startY; yy <= endY; yy++)
+        {
+            pix = line;
+
+            for (int xx = startX; xx <= endX; xx++)
+            {
+                if (shape.contains(xx, yy))
+                {
+                    col = this.pixels[pix];
+
+                    this.pixels[pix] = (Math.min(255, alpha + ((col >> 24) & 0xFF)) << 24) | //
+                                       (((red + (((col >> 16) & 0xFF) * ahpla)) >> 8) << 16) | //
+                                       (((green + (((col >> 8) & 0xFF) * ahpla)) >> 8) << 8) | //
+                                       ((blue + ((col & 0xFF) * ahpla)) >> 8);
+                }
+
+                pix++;
+            }
+
+            line += this.width;
+        }
+    }
+
+    /**
+     * Filter on using a palette color<br>
+     * MUST be on draw mode
+     *
+     * @param index   Palette color indes
+     * @param colorOK Color if match
+     * @param colorKO Color if not match
+     */
+    public void filterPalette(final int index, final int colorOK, final int colorKO)
+    {
+        this.filterOn(JHelpImage.PALETTE[index % JHelpImage.PALETTE_SIZE], 0x10, colorOK, colorKO);
+    }
+
+    /**
      * Fill pixels of image withc color.<br>
      * The start point indicates the color to fill, and all neighboards pixels with color distance of precision will be
      * colored
@@ -4587,156 +4819,6 @@ public class JHelpImage
             }
         }
 
-    }
-
-    /**
-     * Fill image with texture on take count original alpha, but replace other colors part
-     *
-     * @param texture Texture to fill
-     */
-    public void fillRespectAlpha(final JHelpImage texture)
-    {
-        if (!this.drawMode)
-        {
-            throw new IllegalStateException("Must be in draw mode !");
-        }
-
-        final int textureWidth = texture.width;
-        int       lineTexture;
-        int       pix          = 0;
-        int       color;
-
-        for (int y = 0, yTexture = 0; y < this.height; y++, yTexture = (yTexture + 1) % texture.height)
-        {
-            lineTexture = yTexture * textureWidth;
-
-            for (int x = 0, xTexture = 0; x < this.width; x++, xTexture = (xTexture + 1) % textureWidth)
-            {
-                color = texture.pixels[lineTexture + xTexture];
-                this.pixels[pix] = ((((this.pixels[pix] >>> 24) * (color >>> 24)) >> 8) << 24) | (color & 0x00FFFFFF);
-                pix++;
-            }
-        }
-    }
-
-    /**
-     * Draw a vertical line<br>
-     * MUST be in draw mode
-     *
-     * @param x     X
-     * @param y1    Start Y
-     * @param y2    End Y
-     * @param color Color to use
-     */
-    public void drawVerticalLine(final int x, final int y1, final int y2, final int color)
-    {
-        this.drawVerticalLine(x, y1, y2, color, true);
-    }
-
-    /**
-     * Stop the draw mode and refresh the image<br>
-     * Don't call this method if image is locked. Use {@link #drawModeLocked()} to know.<br>
-     * The image is locked if we are inside a task launch by {@link #playInDrawMode(ConsumerTask)} or {@link #playOutDrawMode(ConsumerTask)}
-     *
-     * @throws IllegalStateException If draw mode is locked
-     */
-    public void endDrawMode()
-    {
-        if (this.drawModeLocked)
-        {
-            throw new IllegalStateException("Draw mode is locked");
-        }
-
-        if (this.drawMode)
-        {
-            this.drawMode = false;
-
-            final int length = this.sprites.size();
-
-            for (int index = 0; index < length; index++)
-            {
-                if (this.visibilities[index])
-                {
-                    this.sprites.get(index)
-                                .changeVisible(true);
-                }
-            }
-
-            synchronized (this.playOutDrawMode)
-            {
-                this.drawModeLocked = true;
-
-                while (!this.playOutDrawMode.empty())
-                {
-                    this.playOutDrawMode.outQueue().consume(this);
-                }
-
-                this.drawModeLocked = false;
-            }
-        }
-
-        this.update();
-    }
-
-    /**
-     * Extract a sub image from the image<br>
-     * Note : If one of image is not in draw mode, all visible sprite (of this image) will be consider as a part of the
-     * image
-     *
-     * @param x      X of upper left corner of the area to extract
-     * @param y      Y of upper left corner of the area to extract
-     * @param width  Area to extract width
-     * @param height Area to extract height
-     * @return Extracted image
-     */
-    public JHelpImage extractSubImage(int x, int y, int width, int height)
-    {
-        if (x < 0)
-        {
-            width += x;
-            x = 0;
-        }
-
-        if (y < 0)
-        {
-            height += y;
-            y = 0;
-        }
-
-        if ((x + width) > this.width)
-        {
-            width = this.width - x;
-        }
-
-        if ((y + height) > this.height)
-        {
-            height = this.height - y;
-        }
-
-        if ((width < 1) || (height < 1))
-        {
-            return JHelpImage.DUMMY;
-        }
-
-        final JHelpImage part = new JHelpImage(width, height);
-
-        part.startDrawMode();
-        part.drawImageOver(0, 0, this, x, y, width, height);
-        part.endDrawMode();
-
-        return part;
-    }
-
-    /**
-     * Fill a shape<br>
-     * MUST be in draw mode
-     *
-     * @param shape Shape to fill
-     * @param color Color to use
-     */
-    public void fillShape(final Shape shape, final int color)
-    {
-        this.fillShape(shape, color, true);
     }
 
     /**
@@ -5690,6 +5772,16 @@ public class JHelpImage
     }
 
     /**
+     * Image height
+     *
+     * @return Image height
+     */
+    public int getHeight()
+    {
+        return this.height;
+    }
+
+    /**
      * Fill the image with a color on respect the alpha.<br>
      * That is to say the given color alpha is no use, but original image alpha for given a pixel
      *
@@ -5707,107 +5799,6 @@ public class JHelpImage
         for (int pix = this.pixels.length - 1; pix >= 0; pix--)
         {
             this.pixels[pix] = (this.pixels[pix] & 0xFF000000) | pure;
-        }
-    }
-
-    /**
-     * Fill a shape<br>
-     * MUST be in draw mode
-     *
-     * @param shape      Shape to fill
-     * @param color      Color to use
-     * @param doAlphaMix Indicates if we do the mixing {@code true}, or we just override {@code false}
-     */
-    public void fillShape(final Shape shape, final int color, final boolean doAlphaMix)
-    {
-        if (!this.drawMode)
-        {
-            throw new IllegalStateException("Must be in draw mode !");
-        }
-
-        final Rectangle rectangle = shape.getBounds();
-
-        final int x      = rectangle.x;
-        final int y      = rectangle.y;
-        final int width  = rectangle.width;
-        final int height = rectangle.height;
-
-        if ((width <= 0) || (height <= 0))
-        {
-            return;
-        }
-
-        final int x2 = (x + width) - 1;
-        final int y2 = (y + height) - 1;
-
-        final int startX = Math.max(this.clip.xMin, x);
-        final int endX   = Math.min(this.clip.xMax, x2);
-        final int startY = Math.max(this.clip.yMin, y);
-        final int endY   = Math.min(this.clip.yMax, y2);
-
-        if ((startX > endX) || (startY > endY))
-        {
-            return;
-        }
-
-        final int alpha = (color >> 24) & 0xFF;
-
-        if ((alpha == 0) && (doAlphaMix))
-        {
-            return;
-        }
-
-        int line = startX + (startY * this.width);
-        int pix;
-
-        if ((alpha == 255) || (!doAlphaMix))
-        {
-            for (int yy = startY; yy <= endY; yy++)
-            {
-                pix = line;
-
-                for (int xx = startX; xx <= endX; xx++)
-                {
-                    if (shape.contains(xx, yy))
-                    {
-                        this.pixels[pix] = color;
-                    }
-
-                    pix++;
-                }
-
-                line += this.width;
-            }
-
-            return;
-        }
-
-        final int ahpla = 256 - alpha;
-        final int red   = ((color >> 16) & 0xFF) * alpha;
-        final int green = ((color >> 8) & 0xFF) * alpha;
-        final int blue  = (color & 0xFF) * alpha;
-        int       col;
-
-        for (int yy = startY; yy <= endY; yy++)
-        {
-            pix = line;
-
-            for (int xx = startX; xx <= endX; xx++)
-            {
-                if (shape.contains(xx, yy))
-                {
-                    col = this.pixels[pix];
-
-                    this.pixels[pix] = (Math.min(255, alpha + ((col >> 24) & 0xFF)) << 24) | //
-                                       (((red + (((col >> 16) & 0xFF) * ahpla)) >> 8) << 16) | //
-                                       (((green + (((col >> 8) & 0xFF) * ahpla)) >> 8) << 8) | //
-                                       ((blue + ((col & 0xFF) * ahpla)) >> 8);
-                }
-
-                pix++;
-            }
-
-            line += this.width;
         }
     }
 
@@ -5974,6 +5965,31 @@ public class JHelpImage
         }
 
         this.fillShape(new RoundRectangle2D.Double(x, y, width, height, arcWidth, arcHeight), paint, doAlphaMix);
+    }
+
+    /**
+     * Raster image type <br>
+     * <br>
+     * <b>Parent documentation:</b><br>
+     * {@inheritDoc}
+     *
+     * @return Raster image type
+     * @see jhelp.util.image.raster.RasterImage#getImageType()
+     */
+    @Override
+    public RasterImageType getImageType()
+    {
+        return RasterImageType.JHELP_IMAGE;
+    }
+
+    /**
+     * Image width
+     *
+     * @return Image width
+     */
+    public int getWidth()
+    {
+        return this.width;
     }
 
     /**
@@ -6177,29 +6193,6 @@ public class JHelpImage
 
             line += this.width;
         }
-    }
-
-    /**
-     * Filter on using a palette color<br>
-     * MUST be on draw mode
-     *
-     * @param index   Palette color indes
-     * @param colorOK Color if match
-     * @param colorKO Color if not match
-     */
-    public void filterPalette(final int index, final int colorOK, final int colorKO)
-    {
-        this.filterOn(JHelpImage.PALETTE[index % JHelpImage.PALETTE_SIZE], 0x10, colorOK, colorKO);
-    }
-
-    /**
-     * Image height
-     *
-     * @return Image height
-     */
-    public int getHeight()
-    {
-        return this.height;
     }
 
     /**
@@ -6617,13 +6610,18 @@ public class JHelpImage
     }
 
     /**
-     * Image width
+     * Convert image to JHelp image <br>
+     * <br>
+     * <b>Parent documentation:</b><br>
+     * {@inheritDoc}
      *
-     * @return Image width
+     * @return This image itself (It is already a JHelp image)
+     * @see jhelp.util.image.raster.RasterImage#toJHelpImage()
      */
-    public int getWidth()
+    @Override
+    public JHelpImage toJHelpImage()
     {
-        return this.width;
+        return this;
     }
 
     /**

@@ -69,7 +69,7 @@ public class VerboseParseXMLlistener
      * @see ParseXMLlistener#endMarkup(String)
      */
     @Override
-    public void endMarkup(final String markupName) throws UnexpectedEndOfMarkup
+    public void endMarkup(final String markupName)
     {
         System.out.println("END MARKUP : " + markupName);
     }
@@ -82,7 +82,7 @@ public class VerboseParseXMLlistener
      * @see ParseXMLlistener#endParse()
      */
     @Override
-    public void endParse() throws UnexpectedEndOfParse
+    public void endParse()
     {
         System.out.println("--- END ---");
     }
@@ -115,8 +115,6 @@ public class VerboseParseXMLlistener
      */
     @Override
     public void startMarkup(final String markupName, final Hashtable<String, String> parameters)
-            throws MissingRequiredParameterException,
-                   InvalidParameterValueException
     {
         System.out.println("START MARKUP : " + markupName);
         final Enumeration<String> keys = parameters.keys();
@@ -153,7 +151,7 @@ public class VerboseParseXMLlistener
      * @see ParseXMLlistener#textFind(String)
      */
     @Override
-    public void textFind(final String text) throws InvalidTextException
+    public void textFind(final String text)
     {
         System.out.println("TEXT : " + text);
     }

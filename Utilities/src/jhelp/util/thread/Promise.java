@@ -1,3 +1,15 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
 package jhelp.util.thread;
 
 import com.sun.istack.internal.NotNull;
@@ -78,7 +90,8 @@ public final class Promise<R>
     }
 
     /**
-     * Register listener of cancel requests
+     * Register listener of cancel requests.<br>
+     * Register a listener give the responsibility to the listener to decide if have to propagate cancel status (Via {@link #cancel(String)}) or not.
      *
      * @param requestCancelListener Listener to register
      */
@@ -118,7 +131,8 @@ public final class Promise<R>
     }
 
     /**
-     * Unregister listener of cancel requests
+     * Unregister listener of cancel requests.<br>
+     * If no more listener left after remove, the cancel propagation back to normal, that is to say: always propagate
      *
      * @param requestCancelListener Listener to unregister
      */

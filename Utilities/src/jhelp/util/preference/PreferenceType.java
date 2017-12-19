@@ -45,5 +45,9 @@ public enum PreferenceType
     /**
      * Type {@link String}
      */
-    STRING
+    STRING,
+    /**
+     * Type {@link Enum}
+     */
+    ENUM
 }

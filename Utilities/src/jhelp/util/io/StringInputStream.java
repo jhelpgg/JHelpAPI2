@@ -106,7 +106,7 @@ public class StringInputStream
      * @see InputStream#skip(long)
      */
     @Override
-    public long skip(final long n) throws IOException
+    public long skip(final long n)
     {
         return this.byteArrayInputStream.skip(n);
     }
@@ -122,7 +122,7 @@ public class StringInputStream
      * @see InputStream#available()
      */
     @Override
-    public int available() throws IOException
+    public int available()
     {
         return this.byteArrayInputStream.available();
     }
@@ -167,7 +167,7 @@ public class StringInputStream
      * @see InputStream#reset()
      */
     @Override
-    public synchronized void reset() throws IOException
+    public synchronized void reset()
     {
         this.byteArrayInputStream.reset();
     }

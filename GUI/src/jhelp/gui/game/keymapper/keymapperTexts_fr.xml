@@ -1,0 +1,30 @@
+<!--
+  ~ Copyright:
+  ~ License :
+  ~  The following code is deliver as is.
+  ~  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+  ~  You can use, modify, the code as your need for any usage.
+  ~  But you can't do any action that avoid me or other person use,  modify this code.
+  ~  The code is free for usage and modification, you can't change that fact.
+  ~  @author JHelp
+  ~
+  -->
+
+<TEXTS>
+    <Text key="ACTION_ACTION">Action</Text>
+    <Text key="ACTION_CANCEL">Annuler</Text>
+    <Text key="ACTION_DOWN">Bas</Text>
+    <Text key="ACTION_EXIT">Quitter</Text>
+    <Text key="ACTION_FIRE">Tir 1</Text>
+    <Text key="ACTION_FIRE_2">Tir 2</Text>
+    <Text key="ACTION_LEFT">Gauche</Text>
+    <Text key="ACTION_MENU">Menu</Text>
+    <Text key="ACTION_NEXT">Suivant</Text>
+    <Text key="ACTION_PAUSE">Pause</Text>
+    <Text key="ACTION_PREVIOUS">Précédent</Text>
+    <Text key="ACTION_RIGHT">Droite</Text>
+    <Text key="ACTION_SPECIAL">Special</Text>
+    <Text key="ACTION_START">Démarrer</Text>
+    <Text key="ACTION_UP">Haut</Text>
+    <Text key="ACTION_SWITCH_FULL_SCREEN">Plein écran</Text>
+</TEXTS>

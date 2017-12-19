@@ -19,6 +19,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Stack;
 
 /**
  * Utilities for reflection
@@ -213,6 +214,51 @@ public class Reflection
         {
             return method.invoke(Reflection.newInstance(clazz), parameters);
         }
+    }
+
+    /**
+     * Indicates if a class extends an other one
+     *
+     * @param test   Class to test
+     * @param parent Class to extends
+     * @return {@code true} if class extends an other one
+     */
+    public final static boolean isInherit(Class<?> test, final Class<?> parent)
+    {
+        if (test.equals(parent) == true)
+        {
+            return true;
+        }
+
+        if ((test.isPrimitive() == true) || (test.isArray() == true))
+        {
+            return false;
+        }
+
+        final Stack<Class<?>> stack = new Stack<Class<?>>();
+        stack.push(test);
+
+        while (stack.isEmpty() == false)
+        {
+            test = stack.pop();
+
+            if (test.equals(parent) == true)
+            {
+                return true;
+            }
+
+            if (test.getSuperclass() != null)
+            {
+                stack.push(test.getSuperclass());
+            }
+
+            for (final Class<?> interf : test.getInterfaces())
+            {
+                stack.push(interf);
+            }
+        }
+
+        return false;
     }
 
     /**

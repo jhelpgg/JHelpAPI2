@@ -102,7 +102,7 @@ public class JavaFileSelection
      * @see Transferable#getTransferData(DataFlavor)
      */
     @Override
-    public Object getTransferData(final DataFlavor flavor) throws UnsupportedFlavorException, IOException
+    public Object getTransferData(final DataFlavor flavor) throws UnsupportedFlavorException
     {
         if (flavor.isFlavorJavaFileListType())
         {

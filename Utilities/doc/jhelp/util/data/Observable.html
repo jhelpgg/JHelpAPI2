@@ -1,4 +1,16 @@
 <!DOCTYPE html>
+<!--
+  ~ Copyright:
+  ~ License :
+  ~  The following code is deliver as is.
+  ~  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+  ~  You can use, modify, the code as your need for any usage.
+  ~  But you can't do any action that avoid me or other person use,  modify this code.
+  ~  The code is free for usage and modification, you can't change that fact.
+  ~  @author JHelp
+  ~
+  -->
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -36,9 +48,9 @@
                 $("table.tableWithFloatingHeader").each(function() {
                     $(this).wrap("<div class=\"divTableWithFloatingHeader\" style=\"position:relative\"></div>");
 
-                    var originalHeaderRow = $("tr:first", this)
+                    var originalHeaderRow = $("tr:first", this);
                     originalHeaderRow.before(originalHeaderRow.clone());
-                    var clonedHeaderRow = $("tr:first", this)
+                    var clonedHeaderRow = $("tr:first", this);
 
                     clonedHeaderRow.addClass("tableFloatingHeader");
                     clonedHeaderRow.css("position", "absolute");
@@ -72,7 +84,7 @@
     <link rel="stylesheet" type="text/css" href="../../../scripts/buttons.css"/>
     <link rel="stylesheet" type="text/css" href="../../../scripts/tables.css"/>
 </head>
-<body onLoad="javascript:launchParser()">
+<body onLoad="launchParser()">
 <h1>Explanation about <b class="redColor">Observable</b></h1>
 <h2>Introduction</h2>
 An observable is a data that alerts all its observers each time its value changed.<br>
@@ -158,7 +170,7 @@ import jhelp.util.thread.ThreadManager;
 
 public class MainSimpleObservable implements Observer&lt;Integer&gt;
 {
-    public static void main(String[] arguments)
+    public static void engine.main(String[] arguments)
     {
         //Create the observer
         MainSimpleObservable mainSimpleObservable = new MainSimpleObservable();
@@ -230,7 +242,7 @@ import jhelp.util.thread.ThreadManager;
 
 public class MainCallingTask
 {
-    public static void main(String[] arguments)
+    public static void engine.main(String[] arguments)
     {
         //Create the simulation task
         SimulateProgressTask waitingTask = new SimulateProgressTask();

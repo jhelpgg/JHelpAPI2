@@ -139,7 +139,7 @@ class ParserXMLText
      * @see DefaultHandler#endElement(String, String, String)
      */
     @Override
-    public void endElement(final String uri, final String localName, final String qName) throws SAXException
+    public void endElement(final String uri, final String localName, final String qName)
     {
         final String name = ((localName == null) || (localName.length() == 0))
                             ? qName
@@ -169,7 +169,7 @@ class ParserXMLText
      * @see DefaultHandler#characters(char[], int, int)
      */
     @Override
-    public void characters(final char[] ch, final int start, final int length) throws SAXException
+    public void characters(final char[] ch, final int start, final int length)
     {
         if (this.value != null)
         {

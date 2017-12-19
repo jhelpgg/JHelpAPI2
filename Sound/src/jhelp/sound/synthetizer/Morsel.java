@@ -120,11 +120,11 @@ public class Morsel
          * Call when meet a close of markup
          *
          * @param markupName Markup closed
-         * @throws UnexpectedEndOfMarkup If markup musn't close now
+         * @throws UnexpectedEndOfMarkup If markup mustn't close now
          * @see jhelp.xml.ParseXMLlistener#endMarkup(String)
          */
         @Override
-        public void endMarkup(final String markupName) throws UnexpectedEndOfMarkup
+        public void endMarkup(final String markupName)
         {
             if (markupName.equals(Morsel.MARKUP_PARTITION))
             {
@@ -143,7 +143,7 @@ public class Morsel
          * @see jhelp.xml.ParseXMLlistener#endParse()
          */
         @Override
-        public void endParse() throws UnexpectedEndOfParse
+        public void endParse()
         {
             this.partition = null;
             this.overtoneGroup = null;
@@ -319,7 +319,7 @@ public class Morsel
          * @see jhelp.xml.ParseXMLlistener#textFind(String)
          */
         @Override
-        public void textFind(final String text) throws InvalidTextException
+        public void textFind(final String text)
         {
         }
     }

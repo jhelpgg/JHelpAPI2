@@ -25,10 +25,6 @@ import jhelp.util.list.Pair;
 public final class ThreadManager
 {
     /**
-     * Maximum number of thread in same time
-     */
-    private static final int                   NUMBER_OF_THREAD        = 1024;
-    /**
      * Runnable of thread that do thread management
      */
     private static final ThreadManagerRunnable THREAD_MANAGER_RUNNABLE = new ThreadManagerRunnable();
@@ -36,6 +32,22 @@ public final class ThreadManager
      * Thread manager singleton instance
      */
     static final         ThreadManager         THREAD_MANAGER          = new ThreadManager();
+    /**
+     * Maximum number of thread in same time
+     */
+    public static final  int                   NUMBER_OF_THREAD        = 1024;
+
+    public static <P> CancellableTask<P, Void> cosumeCancellable(
+            @NotNull ConsumerTask<P> task, @Nullable P parameter, long delay)
+    {
+        return new CancellableTask<>(task, parameter, delay);
+    }
+
+    public static <P, R> CancellableTask<P, R> doCancellable(
+            @NotNull Task<P, R> task, @Nullable P parameter, long delay)
+    {
+        return new CancellableTask<>(task, parameter, delay);
+    }
 
     /**
      * Launch a task as soon as possible
@@ -58,11 +70,12 @@ public final class ThreadManager
      * @param delay     Delay to wait before play the task
      * @param <P>       Task parameter type
      * @param <R>       Task result type
+     *           @return Task ID
      */
-    public static <P, R> void doTask(@NotNull Task<P, R> task, @Nullable P parameter, long delay)
+    public static <P, R> int doTask(@NotNull Task<P, R> task, @Nullable P parameter, long delay)
     {
         Objects.requireNonNull(task, "task MUST NOT be null!");
-        ThreadManager.THREAD_MANAGER.addTask(System.currentTimeMillis() + Math.max(1, delay), task, parameter);
+        return ThreadManager.THREAD_MANAGER.addTask(System.currentTimeMillis() + Math.max(1, delay), task, parameter);
     }
 
     /**
@@ -174,6 +187,57 @@ public final class ThreadManager
     }
 
     /**
+     * Repeat a task regularly
+     *
+     * @param task        Task to repeat
+     * @param parameter   Task parameter
+     * @param delay       Delay (in milliseconds) before first launch
+     * @param repeatDelay Delay (in milliseconds) between each repetition
+     * @param <P>         Parameter type
+     * @return Task reference to stop it at anytime
+     */
+    public static @NotNull <P> LoopTask<P, Void> repeatConsume(
+            @NotNull ConsumerTask<P> task, @Nullable P parameter, long delay, long repeatDelay)
+    {
+        return new LoopTask<>(task, parameter, delay, repeatDelay);
+    }
+
+    /**
+     * Repeat a task regularly
+     *
+     * @param task        Task to repeat
+     * @param parameter   Task parameter
+     * @param delay       Delay (in milliseconds) before first launch
+     * @param repeatDelay Delay (in milliseconds) between each repetition
+     * @param <P>         Parameter type
+     * @param <R>         Result type
+     * @return Task reference to stop it at anytime
+     */
+    public static @NotNull <P, R> LoopTask<P, R> repeatDo(
+            @NotNull Task<P, R> task, @Nullable P parameter, long delay, long repeatDelay)
+    {
+        return new LoopTask<>(task, parameter, delay, repeatDelay);
+    }
+
+    /**
+     * Repeat a task regularly
+     *
+     * @param task        Task to repeat
+     * @param delay       Delay (in milliseconds) before first launch
+     * @param repeatDelay Delay (in milliseconds) between each repetition
+     * @return Task reference to stop it at anytime
+     */
+    public static @NotNull LoopTask<Void, Void> repeatRun(@NotNull RunnableTask task, long delay, long repeatDelay)
+    {
+        return new LoopTask<>(task, delay, repeatDelay);
+    }
+
+    public static CancellableTask<Void, Void> runCancellable(@NotNull RunnableTask task, long delay)
+    {
+        return new CancellableTask<>(task, null, delay);
+    }
+
+    /**
      * Indicates if manager is alive
      */
     private       boolean                          alive         = false;
@@ -251,12 +315,17 @@ public final class ThreadManager
      * @param parameter Task parameter
      * @param <P>       Task parameter type
      * @param <R>       Task result type
+     * @return Task ID
      */
-    <P, R> void addTask(long time, @NotNull Task<P, R> task, @Nullable P parameter)
+    <P, R> int addTask(long time, @NotNull Task<P, R> task, @Nullable P parameter)
     {
+        int id;
+
         synchronized (this.waiting)
         {
-            this.priorityQueue.offer(new TaskElement(time, task, parameter));
+            TaskElement<P, R> taskElement = new TaskElement<>(time, task, parameter);
+            id = taskElement.id;
+            this.priorityQueue.offer(taskElement);
 
             if (this.waiting.get())
             {
@@ -268,6 +337,16 @@ public final class ThreadManager
                 this.alive = true;
                 (new Thread(ThreadManager.THREAD_MANAGER_RUNNABLE)).start();
             }
+        }
+
+        return id;
+    }
+
+    void removeTask(int id)
+    {
+        synchronized (this.waiting)
+        {
+            this.priorityQueue.remove(new TaskElement<>(id));
         }
     }
 

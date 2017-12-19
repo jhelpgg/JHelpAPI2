@@ -1,0 +1,139 @@
+/*
+ * Copyright:
+ * License :
+ *  The following code is deliver as is.
+ *  I take care that code compile and work, but I am not responsible about any  damage it may  cause.
+ *  You can use, modify, the code as your need for any usage.
+ *  But you can't do any action that avoid me or other person use,  modify this code.
+ *  The code is free for usage and modification, you can't change that fact.
+ *  @author JHelp
+ *
+ */
+
+package jhelp.util.samples.font.gui;
+
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.util.List;
+import javax.swing.JFrame;
+import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import jhelp.util.gui.JHelpFont;
+import jhelp.util.gui.JHelpImage;
+import jhelp.util.gui.JHelpTextAlign;
+import jhelp.util.gui.JHelpTextLineAlpha;
+import jhelp.util.list.Pair;
+import jhelp.util.samples.common.gui.SampleLabelJHelpImage;
+
+/**
+ * Frame for font size and text alignment sample
+ *
+ * @author JHelp
+ */
+public class JHelpFontSampleFrame
+        extends JFrame
+        implements ChangeListener
+{
+    /**
+     * Image that draw the text height
+     */
+    private final static int    HEIGHT = 1000;
+    /**
+     * Text for test
+     */
+    private final static String STRING = "Pseudopseudohypoparathyroidism is a long word. So Pseudopseudohypoparathyroidism is a good candidate for show how cut text work";
+    /**
+     * Image that draw the text height
+     */
+    private final static int    WIDTH  = 500;
+    /**
+     * Actual font
+     */
+    private       JHelpFont             font;
+    /**
+     * Image that draw the text
+     */
+    private final JHelpImage            imageMain;
+    /**
+     * Swing component that carry the image
+     */
+    private final SampleLabelJHelpImage sampleLabelJHelpImage;
+    /**
+     * Actual font size
+     */
+    private       int                   size;
+    /**
+     * Spinner for change size
+     */
+    private final JSpinner              spinnerSize;
+
+    /**
+     * Create a new instance of JHelpFontSampleFrame
+     */
+    public JHelpFontSampleFrame()
+    {
+        super("JHelpFont sample");
+
+        this.size = 20;
+        this.spinnerSize = new JSpinner(new SpinnerNumberModel(this.size, 10, 400, 1));
+        this.imageMain = new JHelpImage(JHelpFontSampleFrame.WIDTH, JHelpFontSampleFrame.HEIGHT, 0xFFFFFFFF);
+        this.sampleLabelJHelpImage = new SampleLabelJHelpImage(this.imageMain);
+
+        this.setLayout(new BorderLayout());
+
+        this.add(new JScrollPane(this.sampleLabelJHelpImage, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
+                                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
+        this.add(this.spinnerSize, BorderLayout.SOUTH);
+
+        this.updateFont();
+
+        this.spinnerSize.addChangeListener(this);
+
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.pack();
+    }
+
+    /**
+     * Update the font and the text draw
+     */
+    private void updateFont()
+    {
+        this.font = new JHelpFont("Arial", this.size);
+
+        this.imageMain.startDrawMode();
+
+        this.imageMain.clear(0xFFFFFFFF);
+
+        final Pair<List<JHelpTextLineAlpha>, Dimension> lines = this.font.computeTextLinesAlpha(
+                JHelpFontSampleFrame.STRING, JHelpTextAlign.LEFT, JHelpFontSampleFrame.WIDTH,
+                JHelpFontSampleFrame.HEIGHT);
+
+        for (final JHelpTextLineAlpha line : lines.first)
+        {
+            this.imageMain.paintAlphaMask(line.getX(), line.getY(), line.getMask(), 0xFF000000, 0xFFFFFFFF, false);
+        }
+
+        this.imageMain.endDrawMode();
+    }
+
+    /**
+     * Called when user change the value of the size spinner <br>
+     * <br>
+     * <b>Parent documentation:</b><br>
+     * {@inheritDoc}
+     *
+     * @param e Event description
+     * @see ChangeListener#stateChanged(ChangeEvent)
+     */
+    @Override
+    public void stateChanged(final ChangeEvent e)
+    {
+        this.size = (Integer) this.spinnerSize.getValue();
+
+        this.updateFont();
+    }
+}
