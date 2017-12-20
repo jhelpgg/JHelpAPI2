@@ -20,7 +20,7 @@ For create and show the window with 3D, we have two methods in `jhelp.engine2.re
   that will create a full screen window
 * `public static Window3D createSizedWindow(int width, int height, @NotNull String title, boolean decorated)`
   that will create a window with given size. The decorated parameter
-  indicates if show the title bar (and close button) of the button.
+  indicates if show the title bar (and close button) of the window.
 
 Since we have not already learn how close the window with code and not
 learn to react to user events (keyboard and/or joystick and/or mouse events)
@@ -67,8 +67,11 @@ where the camera is by default.
 You may wonder why we don't see the inside of the box. The reason is, by
 default, the face inside aren't rendered. Usually we look a box from outside
 and so we never see the inside of the box. For optimize the rendering,
-we don't render something never see. Note it is possible to ask to render
-the inside of the box, we will se that in an other chapter.
+we don't render something never see.
+
+> Note: it is possible to ask to render
+  the inside of the box, we will se that in an other chapter.
+
 For now we will just move the box far above the camera.
 As we will see in coordinate system, behind the camera its positive Z and
 in front camera is negative Z. So we use a negative Z to see the box:

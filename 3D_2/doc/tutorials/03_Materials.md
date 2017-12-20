@@ -21,7 +21,7 @@ The aim here is to obtain a colored cube like:
 
 Complete code at: [Red cube code](../../samples/jhelp/engine2/tutorials/MaterialRedCube.java)
 
-From "Hello world tutorial, we create a material:
+From "Hello world" tutorial, we create a material:
 
 ````java
         //Create material
@@ -30,14 +30,14 @@ From "Hello world tutorial, we create a material:
 
 The name of the material must be unique for all application.
 The main part of material is called **diffuse**.
-We want red cube, so we use red color of diffuse part:
+We want red cube, so we use red color on diffuse part:
 
 ````java
         //Use red color
         material.colorDiffuse(Color4f.DARK_RED);
 ````
 
-> Note: Other colors change light reaction on 3D object.
+> Note: Other parts change light reaction on 3D object.
 
 Now we have to apply the material to the box:
 
@@ -82,15 +82,17 @@ an animation on it.
 ````
 
 Like previously we create the material.
-Then we load the texture in memory. Remember texture are heavy things.
-So reuse the same one every time it is possible.
+Then we load the texture in memory.
+Then associate the texture to material. And we apply the texture.
 
-> Note: It is possible to free the memory taken by texture when this texture
+> Note:
+>  * Remember texture are heavy things. So reuse the same one every time it is possible.
+>  * It is possible to free the memory taken by texture when this texture
 will not be used again with `public void removeFromMemory(final @NotNull Texture texture)`
 or `public void removeFromMemory(final @NotNull String textureName)` of
 `jhelp.engine2.render.Window3D`
 
-We associate the texture to material. And we apply the texture.
+
 
 ### Textures and colored cube
 
@@ -130,7 +132,7 @@ Start from textured rock box, we will obtain:
 Complete code at: [Spherical reflexion code](../../samples/jhelp/engine2/tutorials/MaterialTextureSpheric.java)
 
 For this we load the texture, then use it as spherical reflection.
-We ajust the influence of reflexion at **"0.5"** to see combination diffuse and spherical.
+We adjust the influence of reflexion at **"0.5"** to see combination diffuse and spherical.
 
 ````java
             //Load texture for spherical reflexion

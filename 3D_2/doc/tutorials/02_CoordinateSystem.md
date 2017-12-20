@@ -4,7 +4,7 @@ The OpenGL coordinate system is a classical Euclidean one:
 
 ![Euclidean Coordinate System](images/EuclideanCoordinateSystem.png)
 
-The center of window 3D is placed at **(0, 0, 0.1)**.
+The center of window 3D is placed at **(0, 0, -0.1)**.
 The window plane is **XY** plane.
 The window look towards the **Z-** direction.
 

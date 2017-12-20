@@ -7,7 +7,7 @@ Here we will see two different notions of hierarchy:
 ### Hierarchy from object programming point of view
 
 Every thing draw in 3D inherits from `jhelp.engine2.render.Node`.
-Every **Node** have a 3D position (X, Y, Z), angle aroud X, Y Z and scale
+Every **Node** have a 3D position (X, Y, Z), angle around X, Y Z and scale
 factors (see [Coordinate System chapter](02_CoordinateSystem.md)).
 Like we will see on next part, they have or not a parent, and zero, one,
 or several children.
