@@ -37,3 +37,23 @@ Where:
 
 ### Hierarchy from scene organization point of view
 
+In scene organization, each node have a parent.
+When we add a Node in scene directly, the node become the child of a
+special Node: The scene root node. When a node is placed,
+the coordinates, rotations or scales are relative to its parent.
+With this it is possible to transform the node parent and it affects its
+children, grand children, ...
+By example, for a simple bicycle, create a node called bicycle, and add
+it three children: two wheels and one body. So each time we transform
+the node bicycle, wheels and body will inherits the same transformation.
+But the opposite is false. By example we animate wheels to turn,
+it didn't affect the bicycle node, nor body node.
+It can simplify animations, make wheels turn in one animation,
+and move the bicycle in other one without taking care wheels rotation.
+
+An illustration can be found at:
+
+[Bicycle code](../../samples/jhelp/engine2/tutorials/Bicycle.java)
+
+> Note : Don't worry if you don't understand what is a quadratic or
+  what is exactly a revolution. We will explain that in advanced tutorials.
