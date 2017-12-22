@@ -137,7 +137,7 @@ public final class ActionManager
      *
      * @param preferences Preferences where extract/store key/joystick mapping
      */
-    public ActionManager(@NotNull Preferences preferences)
+    ActionManager(@NotNull Preferences preferences)
     {
         this.preferences = preferences;
         this.actionDescriptions = new ArrayObject<>();
@@ -496,7 +496,7 @@ public final class ActionManager
     }
 
     /**
-     * Cahnge consumable status of an action
+     * Change consumable status of an action
      *
      * @param actionCode Action code
      * @param consumable New consumable value
@@ -537,7 +537,7 @@ public final class ActionManager
      * @param actionCode Action to get its joystick code
      * @return Associated joystick code OR {@link JoystickCode#NONE} if no joystick code
      */
-    public @NotNull JoystickCode joysitckCode(@NotNull ActionCode actionCode)
+    public @NotNull JoystickCode joystickCode(@NotNull ActionCode actionCode)
     {
         return this.actionDescriptions.any(actionDescription -> actionDescription.actionCode == actionCode)
                                       .thenDo(future ->
