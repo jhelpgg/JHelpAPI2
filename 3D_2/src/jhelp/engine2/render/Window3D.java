@@ -146,6 +146,11 @@ public class Window3D
             this.nodeDetect = detectionInfo.nodeDetect;
         }
 
+        /**
+         * Hash code
+         *
+         * @return Hash code
+         */
         @Override
         public int hashCode()
         {
@@ -154,6 +159,12 @@ public class Window3D
                                             this.object2DDetect, this.gui2d, this.scene, this.nodeDetect);
         }
 
+        /**
+         * Indicates if an object equals to this detection information
+         *
+         * @param object Object to compare with
+         * @return {@code true} if they are equals
+         */
         @Override
         public boolean equals(final Object object)
         {
@@ -1794,6 +1805,11 @@ public class Window3D
         return this.showing.get();
     }
 
+    /**
+     * Associated sound manager for play sounds
+     *
+     * @return Sound manager for play sounds
+     */
     public SoundManager soundManager()
     {
         this.waitReady();

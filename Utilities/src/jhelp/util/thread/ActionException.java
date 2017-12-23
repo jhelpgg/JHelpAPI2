@@ -12,16 +12,31 @@
 
 package jhelp.util.thread;
 
+import com.sun.istack.internal.NotNull;
 import jhelp.util.text.UtilText;
 
+/**
+ * Exception may happen in actions
+ */
 public class ActionException extends Exception
 {
-    public ActionException(Object... message)
+    /**
+     * Create exception
+     *
+     * @param message Exception message
+     */
+    public ActionException(@NotNull Object... message)
     {
         super(UtilText.concatenate(message));
     }
 
-    public ActionException(Throwable cause, Object... message)
+    /**
+     * Create exception
+     *
+     * @param cause   Exception parent cause
+     * @param message Exception message
+     */
+    public ActionException(@NotNull Throwable cause, @NotNull Object... message)
     {
         super(UtilText.concatenate(message), cause);
     }

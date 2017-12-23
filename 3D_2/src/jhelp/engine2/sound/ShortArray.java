@@ -12,17 +12,37 @@
 
 package jhelp.engine2.sound;
 
-public final class ShortArray
+/**
+ * Basic array of short.
+ */
+final class ShortArray
 {
+    /**
+     * Currant short array data
+     */
     private short[] array;
+    /**
+     * Current array size
+     */
     private int     size;
 
+    /**
+     * Create an enmpty array
+     *
+     * @param capacity Start capacity
+     */
     public ShortArray(int capacity)
     {
         this.array = new short[Math.max(capacity, 4096)];
         this.size = 0;
     }
 
+    /**
+     * Check if current array data can add more elements.<br>
+     * If the aray is too small, the method make a bigger capacity to array data
+     *
+     * @param more Number of elements to add
+     */
     private void ensureCapacity(int more)
     {
         if (this.size + more >= this.array.length)
@@ -35,6 +55,11 @@ public final class ShortArray
         }
     }
 
+    /**
+     * Convert to a short[]
+     *
+     * @return Array data copy
+     */
     public short[] array()
     {
         final short[] array = new short[this.size];
@@ -42,6 +67,13 @@ public final class ShortArray
         return array;
     }
 
+    /**
+     * Append at the end of the array some data
+     *
+     * @param array  Data to append
+     * @param offset Offset in given data where start to read
+     * @param length Number of given data elements to read
+     */
     public void write(short[] array, int offset, int length)
     {
         if (offset < 0)

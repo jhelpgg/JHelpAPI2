@@ -102,7 +102,7 @@ public class SoundWav extends Sound
         AudioFormat audioformat = audioInputStream.getFormat();
 
         // get channels
-        int channels   = 0;
+        int channels;
         int nbChannels = audioformat.getChannels();
         int sampleSize = audioformat.getSampleSizeInBits();
 

@@ -14,7 +14,18 @@ package jhelp.engine2.render.event;
 
 import jhelp.engine2.render.Node;
 
+/**
+ * Listener of node position changes
+ */
 public interface NodePositionListener
 {
+    /**
+     * Called when node position changed
+     *
+     * @param node Node that change position
+     * @param x    New X
+     * @param y    New Y
+     * @param z    New Z
+     */
     void nodePositionChanged(Node node, float x, float y, float z);
 }

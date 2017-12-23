@@ -12,18 +12,35 @@
 
 package jhelp.util.thread;
 
+import com.sun.istack.internal.NotNull;
 import java.util.Objects;
 
+/**
+ * Action that launch a {@link RunnableTask}
+ */
 public final class RunnableAction extends Action
 {
+    /**
+     * Task to launch
+     */
     private final RunnableTask runnableTask;
 
-    public RunnableAction(RunnableTask runnableTask)
+    /**
+     * Create the action
+     *
+     * @param runnableTask Task to play
+     */
+    public RunnableAction(@NotNull RunnableTask runnableTask)
     {
         Objects.requireNonNull(runnableTask, "runnableTask MUST NOT be null!");
         this.runnableTask = runnableTask;
     }
 
+    /**
+     * Do the action
+     *
+     * @throws ActionException On action issue
+     */
     @Override
     public void doAction() throws ActionException
     {

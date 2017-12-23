@@ -12,19 +12,36 @@
 
 package jhelp.engine2.sound;
 
+/**
+ * Dummy sound source: No sound is play
+ */
 public final class DummySoundSource extends SoundSource
 {
+    /**
+     * Dummy sound source singleton instance
+     */
     public static final DummySoundSource DUMMY_SOUND_SOURCE = new DummySoundSource();
 
+    /**
+     * Create dummy source
+     */
     private DummySoundSource()
     {
     }
 
+    /**
+     * Play a Sound
+     *
+     * @param sound Ignored
+     */
     void play(Sound sound)
     {
         //Dummy sound does nothing
     }
 
+    /**
+     * Stop the source
+     */
     void stopAll()
     {
         //Dummy sound does nothing

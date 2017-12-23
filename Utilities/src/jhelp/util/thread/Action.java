@@ -12,27 +12,52 @@
 
 package jhelp.util.thread;
 
+import com.sun.istack.internal.NotNull;
 import java.util.List;
 import java.util.Objects;
 import jhelp.util.list.ArrayObject;
 
+/**
+ * Represents a action. <br>
+ * Actions are tasks that can be done one after an other (That is to say: when an action A is finished do action B, then action C ...)<br>
+ * They can also be executed in parallel.
+ */
 public abstract class Action
 {
-    public static Action launch(final RunnableTask runnableTask)
+    /**
+     * Create and launch immediately an action
+     *
+     * @param runnableTask Task to do
+     * @return Created and launched action
+     */
+    public static @NotNull Action launch(final @NotNull RunnableTask runnableTask)
     {
+        Objects.requireNonNull(runnableTask, "runnableTask MUST NOT be null!");
         Action action = new RunnableAction(runnableTask);
         action.launch();
         return action;
     }
 
+    /**
+     * Future linked to action
+     */
     private       Future<Void> future;
+    /**
+     * Synchronization mutex
+     */
     private final Mutex        mutex;
 
+    /**
+     * Create the action
+     */
     public Action()
     {
         this.mutex = new Mutex();
     }
 
+    /**
+     * Play the action
+     */
     private void play()
     {
         if (this.future == null)
@@ -51,15 +76,31 @@ public abstract class Action
         }
     }
 
+    /**
+     * Do the action stuffs
+     *
+     * @throws ActionException On action issues
+     */
     public abstract void doAction() throws ActionException;
 
+    /**
+     * Launch the action
+     *
+     * @return This action, convenient for chaining
+     */
     public final Action launch()
     {
         this.mutex.playInCriticalSectionVoid(this::play);
         return this;
     }
 
-    public final Action onError(ConsumerTask<ActionException> consumerTask)
+    /**
+     * Launch a task if action is on error
+     *
+     * @param consumerTask Task to do if their an error. The parameter is the exception happen
+     * @return This action, convenient for chaining
+     */
+    public final @NotNull Action onError(@NotNull ConsumerTask<ActionException> consumerTask)
     {
         Objects.requireNonNull(consumerTask, "consumerTask MUST NOT be null!");
         this.mutex.playInCriticalSectionVoid(() ->
@@ -72,19 +113,32 @@ public abstract class Action
         return this;
     }
 
-    public final Action onFinish(RunnableTask runnableTask)
+    /**
+     * Do a task after this action. The task is play if this action is succeed or failed
+     *
+     * @param runnableTask Task to do
+     * @return This action, convenient for chaining
+     */
+    public final @NotNull Action onFinish(@NotNull RunnableTask runnableTask)
     {
         Objects.requireNonNull(runnableTask, "runnableTask MUST NOT be null!");
         this.mutex.playInCriticalSectionVoid(() ->
                                              {
                                                  this.play();
-                                                 this.future = this.future.andRun(runnableTask);
+                                                 this.future = this.future.thenRun(runnableTask);
                                              });
 
         return this;
     }
 
-    public final Action parallel(Action... actions)
+    /**
+     * Launch actions in parallel to this action. <br>
+     * Any future chaining (for example {@link #thenDo(Action)}) will wait for all the given actions
+     *
+     * @param actions Actions to play in parallel
+     * @return This action, convenient for chaining
+     */
+    public final @NotNull Action parallel(@NotNull Action... actions)
     {
         Objects.requireNonNull(actions, "actions MUST NOT be null!");
         this.mutex.playInCriticalSectionVoid(() ->
@@ -112,7 +166,13 @@ public abstract class Action
         return this;
     }
 
-    public final Action thenDo(Action action)
+    /**
+     * Do an other action after this one succeed
+     *
+     * @param action Action to do after
+     * @return This action, convenient for chaining
+     */
+    public final @NotNull Action thenDo(@NotNull Action action)
     {
         Objects.requireNonNull(action, "action MUST NOT be null!");
         this.mutex.playInCriticalSectionVoid(() ->

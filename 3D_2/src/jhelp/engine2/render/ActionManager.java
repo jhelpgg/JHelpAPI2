@@ -169,23 +169,13 @@ public final class ActionManager
         }
     }
 
-    private @Nullable ActionDescription associated(JoystickCode joystickCode)
-    {
-        return this.actionDescriptions.any(actionDescription -> joystickCode == actionDescription.joystickCode)
-                                      .thenDo(future ->
-                                              {
-                                                  if (future.status() == FutureStatus.RESULT)
-                                                  {
-                                                      return future.value();
-                                                  }
-
-                                                  return null;
-                                              })
-                                      .value();
-    }
-
+    /**
+     * Fire to listeners (in separate threads) current active actions
+     *
+     * @param actionCodes Curreent actives actions
+     */
     @ThreadOpenGL
-    private void fireActionEvent(ActionCode... actionCodes)
+    private void fireActionEvent(@NotNull ActionCode... actionCodes)
     {
         synchronized (this.actionListeners)
         {

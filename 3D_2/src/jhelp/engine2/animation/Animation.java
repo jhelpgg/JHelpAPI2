@@ -15,7 +15,7 @@ import jhelp.engine2.render.ThreadAnimation;
 
 /**
  * Animation.<br>
- * When animation is add to the play list, the render give him the absolute frame of the start,. And on play it gives the actual
+ * When animation is add to the play list, the render give him the absolute frame of the start. And on play it gives the actual
  * absolute frame. So to know the relative frame for the animation, you have to store the start absolute frame, and make the
  * difference between the given on play and the start.<br>
  * See <code>jhelp.engine.anim.AnimationKeyFrame</code> for an example <br>

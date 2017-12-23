@@ -37,15 +37,46 @@ public final class ThreadManager
      */
     public static final  int                   NUMBER_OF_THREAD        = 1024;
 
-    public static <P> CancellableTask<P, Void> cosumeCancellable(
+    /**
+     * Launch a cancellable task.<br>
+     * Cancellable means, it is possible to cancel the task before it is launched.<br>
+     * Timeout is a perfect example of usage. For example in url connection, we can launch a timeout of 30 seconds
+     * to wait the connection. And the task of this timeout is to stop tring connect and alert user the connection failed.
+     * If connection take at least 30 seconds it will do its job. But if connection took less, we don't want do timeout action,
+     * at this time we cancel the timeout as soon as possible.
+     *
+     * @param task      Task to do
+     * @param parameter Task parameter
+     * @param delay     Delay before launch
+     * @param <P>       Task parameter type
+     * @return Link to task to cancel it at anytime
+     */
+    public static @NotNull <P> CancellableTask<P, Void> consumeCancellable(
             @NotNull ConsumerTask<P> task, @Nullable P parameter, long delay)
     {
+        Objects.requireNonNull(task, "task MUST NOT be null!");
         return new CancellableTask<>(task, parameter, delay);
     }
 
-    public static <P, R> CancellableTask<P, R> doCancellable(
+    /**
+     * Launch a cancellable task.<br>
+     * Cancellable means, it is possible to cancel the task before it is launched.<br>
+     * Timeout is a perfect example of usage. For example in url connection, we can launch a timeout of 30 seconds
+     * to wait the connection. And the task of this timeout is to stop tring connect and alert user the connection failed.
+     * If connection take at least 30 seconds it will do its job. But if connection took less, we don't want do timeout action,
+     * at this time we cancel the timeout as soon as possible.
+     *
+     * @param task      Task to do
+     * @param parameter Task parameter
+     * @param delay     Delay before launch
+     * @param <P>       Task parameter type
+     * @param <R>       Task return type
+     * @return Link to task to cancel it at anytime
+     */
+    public static @NotNull <P, R> CancellableTask<P, R> doCancellable(
             @NotNull Task<P, R> task, @Nullable P parameter, long delay)
     {
+        Objects.requireNonNull(task, "task MUST NOT be null!");
         return new CancellableTask<>(task, parameter, delay);
     }
 
@@ -70,7 +101,7 @@ public final class ThreadManager
      * @param delay     Delay to wait before play the task
      * @param <P>       Task parameter type
      * @param <R>       Task result type
-     *           @return Task ID
+     * @return Task ID
      */
     public static <P, R> int doTask(@NotNull Task<P, R> task, @Nullable P parameter, long delay)
     {
@@ -232,8 +263,21 @@ public final class ThreadManager
         return new LoopTask<>(task, delay, repeatDelay);
     }
 
-    public static CancellableTask<Void, Void> runCancellable(@NotNull RunnableTask task, long delay)
+    /**
+     * Launch a cancellable task.<br>
+     * Cancellable means, it is possible to cancel the task before it is launched.<br>
+     * Timeout is a perfect example of usage. For example in url connection, we can launch a timeout of 30 seconds
+     * to wait the connection. And the task of this timeout is to stop tring connect and alert user the connection failed.
+     * If connection take at least 30 seconds it will do its job. But if connection took less, we don't want do timeout action,
+     * at this time we cancel the timeout as soon as possible.
+     *
+     * @param task  Task to do
+     * @param delay Delay before launch
+     * @return Link to task to cancel it at anytime
+     */
+    public static @NotNull CancellableTask<Void, Void> runCancellable(@NotNull RunnableTask task, long delay)
     {
+        Objects.requireNonNull(task, "task MUST NOT be null!");
         return new CancellableTask<>(task, null, delay);
     }
 
@@ -342,6 +386,11 @@ public final class ThreadManager
         return id;
     }
 
+    /**
+     * Remove a task
+     *
+     * @param id Task ID
+     */
     void removeTask(int id)
     {
         synchronized (this.waiting)

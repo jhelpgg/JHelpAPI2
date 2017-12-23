@@ -12,11 +12,16 @@
 
 package jhelp.engine2.sound;
 
+/**
+ * A generic sound
+ */
 public abstract class Sound
 {
+    /**
+     * Create a sound
+     */
     Sound()
     {
-
     }
 
     /**

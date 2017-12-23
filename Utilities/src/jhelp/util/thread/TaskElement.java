@@ -51,6 +51,11 @@ class TaskElement<P, R> implements Comparable<TaskElement<P, R>>
         this.parameter = parameter;
     }
 
+    /**
+     * Create empty task element
+     *
+     * @param id Element ID
+     */
     TaskElement(int id)
     {
         this.id = id;
@@ -118,12 +123,23 @@ class TaskElement<P, R> implements Comparable<TaskElement<P, R>>
         return Long.compare(this.time, taskElement.time);
     }
 
+    /**
+     * Hash code
+     *
+     * @return Hash code
+     */
     @Override
     public int hashCode()
     {
         return this.id;
     }
 
+    /**
+     * Indicates if given object is equals to this task element
+     *
+     * @param object Object to compare with
+     * @return {@code true} if given object is equals to this task element
+     */
     @Override
     public boolean equals(final Object object)
     {

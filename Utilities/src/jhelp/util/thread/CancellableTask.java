@@ -12,15 +12,36 @@
 
 package jhelp.util.thread;
 
+import com.sun.istack.internal.NotNull;
 import java.util.concurrent.atomic.AtomicBoolean;
 import jhelp.util.list.Pair;
 
+/**
+ * Task that can be cancelled.<br>
+ * Task can oly be cancelled if not already launched.
+ *
+ * @param <P> Task parameter type
+ * @param <R> Task result type
+ */
 public final class CancellableTask<P, R>
 {
+    /**
+     * Indicated if task is cancelled
+     */
     private final AtomicBoolean cancelled;
+    /**
+     * Task ID
+     */
     private final int           taskID;
 
-    CancellableTask(Task<P, R> task, P parameter, long delay)
+    /**
+     * Create a cancellable task
+     *
+     * @param task      Task to do
+     * @param parameter Task parameter
+     * @param delay     Time before play
+     */
+    CancellableTask(@NotNull Task<P, R> task, @NotNull P parameter, long delay)
     {
         this.cancelled = new AtomicBoolean(false);
         this.taskID = ThreadManager.doTask(pair ->
@@ -36,6 +57,10 @@ public final class CancellableTask<P, R>
                                            delay);
     }
 
+    /**
+     * Cancel the task.<br>
+     * Does nothing if task is playing or played
+     */
     public void cancel()
     {
         this.cancelled.set(true);

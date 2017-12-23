@@ -14,10 +14,22 @@ package jhelp.engine2.render.event;
 
 import com.sun.istack.internal.NotNull;
 
+/**
+ * Joystick input state
+ */
 public enum JoystickStatus
 {
+    /**
+     * Input is pressed
+     */
     PRESSED,
+    /**
+     * Input is repeated (Still pressed)
+     */
     REPEATED,
+    /**
+     * Input is released
+     */
     RELEASED;
 
     /**

@@ -21,19 +21,58 @@ import jhelp.util.thread.CancellableTask;
 import jhelp.util.thread.ThreadManager;
 import org.lwjgl.openal.AL10;
 
+/**
+ * A source of sound.  is an origin of a sound.<br>
+ * A sound source can be place in 3D or attach to a {@link Node}.<br>
+ * The 3D effect (left and right) work only for MONO sound (See OpenAL documentation).<br>
+ * To create one instance use {@link SoundManager#createSource()}.
+ */
 public class SoundSource
 {
+    /**
+     * Sound buffer reference
+     */
     private       int                         buffer;
+    /**
+     * Node to follow
+     */
     private       Node                        linked;
+    /**
+     * Listener attched to followed Node
+     */
     private final NodePositionListener        nodePositionListener;
+    /**
+     * Indicates if a sound playing
+     */
     private       boolean                     soundPlaying;
+    /**
+     * Queue od sound to play
+     */
     private final Queue<Sound>                soundQueue;
+    /**
+     * Sound source reference
+     */
     private       int                         source;
+    /**
+     * Task started when current sound is finished
+     */
     private       CancellableTask<Void, Void> waitSoundFinished;
+    /**
+     * Source X position
+     */
     private       float                       x;
+    /**
+     * Source Y position
+     */
     private       float                       y;
+    /**
+     * Source Z position
+     */
     private       float                       z;
 
+    /**
+     * Create a sound source
+     */
     SoundSource()
     {
         this.soundQueue = new Queue<>();
@@ -45,11 +84,22 @@ public class SoundSource
         AL10.alSource3f(this.source, AL10.AL_POSITION, this.x, this.y, this.z);
     }
 
-    private void nodePositionChanged(Node node, float x, float y, float z)
+    /**
+     * Called each time followed node position change
+     *
+     * @param node Node position changed
+     * @param x    New node position X
+     * @param y    New node position Y
+     * @param z    New node position Z
+     */
+    private void nodePositionChanged(@NotNull Node node, float x, float y, float z)
     {
         AL10.alSource3f(this.source, AL10.AL_POSITION, x, y, z);
     }
 
+    /**
+     * Called when current sound finished
+     */
     private void soundFinished()
     {
         this.soundPlaying = false;
@@ -72,7 +122,14 @@ public class SoundSource
         }
     }
 
-    void enqueue(Sound sound)
+    /**
+     * Enqueue a sound.<br>
+     * If their not sound in waiting queue and no sound is currently playing, the given sound is playing immediately and becomes the current one.<br>
+     * In other cases, the sound is just put in queue and wait its turn.
+     *
+     * @param sound Sound to enqueue.
+     */
+    void enqueue(@NotNull Sound sound)
     {
         if (this.source < 0)
         {
@@ -91,7 +148,12 @@ public class SoundSource
         }
     }
 
-    void play(Sound sound)
+    /**
+     * Play a sound immediately on stopping current one if need
+     *
+     * @param sound Sound to play now
+     */
+    void play(@NotNull Sound sound)
     {
         this.soundPlaying = true;
 
@@ -119,6 +181,10 @@ public class SoundSource
         this.waitSoundFinished = ThreadManager.runCancellable(this::soundFinished, sound.duration());
     }
 
+    /**
+     * Stop all sounds and free memory. <br>
+     * Not reuse the sound source after that call
+     */
     void stopAll()
     {
         if (this.waitSoundFinished != null)
@@ -143,6 +209,9 @@ public class SoundSource
         this.source = -1;
     }
 
+    /**
+     * Stop current sound (If their one) and clear the sound queue
+     */
     public void clearSounds()
     {
         if (this.waitSoundFinished != null)
@@ -169,13 +238,27 @@ public class SoundSource
         }
     }
 
+    /**
+     * Enqueue a sound.<br>
+     * If their not sound in waiting queue and no sound is currently playing, the given sound is playing immediately and becomes the current one.<br>
+     * In other cases, the sound is just put in queue and wait its turn.
+     *
+     * @param sound Sound to enqueue
+     */
     public final void enqueueSound(@NotNull Sound sound)
     {
         Objects.requireNonNull(sound, "sound MUST NOT be null!");
         this.enqueue(sound);
     }
 
-    public void link(Node node)
+    /**
+     * Link the source to given node.
+     * That is to say the sound will take the position where the node is and each time the node move, the sound will move too.<br>
+     * To free the source node call {@link #unLink()}
+     *
+     * @param node Node to follow
+     */
+    public void link(@NotNull Node node)
     {
         if (this.linked != null)
         {
@@ -195,12 +278,26 @@ public class SoundSource
         }
     }
 
+    /**
+     * Play a sound immediately on stopping current one if need
+     *
+     * @param sound Sound to play now
+     */
     public final void playSound(@NotNull Sound sound)
     {
         Objects.requireNonNull(sound, "sound MUST NOT be null!");
         this.play(sound);
     }
 
+    /**
+     * Change the sound source position.<br>
+     * If the source is linked to a node, the given position is not taken immediately,
+     * but the next time the source will be free of constraints (That is to say next call of {@link #unLink()})
+     *
+     * @param x X position
+     * @param y Y position
+     * @param z Z position
+     */
     public final void position(float x, float y, float z)
     {
         this.x = x;
@@ -213,6 +310,9 @@ public class SoundSource
         }
     }
 
+    /**
+     * Remove node following constraints
+     */
     public void unLink()
     {
         if (this.linked != null)

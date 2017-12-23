@@ -15,7 +15,7 @@ package jhelp.util.thread;
 import com.sun.istack.internal.Nullable;
 
 /**
- * task with no parameter
+ * Task with no parameter that produce a value
  */
 public interface ProducerTask<R> extends Task<Void, R>
 {
