@@ -15,6 +15,7 @@ package jhelp.engine2.sound;
 import com.sun.istack.internal.NotNull;
 import java.util.Objects;
 import jhelp.engine2.render.Node;
+import jhelp.engine2.render.Point3D;
 import jhelp.engine2.render.event.NodePositionListener;
 import jhelp.util.list.Queue;
 import jhelp.util.thread.CancellableTask;
@@ -24,7 +25,8 @@ import org.lwjgl.openal.AL10;
 /**
  * A source of sound.  is an origin of a sound.<br>
  * A sound source can be place in 3D or attach to a {@link Node}.<br>
- * The 3D effect (left and right) work only for MONO sound (See OpenAL documentation).<br>
+ * The 3D effect work only for MONO sound (See OpenAL documentation).<br>
+ * STEREO sounds will ignore the 3D position.<br>
  * To create one instance use {@link SoundManager#createSource()}.
  */
 public class SoundSource
@@ -322,5 +324,20 @@ public class SoundSource
 
         this.linked = null;
         AL10.alSource3f(this.source, AL10.AL_POSITION, this.x, this.y, this.z);
+    }
+
+    /**
+     * Current source position
+     *
+     * @return Current source position
+     */
+    public @NotNull Point3D position()
+    {
+        if (this.linked != null)
+        {
+            return new Point3D(this.linked.x(), this.linked.y(), this.linked.z());
+        }
+
+        return new Point3D(this.x, this.y, this.z);
     }
 }

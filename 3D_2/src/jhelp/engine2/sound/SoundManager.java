@@ -14,6 +14,7 @@ package jhelp.engine2.sound;
 
 import com.sun.istack.internal.NotNull;
 import java.util.Objects;
+import jhelp.engine2.render.Point3D;
 import jhelp.engine2.render.ThreadOpenGL;
 import jhelp.engine2.render.Window3D;
 import jhelp.util.list.ArrayObject;
@@ -31,6 +32,10 @@ import org.lwjgl.openal.ALCapabilities;
  */
 public final class SoundManager
 {
+    /**
+     * Position in Z for sound level 0
+     */
+    private static float LEVEL_ZERO_FAR = -10f;
     /**
      * Indicates if sound manager still alive
      */
@@ -171,5 +176,28 @@ public final class SoundManager
         }
 
         this.sourceBackground.playSound(sound);
+    }
+
+    /**
+     * Background sound level in [0, 1] (0 no sound, 1 maximum level)
+     *
+     * @return Background sound level
+     */
+    public float backgroundLevel()
+    {
+        final Point3D position = this.sourceBackground.position();
+        return 1f - position.z / SoundManager.LEVEL_ZERO_FAR;
+    }
+
+    /**
+     * Change background sound level.
+     * The sound level is only applied on MONO sounds, due OpenAL restriction. STEREO sounds will ignore this constraints
+     *
+     * @param level New sound level in [0, 1] (0 no sound, 1 maximum level)
+     */
+    public void backgroundLevel(float level)
+    {
+        level = Math.max(0f, Math.min(1f, level));
+        this.sourceBackground.position(0, 0, SoundManager.LEVEL_ZERO_FAR * (1f - level));
     }
 }
