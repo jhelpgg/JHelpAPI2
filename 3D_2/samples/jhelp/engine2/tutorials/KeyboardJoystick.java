@@ -111,9 +111,17 @@ public class KeyboardJoystick
                 case ACTION_RIGHT:
                     KeyboardJoystick.mainNode.translate(0.1f, 0f, 0);
                     break;
+                case ACTION_BUTTON_5:
+                    KeyboardJoystick.mainNode.translate(0, 0, 0.1f);
+                    break;
+                case ACTION_BUTTON_6:
+                    KeyboardJoystick.mainNode.translate(0, 0, -0.1f);
+                    break;
+
                 case ACTION_EXIT:
                     KeyboardJoystick.window3D.close();
                     break;
+
                 case ACTION_BUTTON_1:
                     KeyboardJoystick.window3D.actionManager()
                                              .captureKeyCode()

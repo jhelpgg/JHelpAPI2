@@ -48,6 +48,13 @@ And we implements the listener code:
                 case ACTION_RIGHT:
                     KeyboardJoystick.mainNode.translate(0.1f, 0f, 0);
                     break;
+                case ACTION_BUTTON_5:
+                    KeyboardJoystick.mainNode.translate(0, 0, 0.1f);
+                    break;
+                case ACTION_BUTTON_6:
+                    KeyboardJoystick.mainNode.translate(0, 0, -0.1f);
+                    break;
+
                 case ACTION_EXIT:
                     KeyboardJoystick.window3D.close();
                     break;
@@ -63,6 +70,7 @@ button (or axis) associated to the ActionCode.
 Complete code at: [Keyboard and joystick](../../samples/jhelp/engine2/tutorials/KeyboardJoystick.java)
 
 Press arrow keys or joystick axis to move the cube.
+Press E or D or joystick button 5 or joystick button 6 to move box on Z
 Press escape key to close the window.
 
 As you notice, task are repeated until user release the key.
