@@ -1,0 +1,17 @@
+@startuml
+start
+if (Mouse over a 2D object over the 3D ?) then (yes)
+   : 2D object ;
+else (no)
+   if (Mouse over a 3D object ?) then (yes)
+      : 3D object ;
+   else (no)
+      if (Mouse over a 2D object under the 3D ?) then (yes)
+         : 2D object ;
+      else (no)
+         : Nothing ;
+      endif
+   endif
+endif
+stop
+@enduml
