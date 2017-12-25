@@ -147,8 +147,6 @@ We adjust the influence of reflexion at **"0.5"** to see combination diffuse and
 > Note: In complete code we add an animation to able see the reflexion effect.
   Animations will be explain in an other chapter.
 
-TODO other examples ? (Cubic ?)
-
 ### Additional information
 
 If you look `jhelp.engine2.render.Material` class, you will see notions
@@ -177,3 +175,15 @@ and/or chapter about 2D object and UI.
   In fact things aren't synchronized, the change will be applied on next
   OpenGL render loop. But, except for very heavy scene, the OpenGL render
   loop goes very fast, so it seems "immediate".
+
+---------
+
+Practice:
+
+Replace spherical reflection by cube map reflection.
+
+> Tips: Give texture to [jhelp.engine2.render.CueMap](../../src/jhelp/engine2/render/CueMap.java)
+        with the method `public void crossTexture(Texture texture)`
+        (The only way that work for now)
+
+> Note: The solution is somewhere in samples
