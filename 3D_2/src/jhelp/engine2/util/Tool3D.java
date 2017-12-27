@@ -13,6 +13,8 @@ package jhelp.engine2.util;
 
 import com.sun.istack.internal.NotNull;
 import java.awt.Color;
+import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -35,6 +37,7 @@ import jhelp.engine2.render.ObjectClone;
 import jhelp.engine2.render.Point3D;
 import jhelp.engine2.render.Scene;
 import jhelp.engine2.render.Texture;
+import jhelp.engine2.render.TextureGif;
 import jhelp.engine2.render.Vertex;
 import jhelp.engine2.render.VirtualBox;
 import jhelp.engine2.render.Window3D;
@@ -43,6 +46,7 @@ import jhelp.engine2.twoD.Line2D;
 import jhelp.engine2.twoD.Object2D;
 import jhelp.engine2.twoD.Path;
 import jhelp.util.debug.Debug;
+import jhelp.util.io.UtilIO;
 import jhelp.util.text.UtilText;
 import jhelp.xml.MarkupXML;
 
@@ -1196,5 +1200,31 @@ public class Tool3D
             final @NotNull Node node2, @NotNull final Point3D vector2)
     {
         return Tool3D.futureIntersectionVolume(node1, vector1, node2, vector2) > 0;
+    }
+
+    /**
+     * Load (and launch associated animation) a texture with GIF image
+     *
+     * @param window3D    Window 3D where scene is draw
+     * @param name        Given name
+     * @param inputStream Stream of GIF
+     * @return Loaded texture
+     */
+    public static @NotNull Texture loadGifTexture(
+            @NotNull Window3D window3D, @NotNull String name, @NotNull InputStream inputStream)
+    {
+        try
+        {
+            final File temporary = UtilIO.createTemporaryFile(name);
+            UtilIO.write(inputStream, temporary);
+            TextureGif textureGif = new TextureGif(temporary);
+            window3D.playAnimation(textureGif);
+            return textureGif;
+        }
+        catch (Exception exception)
+        {
+            Debug.exception(exception, "Failed to load GIF image: ", name);
+            return Texture.DUMMY;
+        }
     }
 }

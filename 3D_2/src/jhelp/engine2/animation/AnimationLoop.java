@@ -13,12 +13,13 @@
 package jhelp.engine2.animation;
 
 import com.sun.istack.internal.NotNull;
+import java.util.Objects;
 import jhelp.engine2.render.ThreadAnimation;
 
 /**
  * Animation that repeat a task in a loop
  */
-public class AnimationLoop implements Animation
+public final class AnimationLoop implements Animation
 {
     /**
      * Animation loop to play
@@ -36,6 +37,7 @@ public class AnimationLoop implements Animation
      */
     public AnimationLoop(@NotNull AnimateLoop animateLoop)
     {
+        Objects.requireNonNull(animateLoop, "animateLoop MUST NOT be null!");
         this.animateLoop = animateLoop;
     }
 

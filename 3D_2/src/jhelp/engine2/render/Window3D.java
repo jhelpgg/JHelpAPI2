@@ -15,10 +15,13 @@ package jhelp.engine2.render;
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.nio.IntBuffer;
+import java.text.DecimalFormat;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import jhelp.engine2.animation.Animation;
 import jhelp.engine2.animation.AnimationLoop;
 import jhelp.engine2.geometry.Plane;
@@ -30,6 +33,7 @@ import jhelp.engine2.util.BufferUtils;
 import jhelp.engine2.util.DebugGLFErrorCallback;
 import jhelp.engine2.util.GLU;
 import jhelp.util.debug.Debug;
+import jhelp.util.gui.JHelpImage;
 import jhelp.util.gui.JHelpTextAlign;
 import jhelp.util.gui.alphabet.AlphabetBlue16x16;
 import jhelp.util.io.UtilIO;
@@ -38,6 +42,8 @@ import jhelp.util.list.QueueSynchronized;
 import jhelp.util.preference.Preferences;
 import jhelp.util.text.UtilText;
 import jhelp.util.thread.ConsumerTask;
+import jhelp.util.thread.Future;
+import jhelp.util.thread.Promise;
 import jhelp.util.thread.ThreadManager;
 import jhelp.util.util.HashCode;
 import org.lwjgl.glfw.Callbacks;
@@ -200,11 +206,15 @@ public class Window3D
     /**
      * Name of the data directory
      */
-    private static final String DATA_DIRECTORY_NAME = "data";
+    private static final String        DATA_DIRECTORY_NAME    = "data";
     /**
      * Name of the preference file
      */
-    private static final String PREFERENCES_NAME    = "preferences.pref";
+    private static final String        PREFERENCES_NAME       = "preferences.pref";
+    /**
+     * Snap shot image name number part format
+     */
+    private static final DecimalFormat SNAPSHOT_NUMBER_FORMAT = new DecimalFormat("00000");
 
     /**
      * Create a widow that take the all screen
@@ -467,6 +477,7 @@ public class Window3D
      * Last UV node pick
      */
     private       Node                              pickUVnode;
+    private       int[]                             pixelsSnapshot;
     /**
      * Plane use for 2D objects
      */
@@ -487,6 +498,26 @@ public class Window3D
      * Indicates if window is currently showing
      */
     private final AtomicBoolean                     showing;
+    /**
+     * Promise to answer when one screen shot is taken
+     */
+    private       Promise<JHelpImage>               snapShot;
+    /**
+     * Number of snap shop left
+     */
+    private final AtomicInteger                     snapShotLeft;
+    /**
+     * Promise to wakeup when several screen shots
+     */
+    private       Promise<File>                     snapShotList;
+    /**
+     * Directory where write screen shots
+     */
+    private       File                              snapshotDirectory;
+    /**
+     * Actual screen shot index
+     */
+    private       int                               snapshotIndex;
     /**
      * Sound manager
      */
@@ -543,6 +574,7 @@ public class Window3D
         this.detectionActivate = true;
         this.detectX = -1;
         this.detectY = -1;
+        this.snapShotLeft = new AtomicInteger(0);
 
         this.textureFPS = new TextureAlphabetText(AlphabetBlue16x16.ALPHABET_BLUE16X16, 7, 1,
                                                   "0 FPS", JHelpTextAlign.CENTER, 0x11000000, 0x456789AB);
@@ -891,6 +923,91 @@ public class Window3D
     }
 
     /**
+     * Make snap shot if need
+     */
+    @ThreadOpenGL
+    private void makeSnapShot()
+    {
+        synchronized (this.snapShotLeft)
+        {
+            if (this.snapShotLeft.get() > 0)
+            {
+                BufferUtils.TEMPORARY_FLOAT_BUFFER.rewind();
+                GL11.glReadPixels(0, 0, this.width, this.height, GL11.GL_RGBA, GL11.GL_FLOAT,
+                                  BufferUtils.TEMPORARY_FLOAT_BUFFER);
+                BufferUtils.TEMPORARY_FLOAT_BUFFER.rewind();
+                final int nb = this.width * this.height;
+
+                if (this.pixelsSnapshot == null)
+                {
+                    this.pixelsSnapshot = new int[nb];
+                }
+
+                // ********************************
+                // *** Convert colors to pixels ***
+                // ********************************
+                int r;
+                int g;
+                int b;
+                int a;
+
+                // For each color
+                for (int i = 0; i < nb; i++)
+                {
+                    // Convert in ARGB value
+                    r = (int) (BufferUtils.TEMPORARY_FLOAT_BUFFER.get() * 255f) & 0xFF;
+                    g = (int) (BufferUtils.TEMPORARY_FLOAT_BUFFER.get() * 255f) & 0xFF;
+                    b = (int) (BufferUtils.TEMPORARY_FLOAT_BUFFER.get() * 255f) & 0xFF;
+                    a = (int) (BufferUtils.TEMPORARY_FLOAT_BUFFER.get() * 255f) & 0xFF;
+                    this.pixelsSnapshot[i] = (a << 24) | (r << 16) | (g << 8) | b;
+                }
+
+                JHelpImage imageSnapshot = new JHelpImage(this.width, this.height);
+                imageSnapshot.startDrawMode();
+                imageSnapshot.setPixels(0, 0, this.width, this.height, this.pixelsSnapshot);
+                imageSnapshot.flipVertical();
+                imageSnapshot.endDrawMode();
+
+                if (this.snapshotDirectory != null)
+                {
+                    StringBuilder name = new StringBuilder("Image_");
+                    name.append(Window3D.SNAPSHOT_NUMBER_FORMAT.format(this.snapshotIndex));
+                    name.append(".png");
+
+                    try
+                    {
+                        File file = new File(this.snapshotDirectory, name.toString());
+                        JHelpImage.saveImage(new FileOutputStream(file), imageSnapshot);
+                    }
+                    catch (Exception exception)
+                    {
+                        Debug.exception(exception, "Failed to save snapshot: ", name);
+                    }
+
+                    this.snapshotIndex++;
+                }
+                else
+                {
+                    this.snapShot.setResult(imageSnapshot);
+                    this.snapShot = null;
+                }
+
+                this.snapShotLeft.getAndDecrement();
+            }
+            else
+            {
+                if (this.snapshotDirectory != null && this.snapShotList != null)
+                {
+                    this.snapShotList.setResult(this.snapshotDirectory);
+                }
+
+                this.snapShotList = null;
+                this.snapshotDirectory = null;
+            }
+        }
+    }
+
+    /**
      * Will be called when a mouse button is pressed or released.
      *
      * @param window    the window that received the event
@@ -1049,8 +1166,8 @@ public class Window3D
             GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 
             this.renderLoop();
+            this.makeSnapShot();
 
-            GL11.glEnable(GL11.GL_DEPTH_TEST);
             // swap the color buffers
             GLFW.glfwSwapBuffers(this.window);
 
@@ -1108,6 +1225,11 @@ public class Window3D
         }
 
         this.absoluteFrame = (float) (((System.currentTimeMillis() - this.animationTime) * this.animationsFps) / 1000d);
+
+        if (this.snapshotDirectory != null)
+        {
+            this.absoluteFrame = this.snapshotIndex;
+        }
 
         // Render picking mode
         if (this.detectionActivate)
@@ -1783,6 +1905,60 @@ public class Window3D
     {
         Objects.requireNonNull(scene, "scene MUST NOT be null!");
         this.newScene = scene;
+    }
+
+    /**
+     * Make a screen shot
+     *
+     * @return Future that contains the screen shot
+     */
+    public Future<JHelpImage> screenShot()
+    {
+        synchronized (this.snapShotLeft)
+        {
+            if (this.snapShotLeft.get() > 0)
+            {
+                if (this.snapShot != null)
+                {
+                    return this.snapShot.future();
+                }
+
+                return Future.of(null);
+            }
+
+            this.snapShotLeft.set(1);
+            this.snapShot = new Promise<>();
+            return this.snapShot.future();
+        }
+    }
+
+    /**
+     * Take several screen shots and put each on the given directory
+     *
+     * @param number    Number o screenshot to take
+     * @param directory Directory where write screen shots
+     * @return Future to know when all screen shots are done
+     */
+    public Future<File> screenShots(int number, File directory)
+    {
+        synchronized (this.snapShotLeft)
+        {
+            if (this.snapShotLeft.get() > 0)
+            {
+                if (this.snapShotList != null)
+                {
+                    return this.snapShotList.future();
+                }
+
+                return Future.of(null);
+            }
+
+            this.snapShotList = new Promise<>();
+            this.snapshotDirectory = directory;
+            this.snapshotIndex = 0;
+            this.snapShotLeft.set(number);
+            return this.snapShotList.future();
+        }
     }
 
     /**

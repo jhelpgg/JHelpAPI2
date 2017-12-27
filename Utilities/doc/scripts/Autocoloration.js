@@ -40,15 +40,15 @@
 // **********************************************************************
 
 /** Keywords color (Dark red bold) */
-var keyword = new Array("<font color=#7F0055><b>", "</b></font>");
-var opcode = new Array("<font color=#173B0B><b>", "</b></font>");
-var primitives = new Array("<font color=#55007F><b>", "</b></font>");
+var keyword = ["<font color=#7F0055><b>", "</b></font>"];
+var opcode = ["<font color=#173B0B><b>", "</b></font>"];
+var primitives = ["<font color=#55007F><b>", "</b></font>"];
 /** Strings color (Dark blue) */
-var string  = new Array("<font color=#2A00FF>"   , "</font>"    );
+var string  = ["<font color=#2A00FF>"   , "</font>"];
 /** Comments color (Dark green) */
-var comment = new Array("<font color=#3F7F5F>"   , "</font>"    );
+var comment = ["<font color=#3F7F5F>"   , "</font>"];
 /** For part no change colors (Escape characters)*/
-var ignore = new Array();
+var ignore = [];
 
 // ************************************
 // *** Natures of the coloring rule ***
@@ -70,32 +70,29 @@ var natureUtilEndTheLine = 4;
 // ********************************
 
 /** Java key words */
-var javaKeywords = new Array(
-	"public", "protected", "private", "abstract", 
+var javaKeywords = ["public", "protected", "private", "abstract", 
     "class", "interface", "enum", 
     "static", "transient", "final", 
     "if", "else", "for", "while", "do", "return","new", "switch", "case", "break", "continue", "default", "throw", "throws",  "try", "catch", "finally", 
     "boolean", "char", "byte", "short", "int", "double", "float", "double", "void", "true", "false", 
     "package", "import", "extends", "implements",
-    "null", "this", "super");
+    "null", "this", "super"];
 /** Java escape characters */
 var javaEscape=new Array("\\");
 /** Java String and char limits */
-var javaStrings=new Array("'","\"");
+var javaStrings=["'","\""];
 /** Java one line comment */
 var javaCommentOneLine=new Array("//");
 /** Java multi-line comment */
-var javaCommentMultiline=new Array(new Array("/*","*/"));
+var javaCommentMultiline=new Array(["/*","*/"]);
 
 /** Java language description*/
 	//				Nature					|	List					|	Style
-var java = new Array(
-	new Array(	natureEscape,				javaEscape,				ignore),
-	new Array(	natureWord,					javaKeywords,			keyword),
-	new Array(	natureUniqLimit,			javaStrings,			string),
-	new Array(	natureUtilEndTheLine,	javaCommentOneLine,	comment),
-	new Array(	natureBiLimit,				javaCommentMultiline,	comment)
-);
+var java = [[natureEscape,				javaEscape,				ignore],
+	[natureWord,					javaKeywords,			keyword],
+	[natureUniqLimit,			javaStrings,			string],
+	[natureUtilEndTheLine,	javaCommentOneLine,	comment],
+	[natureBiLimit,				javaCommentMultiline,	comment]];
 
 // *******************************
 // *** XML language definition *** 
@@ -106,29 +103,27 @@ var xmlEscape=new Array("\\");
 /** XML parameter value */
 var xmlStrings=new Array("\"");
 /** XML comments*/
-var xmlComment=new Array(new Array("&lt;!--","--&gt;"));
+var xmlComment=new Array(["&lt;!--","--&gt;"]);
 /** XML markup*/
-var xmlMarkup=new Array(new Array("&lt;","&gt;", " "));
+var xmlMarkup=new Array(["&lt;","&gt;", " "]);
 
 /** XML language description*/
 	//				Nature			|	List		|	Style
-var xml = new Array(
-	new Array(	natureEscape,		xmlEscape,	ignore),
-	new Array(	natureUniqLimit,	xmlStrings,	string),
-	new Array(	natureBiLimit,		xmlComment,	comment),
-	new Array(	natureBiLimit,		xmlMarkup,	keyword)
-);
+var xml = [[natureEscape,		xmlEscape,	ignore],
+	[natureUniqLimit,	xmlStrings,	string],
+	[natureBiLimit,		xmlComment,	comment],
+	[natureBiLimit,		xmlMarkup,	keyword]];
 
 // **********************
 // *** ASM definition ***
 // **********************
 
-var asmPrimitives = new Array("this","boolean","char","byte","short","int","long","double","float");
+var asmPrimitives = ["this","boolean","char","byte","short","int","long","double","float"];
 
-var asmKeyWords = new Array("class","extends","field","field_reference","implements","import","method",
-"parameter","return","throws","public","protected","package","private","static");
+var asmKeyWords = ["class","extends","field","field_reference","implements","import","method",
+"parameter","return","throws","public","protected","package","private","static"];
 
-var asmOpcodes = new Array("AALOAD","AASTORE","ACONST_NULL","ALOAD","ANEWARRAY","ARETURN","ARRAYLENGTH","ASTORE","ATHROW",
+var asmOpcodes = ["AALOAD","AASTORE","ACONST_NULL","ALOAD","ANEWARRAY","ARETURN","ARRAYLENGTH","ASTORE","ATHROW",
 "BALOAD","BASTORE","BIPUSH","BREAKPOINT",
 "CALOAD","CASTORE","CHECKCAST",
 "D2F","D2I","D2L","DADD","DALOAD","DASTORE","DCMPG","DCMPL","DCONST","DDIV","DLOAD","DMUL","DNEG","DREM","DRETURN","DSTORE","DSUB",
@@ -153,30 +148,25 @@ var asmOpcodes = new Array("AALOAD","AASTORE","ACONST_NULL","ALOAD","ANEWARRAY",
 "POP","POP2","PUSH","PUTFIELD","PUTSTATIC",
 "RET","RETURN",
 "SALOAD","SASTORE","SIPUSH","SWAP","SWITCH","TABLESWITCH",
-"LABEL","SUB_C","SUB_E","SUB_S","VAR", "TRY", "CATCH"
-);
+"LABEL","SUB_C","SUB_E","SUB_S","VAR", "TRY", "CATCH"];
 /** ASM one line comment */
-var asmCommentOneLine=new Array("//", ";");
+var asmCommentOneLine=["//", ";"];
 
-var asm = new Array(
-	new Array(	natureEscape,				javaEscape,				ignore),
-	new Array(	natureWord,					asmKeyWords,			keyword),
-	new Array(	natureWord,					asmOpcodes,				opcode),
-	new Array(	natureWord,					asmPrimitives,			primitives),
-	new Array(	natureUniqLimit,			javaStrings,			string),
-	new Array(	natureUtilEndTheLine,	asmCommentOneLine,	comment),
-	new Array(	natureBiLimit,				javaCommentMultiline,	comment)
-);
+var asm = [[natureEscape,				javaEscape,				ignore],
+	[natureWord,					asmKeyWords,			keyword],
+	[natureWord,					asmOpcodes,				opcode],
+	[natureWord,					asmPrimitives,			primitives],
+	[natureUniqLimit,			javaStrings,			string],
+	[natureUtilEndTheLine,	asmCommentOneLine,	comment],
+	[natureBiLimit,				javaCommentMultiline,	comment]];
 
 
 // *****************************
 // *** Automatic replacement ***
 // *****************************
 
-var replacement = new Array(
-	new Array("<","&lt;")
-,	new Array(">","&gt;")
-);
+var replacement = [["<","&lt;"]
+,	[">","&gt;"]];
 
 // *****************
 // *** Functions ***
@@ -196,7 +186,7 @@ function select(string)
 		case "asm"	:	return asm;
 	}
 
-	return new Array();
+	return [];
 }
 
 /**
@@ -244,7 +234,7 @@ function parseCodes()
  				
  				parseActual(codes, i+1);
 			}
-		}
+		};
 		client.send();
 	}
 	else
@@ -286,7 +276,7 @@ function parseMarkupCode(markupCode, text, lang)
 	text = " "+text;
 	
 	var language=select(lang);
-	var esc = new Array();
+	var esc = [];
 	
 	for(j=0; j<language.length; j++)
 	{
